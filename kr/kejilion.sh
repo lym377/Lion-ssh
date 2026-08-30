@@ -34,7 +34,7 @@ quanju_canshu
 
 
 
-# 명령을 실행하는 함수 정의
+# 定义一个函数来执行命令
 run_command() {
 	if [ "$zhushi" -eq 0 ]; then
 		"$@"
@@ -58,8 +58,8 @@ CheckFirstRun_true() {
 
 
 # 함수에 묻혀있는 정보를 수집하고 사용자가 사용하는 현재 스크립트 버전 번호, 사용 시간, 시스템 버전, CPU 아키텍처, 기기 국가 및 기능 이름을 기록하는 기능입니다. 민감한 정보는 포함되어 있지 않으니 걱정하지 마세요! 저를 믿어주세요!
-# 이 기능은 왜 설계되었나요? 그 목적은 사용자가 사용하고 싶어하는 기능을 더 잘 이해하고, 기능을 더욱 최적화하고 사용자 요구에 맞는 더 많은 기능을 출시하는 것입니다.
-# send_stats 함수 호출 위치에 대한 전문을 검색할 수 있습니다. 투명하고 오픈 소스입니다. 불편하신 점이 있으시면 이용을 거부하실 수 있습니다.
+# 为什么要设计这个功能，目的更好的了解用户喜欢使用的功能，进一步优化功能推出更多符合用户需求的功能。
+# 全文可搜搜 send_stats 函数调用位置，透明开源，如有顾虑可拒绝使用。
 
 
 
@@ -114,19 +114,19 @@ CheckFirstRun_false() {
 # 사용자에게 약관에 동의하라는 메시지를 표시합니다.
 UserLicenseAgreement() {
 	clear
-	echo -e "${gl_kjlan}기술 사자 스크립트 도구 상자에 오신 것을 환영합니다${gl_bai}"
-	echo "스크립트를 처음 사용하는 경우 사용자 라이센스 계약을 읽고 동의하십시오."
-	echo "사용자 라이센스 계약: https://blog.kejilion.pro/user-license-agreement/"
+	echo -e "${gl_kjlan}欢迎使用科技lion脚本工具箱${gl_bai}"
+	echo "首次使用脚本，请先阅读并同意用户许可协议。"
+	echo "用户许可协议: https://blog.kejilion.pro/user-license-agreement/"
 	echo -e "----------------------"
-	read -r -p "위의 약관에 동의하십니까? (예/아니요):" user_input
+	read -r -p "是否同意以上条款？(y/n): " user_input
 
 
 	if [ "$user_input" = "y" ] || [ "$user_input" = "Y" ]; then
-		send_stats "라이센스 계약"
+		send_stats "许可同意"
 		sed -i 's/^permission_granted="false"/permission_granted="true"/' ~/kejilion.sh
 		sed -i 's/^permission_granted="false"/permission_granted="true"/' /usr/local/bin/k
 	else
-		send_stats "허가가 거부되었습니다"
+		send_stats "许可拒绝"
 		clear
 		exit
 	fi
@@ -170,13 +170,13 @@ ipv6_address=$(curl -s --max-time 1 https://v6.ipinfo.io/ip && echo)
 
 install() {
 	if [ $# -eq 0 ]; then
-		echo "패키지 매개변수가 제공되지 않았습니다!"
+		echo "未提供软件包参数!"
 		return 1
 	fi
 
 	for package in "$@"; do
 		if ! command -v "$package" &>/dev/null; then
-			echo -e "${gl_huang}설치 중$package...${gl_bai}"
+			echo -e "${gl_huang}正在安装 $package...${gl_bai}"
 			if command -v dnf &>/dev/null; then
 				dnf -y update
 				dnf install -y epel-release
@@ -204,7 +204,7 @@ install() {
 				pkg update
 				pkg install -y "$package"
 			else
-				echo "알 수 없는 패키지 관리자입니다!"
+				echo "未知的包管理器!"
 				return 1
 			fi
 		fi
@@ -222,11 +222,11 @@ check_disk_space() {
 	local available_space_mb=$(df -m "$path" | awk 'NR==2 {print $4}')
 
 	if [ "$available_space_mb" -lt "$required_space_mb" ]; then
-		echo -e "${gl_huang}힌트:${gl_bai}디스크 공간이 부족합니다!"
-		echo "현재 사용 가능한 공간: $((available_space_mb/1024))G"
-		echo "최소 필요 공간:${required_gb}G"
-		echo "설치를 계속할 수 없습니다. 디스크 공간을 비운 후 다시 시도하십시오."
-		send_stats "디스크 공간이 부족합니다."
+		echo -e "${gl_huang}提示: ${gl_bai}磁盘空间不足！"
+		echo "当前可用空间: $((available_space_mb/1024))G"
+		echo "最小需求空间: ${required_gb}G"
+		echo "无法继续安装，请清理磁盘空间后重试。"
+		send_stats "磁盘空间不足"
 		break_end
 		kejilion
 	fi
@@ -246,12 +246,12 @@ install_dependency() {
 
 remove() {
 	if [ $# -eq 0 ]; then
-		echo "패키지 매개변수가 제공되지 않았습니다!"
+		echo "未提供软件包参数!"
 		return 1
 	fi
 
 	for package in "$@"; do
-		echo -e "${gl_huang}제거 중$package...${gl_bai}"
+		echo -e "${gl_huang}正在卸载 $package...${gl_bai}"
 		if command -v dnf &>/dev/null; then
 			dnf remove -y "$package"
 		elif command -v yum &>/dev/null; then
@@ -276,7 +276,7 @@ remove() {
 }
 
 
-# 다양한 배포판에 적합한 범용 systemctl 기능
+# 通用 systemctl 函数，适用于各种发行版
 systemctl() {
 	local COMMAND="$1"
 	local SERVICE_NAME="$2"
@@ -289,43 +289,43 @@ systemctl() {
 }
 
 
-# 서비스 다시 시작
+# 重启服务
 restart() {
 	systemctl restart "$1"
 	if [ $? -eq 0 ]; then
-		echo "$1서비스가 다시 시작되었습니다."
+		echo "$1 服务已重启。"
 	else
-		echo "오류: 다시 시작$1서비스가 실패했습니다."
+		echo "错误：重启 $1서비스가 실패했습니다."
 	fi
 }
 
-# 서비스 시작
+# 启动服务
 start() {
 	systemctl start "$1"
 	if [ $? -eq 0 ]; then
-		echo "$1서비스가 시작되었습니다."
+		echo "$1 服务已启动。"
 	else
-		echo "오류: 시작$1서비스가 실패했습니다."
+		echo "错误：启动 $1서비스가 실패했습니다."
 	fi
 }
 
-# 서비스 중지
+# 停止服务
 stop() {
 	systemctl stop "$1"
 	if [ $? -eq 0 ]; then
-		echo "$1서비스가 중지되었습니다."
+		echo "$1 服务已停止。"
 	else
-		echo "오류: 중지$1서비스가 실패했습니다."
+		echo "错误：停止 $1 服务失败。"
 	fi
 }
 
-# 서비스 상태 확인
+# 查看服务状态
 status() {
 	systemctl status "$1"
 	if [ $? -eq 0 ]; then
-		echo "$1서비스 상태가 표시됩니다."
+		echo "$1 服务状态已显示。"
 	else
-		echo "오류: 표시할 수 없습니다.$1서비스 상태."
+		echo "错误：无法显示 $1 服务状态。"
 	fi
 }
 
@@ -338,14 +338,14 @@ enable() {
 	   /bin/systemctl enable "$SERVICE_NAME"
 	fi
 
-	echo "$SERVICE_NAME부팅시 자동으로 시작되도록 설정되어 있습니다."
+	echo "$SERVICE_NAME 已设置为开机自启。"
 }
 
 
 
 break_end() {
-	  echo -e "${gl_lv}작업 완료${gl_bai}"
-	  echo "계속하려면 아무 키나 누르세요..."
+	  echo -e "${gl_lv}操作完成${gl_bai}"
+	  echo "按任意键继续..."
 	  read -n 1 -s -r -p ""
 	  echo ""
 	  clear
@@ -448,7 +448,7 @@ install_add_docker_cn
 
 
 install_add_docker() {
-	echo -e "${gl_huang}도커 환경 설치 중...${gl_bai}"
+	echo -e "${gl_huang}正在安装docker环境...${gl_bai}"
 	if command -v apt &>/dev/null || command -v yum &>/dev/null || command -v dnf &>/dev/null; then
 		linuxmirrors_install_docker
 	else
@@ -470,63 +470,63 @@ install_docker() {
 docker_ps() {
 while true; do
 	clear
-	send_stats "도커 컨테이너 관리"
-	echo "도커 컨테이너 목록"
+	send_stats "Docker容器管理"
+	echo "Docker容器列表"
 	docker ps -a --format "table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}"
 	echo ""
-	echo "컨테이너 운영"
+	echo "容器操作"
 	echo "------------------------"
 	echo "1. 새 컨테이너 생성"
 	echo "------------------------"
-	echo "2. 지정된 컨테이너 시작 6. 모든 컨테이너 시작"
+	echo "2. 启动指定容器             6. 启动所有容器"
 	echo "3. 지정된 컨테이너를 중지합니다. 7. 모든 컨테이너를 중지합니다."
-	echo "4. 지정된 컨테이너 삭제 8. 모든 컨테이너 삭제"
+	echo "4. 删除指定容器             8. 删除所有容器"
 	echo "5. 지정된 컨테이너를 다시 시작합니다. 9. 모든 컨테이너를 다시 시작합니다."
 	echo "------------------------"
-	echo "11. 지정된 컨테이너를 입력합니다. 12. 컨테이너 로그를 봅니다."
-	echo "13. 컨테이너 네트워크 확인 14. 컨테이너 점유율 확인"
+	echo "11. 进入指定容器           12. 查看容器日志"
+	echo "13. 查看容器网络           14. 查看容器占用"
 	echo "------------------------"
-	echo "15. 컨테이너 포트 액세스 활성화 16. 컨테이너 포트 액세스 닫기"
+	echo "15. 开启容器端口访问       16. 关闭容器端口访问"
 	echo "------------------------"
-	echo "0. 이전 메뉴로 돌아가기"
+	echo "0. 返回上一级选单"
 	echo "------------------------"
-	read -e -p "선택사항을 입력하세요:" sub_choice
+	read -e -p "请输入你的选择: " sub_choice
 	case $sub_choice in
 		1)
-			send_stats "새 컨테이너 만들기"
-			read -e -p "생성 명령을 입력하십시오:" dockername
+			send_stats "新建容器"
+			read -e -p "请输入创建命令: " dockername
 			$dockername
 			;;
 		2)
-			send_stats "지정된 컨테이너 시작"
+			send_stats "启动指定容器"
 			read -e -p "컨테이너 이름을 입력하세요(여러 컨테이너 이름을 공백으로 구분하세요)." dockername
 			docker start $dockername
 			;;
 		3)
-			send_stats "지정된 컨테이너 중지"
-			read -e -p "컨테이너 이름을 입력하세요(여러 컨테이너 이름을 공백으로 구분하세요)." dockername
+			send_stats "停止指定容器"
+			read -e -p "请输入容器名（多个容器名请用空格分隔）: " dockername
 			docker stop $dockername
 			;;
 		4)
-			send_stats "지정된 컨테이너 삭제"
-			read -e -p "컨테이너 이름을 입력하세요(여러 컨테이너 이름을 공백으로 구분하세요)." dockername
+			send_stats "删除指定容器"
+			read -e -p "请输入容器名（多个容器名请用空格分隔）: " dockername
 			docker rm -f $dockername
 			;;
 		5)
-			send_stats "지정된 컨테이너를 다시 시작합니다."
-			read -e -p "컨테이너 이름을 입력하세요(여러 컨테이너 이름을 공백으로 구분하세요)." dockername
+			send_stats "重启指定容器"
+			read -e -p "请输入容器名（多个容器名请用空格分隔）: " dockername
 			docker restart $dockername
 			;;
 		6)
-			send_stats "모든 컨테이너 시작"
+			send_stats "启动所有容器"
 			docker start $(docker ps -a -q)
 			;;
 		7)
-			send_stats "모든 컨테이너 중지"
+			send_stats "停止所有容器"
 			docker stop $(docker ps -q)
 			;;
 		8)
-			send_stats "모든 컨테이너 삭제"
+			send_stats "删除所有容器"
 			read -e -p "$(echo -e "${gl_hong}注意: ${gl_bai}确定删除所有容器吗？(Y/N): ")" choice
 			case "$choice" in
 			  [Yy])
@@ -535,7 +535,7 @@ while true; do
 			  [Nn])
 				;;
 			  *)
-				echo "선택이 잘못되었습니다. Y 또는 N을 입력하세요."
+				echo "无效的选择，请输入 Y 或 N。"
 				;;
 			esac
 			;;
@@ -544,13 +544,13 @@ while true; do
 			docker restart $(docker ps -q)
 			;;
 		11)
-			send_stats "컨테이너를 입력하세요"
+			send_stats "进入容器"
 			read -e -p "컨테이너 이름을 입력하세요:" dockername
 			docker exec $dockername /bin/sh
 			break_end
 			;;
 		12)
-			send_stats "컨테이너 로그 보기"
+			send_stats "查看容器日志"
 			read -e -p "컨테이너 이름을 입력하세요:" dockername
 			docker logs $dockername
 			break_end
@@ -560,7 +560,7 @@ while true; do
 			echo ""
 			container_ids=$(docker ps -q)
 			echo "------------------------------------------------------------"
-			printf "%-25s %-25s %-25s\n" "컨테이너 이름" "네트워크 이름" "IP 주소"
+			printf "%-25s %-25s %-25s\n" "容器名称" "네트워크 이름" "IP地址"
 			for container_id in $container_ids; do
 				local container_info=$(docker inspect --format '{{ .Name }}{{ range $network, $config := .NetworkSettings.Networks }} {{ $network }} {{ $config.IPAddress }}{{ end }}' "$container_id")
 				local container_name=$(echo "$container_info" | awk '{print $1}')
@@ -580,8 +580,8 @@ while true; do
 			;;
 
 		15)
-			send_stats "컨테이너 포트 액세스 허용"
-			read -e -p "컨테이너 이름을 입력하세요:" docker_name
+			send_stats "允许容器端口访问"
+			read -e -p "请输入容器名: " docker_name
 			ip_address
 			clear_container_rules "$docker_name" "$ipv4_address"
 			local docker_port=$(docker port $docker_name | awk -F'[:]' '/->/ {print $NF}' | uniq)
@@ -590,8 +590,8 @@ while true; do
 			;;
 
 		16)
-			send_stats "컨테이너 포트 접근 차단"
-			read -e -p "컨테이너 이름을 입력하세요:" docker_name
+			send_stats "阻止容器端口访问"
+			read -e -p "请输入容器名: " docker_name
 			ip_address
 			block_container_port "$docker_name" "$ipv4_address"
 			local docker_port=$(docker port $docker_name | awk -F'[:]' '/->/ {print $NF}' | uniq)
@@ -610,44 +610,44 @@ done
 docker_image() {
 while true; do
 	clear
-	send_stats "도커 이미지 관리"
+	send_stats "Docker镜像管理"
 	echo "도커 이미지 목록"
 	docker image ls
 	echo ""
-	echo "미러 작동"
+	echo "镜像操作"
 	echo "------------------------"
-	echo "1. 지정된 이미지 가져오기 3. 지정된 이미지 삭제"
-	echo "2. 지정된 이미지 업데이트 4. 모든 이미지 삭제"
+	echo "1. 获取指定镜像             3. 删除指定镜像"
+	echo "2. 更新指定镜像             4. 删除所有镜像"
 	echo "------------------------"
-	echo "0. 이전 메뉴로 돌아가기"
+	echo "0. 返回上一级选单"
 	echo "------------------------"
-	read -e -p "선택사항을 입력하세요:" sub_choice
+	read -e -p "请输入你的选择: " sub_choice
 	case $sub_choice in
 		1)
-			send_stats "이미지 가져오기"
-			read -e -p "이미지 이름을 입력하세요(여러 이미지 이름은 공백으로 구분하세요):" imagenames
+			send_stats "拉取镜像"
+			read -e -p "请输入镜像名（多个镜像名请用空格分隔）: " imagenames
 			for name in $imagenames; do
-				echo -e "${gl_huang}이미지 가져오기:$name${gl_bai}"
+				echo -e "${gl_huang}正在获取镜像: $name${gl_bai}"
 				docker pull $name
 			done
 			;;
 		2)
-			send_stats "이미지 업데이트"
-			read -e -p "이미지 이름을 입력하세요(여러 이미지 이름은 공백으로 구분하세요):" imagenames
+			send_stats "更新镜像"
+			read -e -p "请输入镜像名（多个镜像名请用空格分隔）: " imagenames
 			for name in $imagenames; do
-				echo -e "${gl_huang}이미지 업데이트 중:$name${gl_bai}"
+				echo -e "${gl_huang}正在更新镜像: $name${gl_bai}"
 				docker pull $name
 			done
 			;;
 		3)
-			send_stats "이미지 삭제"
-			read -e -p "이미지 이름을 입력하세요(여러 이미지 이름은 공백으로 구분하세요):" imagenames
+			send_stats "删除镜像"
+			read -e -p "请输入镜像名（多个镜像名请用空格分隔）: " imagenames
 			for name in $imagenames; do
 				docker rmi -f $name
 			done
 			;;
 		4)
-			send_stats "모든 이미지 삭제"
+			send_stats "删除所有镜像"
 			read -e -p "$(echo -e "${gl_hong}注意: ${gl_bai}确定删除所有镜像吗？(Y/N): ")" choice
 			case "$choice" in
 			  [Yy])
@@ -724,16 +724,16 @@ install_crontab() {
 				service cron start
 				;;
 			*)
-				echo "지원되지 않는 배포판:$ID"
+				echo "不支持的发行版: $ID"
 				return
 				;;
 		esac
 	else
-		echo "운영 체제를 확인할 수 없습니다."
+		echo "无法确定操作系统。"
 		return
 	fi
 
-	echo -e "${gl_lv}crontab이 설치되어 있고 cron 서비스가 실행 중입니다.${gl_bai}"
+	echo -e "${gl_lv}crontab 已安装且 cron 服务正在运行。${gl_bai}"
 }
 
 
@@ -750,22 +750,22 @@ docker_ipv6_on() {
 		echo "$REQUIRED_IPV6_CONFIG" | jq . > "$CONFIG_FILE"
 		restart docker
 	else
-		# jq를 사용하여 구성 파일 업데이트 처리
+		# 使用jq处理配置文件的更新
 		local ORIGINAL_CONFIG=$(<"$CONFIG_FILE")
 
-		# 현재 구성에 이미 ipv6 설정이 있는지 확인하십시오.
+		# 检查当前配置是否已经有 ipv6 设置
 		local CURRENT_IPV6=$(echo "$ORIGINAL_CONFIG" | jq '.ipv6 // false')
 
-		# 구성 업데이트 및 IPv6 활성화
+		# 更新配置，开启 IPv6
 		if [[ "$CURRENT_IPV6" == "false" ]]; then
 			UPDATED_CONFIG=$(echo "$ORIGINAL_CONFIG" | jq '. + {ipv6: true, "fixed-cidr-v6": "2001:db8:1::/64"}')
 		else
 			UPDATED_CONFIG=$(echo "$ORIGINAL_CONFIG" | jq '. + {"fixed-cidr-v6": "2001:db8:1::/64"}')
 		fi
 
-		# 원래 구성을 새 구성과 비교
+		# 对比原始配置与新配置
 		if [[ "$ORIGINAL_CONFIG" == "$UPDATED_CONFIG" ]]; then
-			echo -e "${gl_huang}현재 IPv6 액세스가 활성화되어 있습니다.${gl_bai}"
+			echo -e "${gl_huang}当前已开启ipv6访问${gl_bai}"
 		else
 			echo "$UPDATED_CONFIG" | jq . > "$CONFIG_FILE"
 			restart docker
@@ -782,11 +782,11 @@ docker_ipv6_off() {
 
 	# 구성 파일이 있는지 확인하십시오.
 	if [ ! -f "$CONFIG_FILE" ]; then
-		echo -e "${gl_hong}구성 파일이 존재하지 않습니다.${gl_bai}"
+		echo -e "${gl_hong}配置文件不存在${gl_bai}"
 		return
 	fi
 
-	# 현재 구성 읽기
+	# 读取当前配置
 	local ORIGINAL_CONFIG=$(<"$CONFIG_FILE")
 
 	# jq를 사용하여 구성 파일 업데이트 처리
@@ -795,9 +795,9 @@ docker_ipv6_off() {
 	# 현재 ipv6 상태 확인
 	local CURRENT_IPV6=$(echo "$ORIGINAL_CONFIG" | jq -r '.ipv6 // false')
 
-	# 원래 구성을 새 구성과 비교
+	# 对比原始配置与新配置
 	if [[ "$CURRENT_IPV6" == "false" ]]; then
-		echo -e "${gl_huang}IPv6 액세스는 현재 폐쇄되었습니다.${gl_bai}"
+		echo -e "${gl_huang}当前已关闭ipv6访问${gl_bai}"
 	else
 		echo "$UPDATED_CONFIG" | jq . > "$CONFIG_FILE"
 		restart docker
@@ -840,18 +840,18 @@ iptables_open() {
 open_port() {
 	local ports=($@)  # 将传入的参数转换为数组
 	if [ ${#ports[@]} -eq 0 ]; then
-		echo "포트 번호를 하나 이상 입력하세요."
+		echo "请提供至少一个端口号"
 		return 1
 	fi
 
 	install iptables
 
 	for port in "${ports[@]}"; do
-		# 기존 종료 규칙 삭제
+		# 删除已存在的关闭规则
 		iptables -D INPUT -p tcp --dport $port -j DROP 2>/dev/null
 		iptables -D INPUT -p udp --dport $port -j DROP 2>/dev/null
 
-		# 공개 규칙 추가
+		# 添加打开规则
 		if ! iptables -C INPUT -p tcp --dport $port -j ACCEPT 2>/dev/null; then
 			iptables -I INPUT 1 -p tcp --dport $port -j ACCEPT
 		fi
@@ -863,94 +863,94 @@ open_port() {
 	done
 
 	save_iptables_rules
-	send_stats "포트가 열렸습니다."
+	send_stats "已打开端口"
 }
 
 
 close_port() {
 	local ports=($@)  # 将传入的参数转换为数组
 	if [ ${#ports[@]} -eq 0 ]; then
-		echo "포트 번호를 하나 이상 입력하세요."
+		echo "请提供至少一个端口号"
 		return 1
 	fi
 
 	install iptables
 
 	for port in "${ports[@]}"; do
-		# 기존 공개 규칙 삭제
+		# 删除已存在的打开规则
 		iptables -D INPUT -p tcp --dport $port -j ACCEPT 2>/dev/null
 		iptables -D INPUT -p udp --dport $port -j ACCEPT 2>/dev/null
 
-		# 종료 규칙 추가
+		# 添加关闭规则
 		if ! iptables -C INPUT -p tcp --dport $port -j DROP 2>/dev/null; then
 			iptables -I INPUT 1 -p tcp --dport $port -j DROP
 		fi
 
 		if ! iptables -C INPUT -p udp --dport $port -j DROP 2>/dev/null; then
 			iptables -I INPUT 1 -p udp --dport $port -j DROP
-			echo "항구 폐쇄$port"
+			echo "已关闭端口 $port"
 		fi
 	done
 
-	# 기존 규칙 삭제(있는 경우)
+	# 删除已存在的规则（如果有）
 	iptables -D INPUT -i lo -j ACCEPT 2>/dev/null
 	iptables -D FORWARD -i lo -j ACCEPT 2>/dev/null
 
-	# 첫 번째 규칙에 새 규칙을 삽입합니다.
+	# 插入新规则到第一条
 	iptables -I INPUT 1 -i lo -j ACCEPT
 	iptables -I FORWARD 1 -i lo -j ACCEPT
 
 	save_iptables_rules
-	send_stats "항구 폐쇄"
+	send_stats "已关闭端口"
 }
 
 
 allow_ip() {
 	local ips=($@)  # 将传入的参数转换为数组
 	if [ ${#ips[@]} -eq 0 ]; then
-		echo "IP 주소 또는 IP 세그먼트를 하나 이상 입력하세요."
+		echo "请提供至少一个IP地址或IP段"
 		return 1
 	fi
 
 	install iptables
 
 	for ip in "${ips[@]}"; do
-		# 기존 차단 규칙 삭제
+		# 删除已存在的阻止规则
 		iptables -D INPUT -s $ip -j DROP 2>/dev/null
 
 		# 허용 규칙 추가
 		if ! iptables -C INPUT -s $ip -j ACCEPT 2>/dev/null; then
 			iptables -I INPUT 1 -s $ip -j ACCEPT
-			echo "공개된 IP$ip"
+			echo "已放行IP $ip"
 		fi
 	done
 
 	save_iptables_rules
-	send_stats "공개된 IP"
+	send_stats "已放行IP"
 }
 
 block_ip() {
 	local ips=($@)  # 将传入的参数转换为数组
 	if [ ${#ips[@]} -eq 0 ]; then
-		echo "IP 주소 또는 IP 세그먼트를 하나 이상 입력하세요."
+		echo "请提供至少一个IP地址或IP段"
 		return 1
 	fi
 
 	install iptables
 
 	for ip in "${ips[@]}"; do
-		# 기존 허용 규칙 삭제
+		# 删除已存在的允许规则
 		iptables -D INPUT -s $ip -j ACCEPT 2>/dev/null
 
-		# 차단 규칙 추가
+		# 添加阻止规则
 		if ! iptables -C INPUT -s $ip -j DROP 2>/dev/null; then
 			iptables -I INPUT 1 -s $ip -j DROP
-			echo "IP가 차단됨$ip"
+			echo "已阻止IP $ip"
 		fi
 	done
 
 	save_iptables_rules
-	send_stats "IP가 차단됨"
+	send_stats "已阻止IP"
 }
 
 
@@ -960,7 +960,7 @@ block_ip() {
 
 
 enable_ddos_defense() {
-	# DDoS 보호 켜기
+	# 开启防御 DDoS
 	iptables -A DOCKER-USER -p tcp --syn -m limit --limit 500/s --limit-burst 100 -j ACCEPT
 	iptables -A DOCKER-USER -p tcp --syn -j DROP
 	iptables -A DOCKER-USER -p udp -m limit --limit 3000/s -j ACCEPT
@@ -970,12 +970,12 @@ enable_ddos_defense() {
 	iptables -A INPUT -p udp -m limit --limit 3000/s -j ACCEPT
 	iptables -A INPUT -p udp -j DROP
 
-	send_stats "DDoS 방어 켜기"
+	send_stats "开启DDoS防御"
 }
 
-# DDoS 방어 끄기
+# 关闭DDoS防御
 disable_ddos_defense() {
-	# DDoS 보호 끄기
+	# 关闭防御 DDoS
 	iptables -D DOCKER-USER -p tcp --syn -m limit --limit 500/s --limit-burst 100 -j ACCEPT 2>/dev/null
 	iptables -D DOCKER-USER -p tcp --syn -j DROP 2>/dev/null
 	iptables -D DOCKER-USER -p udp -m limit --limit 3000/s -j ACCEPT 2>/dev/null
@@ -985,14 +985,14 @@ disable_ddos_defense() {
 	iptables -D INPUT -p udp -m limit --limit 3000/s -j ACCEPT 2>/dev/null
 	iptables -D INPUT -p udp -j DROP 2>/dev/null
 
-	send_stats "DDoS 방어 끄기"
+	send_stats "关闭DDoS防御"
 }
 
 
 
 
 
-# 국가 IP 규칙을 관리하는 기능
+# 管理国家IP规则的函数
 manage_country_rules() {
 	local action="$1"
 	shift  # 去掉第一个参数，剩下的全是国家代码
@@ -1010,7 +1010,7 @@ manage_country_rules() {
 				fi
 
 				if ! wget -q "$download_url" -O "${country_code,,}.zone"; then
-					echo "오류: 다운로드$country_codeIP 영역 파일 실패"
+					echo "错误：下载 $country_code 的 IP 区域文件失败"
 					continue
 				fi
 
@@ -1020,7 +1020,7 @@ manage_country_rules() {
 
 				iptables -I INPUT -m set --match-set "$ipset_name" src -j DROP
 
-				echo "성공적으로 차단되었습니다$country_codeIP 주소"
+				echo "已成功阻止 $country_code 的 IP 地址"
 				rm "${country_code,,}.zone"
 				;;
 
@@ -1030,7 +1030,7 @@ manage_country_rules() {
 				fi
 
 				if ! wget -q "$download_url" -O "${country_code,,}.zone"; then
-					echo "오류: 다운로드$country_codeIP 영역 파일 실패"
+					echo "错误：下载 $country_code 的 IP 区域文件失败"
 					continue
 				fi
 
@@ -1043,7 +1043,7 @@ manage_country_rules() {
 				iptables -P INPUT DROP
 				iptables -A INPUT -m set --match-set "$ipset_name" src -j ACCEPT
 
-				echo "허용되었습니다.$country_codeIP 주소"
+				echo "已成功允许 $country_code 的 IP 地址"
 				rm "${country_code,,}.zone"
 				;;
 
@@ -1054,11 +1054,11 @@ manage_country_rules() {
 					ipset destroy "$ipset_name"
 				fi
 
-				echo "성공적으로 제거되었습니다$country_codeIP 주소 제한"
+				echo "已成功解除 $country_code 的 IP 地址限制"
 				;;
 
 			*)
-				echo "사용법: prepare_country_rules {block|allow|unblock} <country_code...>"
+				echo "用法: manage_country_rules {block|allow|unblock} <country_code...>"
 				;;
 		esac
 	done
@@ -1079,39 +1079,39 @@ iptables_panel() {
   save_iptables_rules
   while true; do
 		  clear
-		  echo "고급 방화벽 관리"
-		  send_stats "고급 방화벽 관리"
+		  echo "高级防火墙管理"
+		  send_stats "高级防火墙管理"
 		  echo "------------------------"
 		  iptables -L INPUT
 		  echo ""
-		  echo "방화벽 관리"
+		  echo "防火墙管理"
 		  echo "------------------------"
-		  echo "1. 지정 포트 열기 2. 지정 포트 닫기"
-		  echo "3. 모든 포트를 엽니다. 4. 모든 포트를 닫습니다."
+		  echo "1.  开放指定端口                 2.  关闭指定端口"
+		  echo "3.  开放所有端口                 4.  关闭所有端口"
 		  echo "------------------------"
-		  echo "5. IP 화이트리스트 6. IP 블랙리스트"
-		  echo "7. 지정된 IP 지우기"
+		  echo "5.  IP白名单                  	 6.  IP黑名单"
+		  echo "7.  清除指定IP"
 		  echo "------------------------"
-		  echo "11. PING 허용 12. PING 비활성화"
+		  echo "11. 允许PING                  	 12. 禁止PING"
 		  echo "------------------------"
-		  echo "13. DDOS 방어 시작 14. DDOS 방어 끄기"
+		  echo "13. 启动DDOS防御                 14. 关闭DDOS防御"
 		  echo "------------------------"
 		  echo "15. 특정 국가 IP 차단 16. 특정 국가 IP만 허용"
-		  echo "17. 지정된 국가에서 IP 제한을 해제합니다."
+		  echo "17. 解除指定国家IP限制"
 		  echo "------------------------"
-		  echo "0. 이전 메뉴로 돌아가기"
+		  echo "0. 返回上一级选单"
 		  echo "------------------------"
-		  read -e -p "선택사항을 입력하세요:" sub_choice
+		  read -e -p "请输入你的选择: " sub_choice
 		  case $sub_choice in
 			  1)
-				  read -e -p "열려 있는 포트 번호를 입력하세요." o_port
+				  read -e -p "请输入开放的端口号: " o_port
 				  open_port $o_port
-				  send_stats "지정된 포트 열기"
+				  send_stats "开放指定端口"
 				  ;;
 			  2)
-				  read -e -p "닫힌 포트 번호를 입력하세요:" c_port
+				  read -e -p "请输入关闭的端口号: " c_port
 				  close_port $c_port
-				  send_stats "지정된 포트 닫기"
+				  send_stats "关闭指定端口"
 				  ;;
 			  3)
 				  # 모든 포트 열기
@@ -1127,7 +1127,7 @@ iptables_panel() {
 				  iptables -A FORWARD -i lo -j ACCEPT
 				  iptables -A INPUT -p tcp --dport $current_port -j ACCEPT
 				  iptables-save > /etc/iptables/rules.v4
-				  send_stats "모든 포트 열기"
+				  send_stats "开放所有端口"
 				  ;;
 			  4)
 				  # 모든 포트를 닫으세요
@@ -1234,7 +1234,7 @@ add_swap() {
 	# 이전 /swap 파일 삭제
 	rm -f /swapfile
 
-	# 새로운 스왑 파티션 생성
+	# 创建新的 swap 分区
 	fallocate -l ${new_swap}M /swapfile
 	chmod 600 /swapfile
 	mkswap /swapfile
@@ -1249,7 +1249,7 @@ add_swap() {
 		rc-update add local
 	fi
 
-	echo -e "가상 메모리 크기가 다음과 같이 조정되었습니다.${gl_huang}${new_swap}${gl_bai}M"
+	echo -e "虚拟内存大小已调整为${gl_huang}${new_swap}${gl_bai}M"
 }
 
 
@@ -1259,7 +1259,7 @@ check_swap() {
 
 local swap_total=$(free -m | awk 'NR==3{print $2}')
 
-# 가상 메모리를 만들어야 하는지 확인
+# 가상 메모리를 생성해야 하는지 결정
 [ "$swap_total" -gt 0 ] || add_swap 1024
 
 
@@ -1289,7 +1289,7 @@ ldnmp_v() {
 	  local php_version=$(docker exec php php -v 2>/dev/null | grep -oP "PHP \K[0-9]+\.[0-9]+\.[0-9]+")
 	  echo -n -e "            php : ${gl_huang}v$php_version${gl_bai}"
 
-	  # Redis 버전 받기
+	  # 获取redis版本
 	  local redis_version=$(docker exec redis redis-server -v 2>&1 | grep -oP "v=+\K[0-9]+\.[0-9]+")
 	  echo -e "            redis : ${gl_huang}v$redis_version${gl_bai}"
 
@@ -1302,18 +1302,18 @@ ldnmp_v() {
 
 install_ldnmp_conf() {
 
-  # 필요한 디렉토리 및 파일 생성
+  # 创建必要的目录和文件
   cd /home && mkdir -p web/html web/mysql web/certs web/conf.d web/stream.d web/redis web/log/nginx && touch web/docker-compose.yml
   wget -O /home/web/nginx.conf ${gh_proxy}raw.githubusercontent.com/kejilion/nginx/main/nginx10.conf
   wget -O /home/web/conf.d/default.conf ${gh_proxy}raw.githubusercontent.com/kejilion/nginx/main/default10.conf
 
   default_server_ssl
 
-  # docker-compose.yml 파일을 다운로드하여 교체하세요.
+  # 下载 docker-compose.yml 文件并进行替换
   wget -O /home/web/docker-compose.yml ${gh_proxy}raw.githubusercontent.com/kejilion/docker/main/LNMP-docker-compose-10.yml
   dbrootpasswd=$(openssl rand -base64 16) ; dbuse=$(openssl rand -hex 4) ; dbusepasswd=$(openssl rand -base64 8)
 
-  # docker-compose.yml 파일에서 교체
+  # 在 docker-compose.yml 文件中进行替换
   sed -i "s#webroot#$dbrootpasswd#g" /home/web/docker-compose.yml
   sed -i "s#kejilionYYDS#$dbusepasswd#g" /home/web/docker-compose.yml
   sed -i "s#kejilion#$dbuse#g" /home/web/docker-compose.yml
@@ -1352,7 +1352,7 @@ auto_optimize_dns() {
 	# 국가 코드(예: CN, US 등)를 가져옵니다.
 	local country=$(curl -s ipinfo.io/country)
 
-	# 국가에 따라 DNS 설정
+	# 根据国家设置 DNS
 	if [ "$country" = "CN" ]; then
 		local dns1_ipv4="223.5.5.5"
 		local dns2_ipv4="183.60.83.19"
@@ -1374,8 +1374,8 @@ auto_optimize_dns() {
 prefer_ipv4() {
 grep -q '^precedence ::ffff:0:0/96  100' /etc/gai.conf 2>/dev/null \
 	|| echo 'precedence ::ffff:0:0/96  100' >> /etc/gai.conf
-echo "IPv4 우선순위로 전환됨"
-send_stats "IPv4 우선순위로 전환됨"
+echo "已切换为 IPv4 优先"
+send_stats "已切换为 IPv4 优先"
 }
 
 
@@ -1393,7 +1393,7 @@ install_ldnmp() {
 	  fix_phpfpm_conf php
 	  fix_phpfpm_conf php74
 
-	  # MySQL 튜닝
+	  # mysql调优
 	  wget -O /home/custom_mysql_config.cnf ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/custom_mysql_config-1.cnf
 	  docker cp /home/custom_mysql_config.cnf mysql:/etc/mysql/conf.d/
 	  rm -rf /home/custom_mysql_config.cnf
@@ -1404,7 +1404,7 @@ install_ldnmp() {
 	  sleep 2
 
 	  clear
-	  echo "LDNMP 환경이 설치되었습니다"
+	  echo "LDNMP环境安装完毕"
 	  echo "------------------------"
 	  ldnmp_v
 
@@ -1421,7 +1421,7 @@ install_certbot() {
 	local cron_job="0 0 * * * ~/auto_cert_renewal.sh"
 	crontab -l 2>/dev/null | grep -vF "$cron_job" | crontab -
 	(crontab -l 2>/dev/null; echo "$cron_job") | crontab -
-	echo "갱신 작업이 업데이트되었습니다."
+	echo "续签任务已更新"
 }
 
 
@@ -1466,14 +1466,14 @@ install_ssltls() {
 
 
 install_ssltls_text() {
-	echo -e "${gl_huang}$yuming공개키 정보${gl_bai}"
+	echo -e "${gl_huang}$yuming 公钥信息${gl_bai}"
 	cat /etc/letsencrypt/live/$yuming/fullchain.pem
 	echo ""
-	echo -e "${gl_huang}$yuming개인 키 정보${gl_bai}"
+	echo -e "${gl_huang}$yuming 私钥信息${gl_bai}"
 	cat /etc/letsencrypt/live/$yuming/privkey.pem
 	echo ""
-	echo -e "${gl_huang}인증서 저장 경로${gl_bai}"
-	echo "공개 키: /etc/letsencrypt/live/$yuming/fullchain.pem"
+	echo -e "${gl_huang}证书存放路径${gl_bai}"
+	echo "公钥: /etc/letsencrypt/live/$yuming/fullchain.pem"
 	echo "개인 키: /etc/letsencrypt/live/$yuming/privkey.pem"
 	echo ""
 }
@@ -1483,7 +1483,7 @@ install_ssltls_text() {
 
 
 add_ssl() {
-echo -e "${gl_huang}SSL 인증서를 빠르게 신청하고 만료되기 전에 자동으로 갱신하세요.${gl_bai}"
+echo -e "${gl_huang}快速申请SSL证书，过期前自动续签${gl_bai}"
 yuming="${1:-}"
 if [ -z "$yuming" ]; then
 	add_yuming
@@ -1499,7 +1499,7 @@ ssl_ps
 
 
 ssl_ps() {
-	echo -e "${gl_huang}신청한 인증서의 만료 상태${gl_bai}"
+	echo -e "${gl_huang}已申请的证书到期情况${gl_bai}"
 	echo "사이트 정보 인증서 만료 시간"
 	echo "------------------------"
 	for cert_dir in /etc/letsencrypt/live/*; do
@@ -1541,38 +1541,38 @@ certs_status() {
 	if [ -f "$file_path" ]; then
 		send_stats "도메인 이름 인증서 신청이 성공했습니다."
 	else
-		send_stats "도메인 이름 인증서 신청 실패"
-		echo -e "${gl_hong}알아채다:${gl_bai}인증서 신청이 실패했습니다. 다음 가능한 이유를 확인하고 다시 시도하십시오."
-		echo -e "1. 도메인 이름이 잘못 입력되었습니다. ➠ 도메인 이름이 올바르게 입력되었는지 확인하세요."
-		echo -e "2. DNS 확인 문제 ➠ 도메인 이름이 서버 IP로 올바르게 확인되었는지 확인"
-		echo -e "3. 네트워크 구성 문제 ➠ Cloudflare Warp 등 가상 네트워크를 사용하는 경우 일시적으로 종료하세요."
-		echo -e "4. 방화벽 제한사항 ➠ 포트 80/443이 열려 있는지 확인하고 접근이 가능한지 확인하세요."
-		echo -e "5. 신청 횟수가 한도를 초과했습니다. ➠ Let's Encrypt에는 주간 한도(5회/도메인 이름/주)가 있습니다."
-		echo -e "6. 국내 등록 제한 ➠ 중국 ​​본토 환경의 경우 도메인 이름 등록 여부를 확인하시기 바랍니다."
+		send_stats "域名证书申请失败"
+		echo -e "${gl_hong}注意: ${gl_bai}证书申请失败，请检查以下可能原因并重试："
+		echo -e "1. 域名拼写错误 ➠ 请检查域名输入是否正确"
+		echo -e "2. DNS解析问题 ➠ 确认域名已正确解析到本服务器IP"
+		echo -e "3. 网络配置问题 ➠ 如使用Cloudflare Warp等虚拟网络请暂时关闭"
+		echo -e "4. 防火墙限制 ➠ 检查80/443端口是否开放，确保验证可访问"
+		echo -e "5. 申请次数超限 ➠ Let's Encrypt有每周限额(5次/域名/周)"
+		echo -e "6. 国内备案限制 ➠ 中国大陆环境请确认域名是否备案"
 		echo "------------------------"
-		echo "1. 다시 적용 2. 기존 인증서 가져오기 3. 인증서 없이 HTTP 액세스 사용 0. 종료"
+		echo "1. 重新申请        2. 导入已有证书        3. 不带证书改用HTTP访问        0. 退出"
 		echo "------------------------"
-		read -e -p "선택사항을 입력하세요:" sub_choice
+		read -e -p "请输入你的选择: " sub_choice
 		case $sub_choice in
 	  	  1)
 	  	  	send_stats "재신청"
-		  	echo "다시 배포해 보세요.$webname"
+		  	echo "请再次尝试部署 $webname"
 		  	add_yuming
 		  	install_ssltls
 		  	certs_status
 
 	  		  ;;
 	  	  2)
-	  	  	send_stats "기존 인증서 가져오기"
+	  	  	send_stats "导入已有证书"
 
-			# 파일 경로 정의
+			# 定义文件路径
 			local cert_file="/home/web/certs/${yuming}_cert.pem"
 			local key_file="/home/web/certs/${yuming}_key.pem"
 
 			mkdir -p /home/web/certs
 
 			# 1. 인증서를 입력합니다(ECC 및 RSA 인증서 모두 BEGIN CERTIFICATE로 시작함).
-			echo "인증서(CRT/PEM) 콘텐츠를 붙여넣으세요(종료하려면 Enter를 두 번 누르세요)."
+			echo "请粘贴 证书 (CRT/PEM) 内容 (按两次回车结束)："
 			local cert_content=""
 			while IFS= read -r line; do
 				[[ -z "$line" && "$cert_content" == *"-----BEGIN"* ]] && break
@@ -1580,15 +1580,15 @@ certs_status() {
 			done
 
 			# 2. 개인 키를 입력하세요. (RSA, ECC, PKCS#8과 호환 가능)
-			echo "인증서 개인 키(개인 키) 내용을 붙여넣으세요(종료하려면 Enter를 두 번 누르세요)."
+			echo "请粘贴 证书私钥 (Private Key) 内容 (按两次回车结束)："
 			local key_content=""
 			while IFS= read -r line; do
 				[[ -z "$line" && "$key_content" == *"-----BEGIN"* ]] && break
 				key_content+="${line}"$'\n'
 			done
 
-			# 3. 지능형 검증
-			# 통과하려면 "BEGIN CERTIFICATE" 및 "PRIVATE KEY"만 포함하면 됩니다.
+			# 3. 智能校验
+			# 只要包含 "BEGIN CERTIFICATE" 和 "PRIVATE KEY" 即可通过
 			if [[ "$cert_content" == *"-----BEGIN CERTIFICATE-----"* && "$key_content" == *"PRIVATE KEY-----"* ]]; then
 				echo -n "$cert_content" > "$cert_file"
 				echo -n "$key_content" > "$key_file"
@@ -1596,27 +1596,27 @@ certs_status() {
 				chmod 644 "$cert_file"
 				chmod 600 "$key_file"
 
-				# 현재 인증서 유형을 식별하고 표시합니다.
+				# 识别当前证书类型并显示
 				if [[ "$key_content" == *"EC PRIVATE KEY"* ]]; then
-					echo "ECC 인증서가 성공적으로 저장되었음을 감지했습니다."
+					echo "检测到 ECC 证书已成功保存。"
 				else
-					echo "RSA 인증서가 성공적으로 저장되었음을 감지했습니다."
+					echo "检测到 RSA 证书已成功保存。"
 				fi
 				auth_method="ssl_imported"
 			else
-				echo "오류: 잘못된 인증서 또는 개인 키 형식입니다!"
+				echo "错误：无效的证书或私钥格式！"
 				certs_status
 			fi
 
 	  		  ;;
 	  	  3)
-	  	  	send_stats "인증서 없이 HTTP 액세스로 전환"
+	  	  	send_stats "不带证书改用HTTP访问"
 		  	sed -i '/if (\$scheme = http) {/,/}/s/^/#/' /home/web/conf.d/${yuming}.conf
 			sed -i '/ssl_certificate/d; /ssl_certificate_key/d' /home/web/conf.d/${yuming}.conf
 			sed -i '/443 ssl/d; /443 quic/d' /home/web/conf.d/${yuming}.conf
 	  		  ;;
 	  	  *)
-	  	  	send_stats "신청철회"
+	  	  	send_stats "退出申请"
 			exit
 	  		  ;;
 		esac
@@ -1627,7 +1627,7 @@ certs_status() {
 
 repeat_add_yuming() {
 if [ -e /home/web/conf.d/$yuming.conf ]; then
-  send_stats "도메인 이름 재사용"
+  send_stats "域名重复使用"
   web_del "${yuming}" > /dev/null 2>&1
 fi
 
@@ -1636,8 +1636,8 @@ fi
 
 add_yuming() {
 	  ip_address
-	  echo -e "먼저 도메인 이름을 로컬 IP로 확인합니다.${gl_huang}$ipv4_address  $ipv6_address${gl_bai}"
-	  read -e -p "귀하의 IP 또는 확인된 도메인 이름을 입력하십시오:" yuming
+	  echo -e "先将域名解析到本机IP: ${gl_huang}$ipv4_address  $ipv6_address${gl_bai}"
+	  read -e -p "请输入你的IP或者解析过的域名: " yuming
 }
 
 
@@ -1648,7 +1648,7 @@ check_ip_and_get_access_port() {
 	local ipv6_pattern='^(([0-9A-Fa-f]{1,4}:){1,7}:|([0-9A-Fa-f]{1,4}:){7,7}[0-9A-Fa-f]{1,4}|::1)$'
 
 	if [[ "$yuming" =~ $ipv4_pattern || "$yuming" =~ $ipv6_pattern ]]; then
-		read -e -p "액세스/수신 포트를 입력하고 Enter를 눌러 기본적으로 80을 사용하십시오." access_port
+		read -e -p "请输入访问/监听端口，回车默认使用 80: " access_port
 		access_port=${access_port:-80}
 	fi
 }
@@ -1660,13 +1660,13 @@ update_nginx_listen_port() {
 	local access_port="$2"
 	local conf="/home/web/conf.d/${yuming}.conf"
 
-	# access_port가 비어 있으면 건너뛰세요.
+	# 如果 access_port 为空，则跳过
 	[ -z "$access_port" ] && return 0
 
-	# 모든 청취 라인 제거
+	# 删除所有 listen 行
 	sed -i '/^[[:space:]]*listen[[:space:]]\+/d' "$conf"
 
-	# 서버 { 뒤에 새 수신 대기 삽입
+	# 在 server { 后插入新的 listen
 	sed -i "/server {/a\\
 	listen ${access_port};\\
 	listen [::]:${access_port};
@@ -1716,8 +1716,8 @@ nginx_upgrade() {
   docker exec nginx chown -R nginx:nginx /var/cache/nginx/fastcgi
   docker restart $ldnmp_pods > /dev/null 2>&1
 
-  send_stats "고쳐 쓰다$ldnmp_pods"
-  echo "고쳐 쓰다${ldnmp_pods}마치다"
+  send_stats "更新$ldnmp_pods"
+  echo "고쳐 쓰다${ldnmp_pods}完成"
 
 }
 
@@ -1736,11 +1736,11 @@ phpmyadmin_upgrade() {
   ip_address
 
   check_docker_app_ip
-  echo "로그인 정보:"
-  echo "사용자 이름:$dbuse"
-  echo "비밀번호:$dbusepasswd"
+  echo "登录信息: "
+  echo "用户名: $dbuse"
+  echo "密码: $dbusepasswd"
   echo
-  send_stats "시작하다$ldnmp_pods"
+  send_stats "启动$ldnmp_pods"
 }
 
 
@@ -1750,29 +1750,29 @@ cf_purge_cache() {
   local EMAIL
   local ZONE_IDS
 
-  # 구성 파일이 있는지 확인하십시오.
+  # 检查配置文件是否存在
   if [ -f "$CONFIG_FILE" ]; then
-	# 구성 파일에서 API_TOKEN 및 zone_id를 읽습니다.
+	# 从配置文件读取 API_TOKEN 和 zone_id
 	read API_TOKEN EMAIL ZONE_IDS < "$CONFIG_FILE"
-	# ZONE_IDS를 어레이로 변환
+	# 将 ZONE_IDS 转换为数组
 	ZONE_IDS=($ZONE_IDS)
   else
-	# 캐시를 지울지 여부를 사용자에게 묻습니다.
-	read -e -p "Cloudflare의 캐시를 지워야 합니까? (예/아니요):" answer
+	# 提示用户是否清理缓存
+	read -e -p "需要清理 Cloudflare 的缓存吗？（y/n）: " answer
 	if [[ "$answer" == "y" ]]; then
-	  echo "CF 정보는 다음 위치에 저장됩니다.$CONFIG_FILE, 나중에 CF 정보를 수정할 수 있습니다."
-	  read -e -p "API_TOKEN을 입력하세요:" API_TOKEN
-	  read -e -p "CF 사용자 이름을 입력하세요:" EMAIL
-	  read -e -p "zone_id를 입력하십시오(여러 개는 공백으로 구분)." -a ZONE_IDS
+	  echo "CF信息保存在$CONFIG_FILE，可以后期修改CF信息"
+	  read -e -p "请输入你的 API_TOKEN: " API_TOKEN
+	  read -e -p "请输入你的CF用户名: " EMAIL
+	  read -e -p "请输入 zone_id（多个用空格分隔）: " -a ZONE_IDS
 
 	  mkdir -p /home/web/config/
 	  echo "$API_TOKEN $EMAIL ${ZONE_IDS[*]}" > "$CONFIG_FILE"
 	fi
   fi
 
-  # 각 zone_id를 반복하고 캐시 지우기 명령을 실행합니다.
+  # 循环遍历每个 zone_id 并执行清除缓存命令
   for ZONE_ID in "${ZONE_IDS[@]}"; do
-	echo "zone_id에 대한 캐시 지우기:$ZONE_ID"
+	echo "正在清除缓存 for zone_id: $ZONE_ID"
 	curl -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/purge_cache" \
 	-H "X-Auth-Email: $EMAIL" \
 	-H "X-Auth-Key: $API_TOKEN" \
@@ -1780,13 +1780,13 @@ cf_purge_cache() {
 	--data '{"purge_everything":true}'
   done
 
-  echo "캐시 삭제 요청이 전송되었습니다."
+  echo "缓存清除请求已发送完毕。"
 }
 
 
 
 web_cache() {
-  send_stats "사이트 캐시 지우기"
+  send_stats "清理站点缓存"
   cf_purge_cache
   cd /home/web && docker compose restart
 }
@@ -1795,28 +1795,28 @@ web_cache() {
 
 web_del() {
 
-	send_stats "사이트 데이터 삭제"
+	send_stats "删除站点数据"
 	yuming_list="${1:-}"
 	if [ -z "$yuming_list" ]; then
-		read -e -p "사이트 데이터를 삭제하려면 도메인 이름을 입력하세요(여러 도메인 이름은 공백으로 구분)." yuming_list
+		read -e -p "删除站点数据，请输入你的域名（多个域名用空格隔开）: " yuming_list
 		if [[ -z "$yuming_list" ]]; then
 			return
 		fi
 	fi
 
 	for yuming in $yuming_list; do
-		echo "도메인 이름을 삭제하는 중입니다:$yuming"
+		echo "正在删除域名: $yuming"
 		rm -r /home/web/html/$yuming > /dev/null 2>&1
 		rm /home/web/conf.d/$yuming.conf > /dev/null 2>&1
 		rm /home/web/certs/${yuming}_key.pem > /dev/null 2>&1
 		rm /home/web/certs/${yuming}_cert.pem > /dev/null 2>&1
 
-		# 도메인 이름을 데이터베이스 이름으로 변환
+		# 将域名转换为数据库名
 		dbname=$(echo "$yuming" | sed -e 's/[^A-Za-z0-9]/_/g')
 		dbrootpasswd=$(grep -oP 'MYSQL_ROOT_PASSWORD:\s*\K.*' /home/web/docker-compose.yml | tr -d '[:space:]')
 
-		# 오류를 방지하려면 데이터베이스를 삭제하기 전에 데이터베이스가 존재하는지 확인하세요.
-		echo "데이터베이스 삭제 중:$dbname"
+		# 删除数据库前检查是否存在，避免报错
+		echo "正在删除数据库: $dbname"
 		docker exec mysql mysql -u root -p"$dbrootpasswd" -e "DROP DATABASE ${dbname};" > /dev/null 2>&1
 	done
 
@@ -1832,23 +1832,23 @@ nginx_waf() {
 		wget -O /home/web/nginx.conf "${gh_proxy}raw.githubusercontent.com/kejilion/nginx/main/nginx10.conf"
 	fi
 
-	# 모드 매개변수에 따라 WAF를 켤지 끌지 결정합니다.
+	# 根据 mode 参数来决定开启或关闭 WAF
 	if [ "$mode" == "on" ]; then
-		# WAF 켜기: 댓글 제거
+		# 开启 WAF：去掉注释
 		sed -i 's|# load_module /etc/nginx/modules/ngx_http_modsecurity_module.so;|load_module /etc/nginx/modules/ngx_http_modsecurity_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 		sed -i 's|^\(\s*\)# modsecurity on;|\1modsecurity on;|' /home/web/nginx.conf > /dev/null 2>&1
 		sed -i 's|^\(\s*\)# modsecurity_rules_file /etc/nginx/modsec/modsecurity.conf;|\1modsecurity_rules_file /etc/nginx/modsec/modsecurity.conf;|' /home/web/nginx.conf > /dev/null 2>&1
 	elif [ "$mode" == "off" ]; then
-		# WAF 끄기: 댓글 추가
+		# 关闭 WAF：加上注释
 		sed -i 's|^load_module /etc/nginx/modules/ngx_http_modsecurity_module.so;|# load_module /etc/nginx/modules/ngx_http_modsecurity_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 		sed -i 's|^\(\s*\)modsecurity on;|\1# modsecurity on;|' /home/web/nginx.conf > /dev/null 2>&1
 		sed -i 's|^\(\s*\)modsecurity_rules_file /etc/nginx/modsec/modsecurity.conf;|\1# modsecurity_rules_file /etc/nginx/modsec/modsecurity.conf;|' /home/web/nginx.conf > /dev/null 2>&1
 	else
-		echo "잘못된 인수: 'on' 또는 'off'를 사용하세요."
+		echo "无效的参数：使用 'on' 或 'off'"
 		return 1
 	fi
 
-	# nginx 이미지를 확인하고 그에 따라 처리하세요.
+	# 检查 nginx 镜像并根据情况处理
 	if grep -q "kjlion/nginx:alpine" /home/web/docker-compose.yml; then
 		docker exec nginx nginx -s reload
 	else
@@ -1862,7 +1862,7 @@ check_waf_status() {
 	if grep -q "^\s*#\s*modsecurity on;" /home/web/nginx.conf; then
 		waf_status=""
 	elif grep -q "modsecurity on;" /home/web/nginx.conf; then
-		waf_status="WAF가 켜져 있습니다"
+		waf_status=" WAF已开启"
 	else
 		waf_status=""
 	fi
@@ -1871,7 +1871,7 @@ check_waf_status() {
 
 check_cf_mode() {
 	if [ -f "/etc/fail2ban/action.d/cloudflare-docker.conf" ]; then
-		CFmessage="cf 모드가 켜져 있습니다"
+		CFmessage=" cf模式已开启"
 	else
 		CFmessage=""
 	fi
@@ -1895,11 +1895,11 @@ patch_wp_memory_limit() {
   local TARGET_DIR="/home/web/html"    # 路径写死
 
   find "$TARGET_DIR" -type f -name "wp-config.php" | while read -r FILE; do
-	# 이전 정의 삭제
+	# 删除旧定义
 	sed -i "/define(['\"]WP_MEMORY_LIMIT['\"].*/d" "$FILE"
 	sed -i "/define(['\"]WP_MAX_MEMORY_LIMIT['\"].*/d" "$FILE"
 
-	# "HappyPublishing"이 포함된 줄 앞에 새 정의를 삽입합니다.
+	# 插入新定义，放在含 "Happy publishing" 的行前
 	awk -v insert="define('WP_MEMORY_LIMIT', '$MEMORY_LIMIT');\ndefine('WP_MAX_MEMORY_LIMIT', '$MAX_MEMORY_LIMIT');" \
 	'
 	  /Happy publishing/ {
@@ -1922,12 +1922,12 @@ patch_wp_debug() {
   local TARGET_DIR="/home/web/html"   # 路径写死
 
   find "$TARGET_DIR" -type f -name "wp-config.php" | while read -r FILE; do
-	# 이전 정의 삭제
+	# 删除旧定义
 	sed -i "/define(['\"]WP_DEBUG['\"].*/d" "$FILE"
 	sed -i "/define(['\"]WP_DEBUG_DISPLAY['\"].*/d" "$FILE"
 	sed -i "/define(['\"]WP_DEBUG_LOG['\"].*/d" "$FILE"
 
-	# "HappyPublishing"이 포함된 줄 앞에 새 정의를 삽입합니다.
+	# 插入新定义，放在含 "Happy publishing" 的行前
 	awk -v insert="define('WP_DEBUG_DISPLAY', $DEBUG_DISPLAY);\ndefine('WP_DEBUG_LOG', $DEBUG_LOG);" \
 	'
 	  /Happy publishing/ {
@@ -1949,17 +1949,17 @@ patch_wp_url() {
   local TARGET_DIR="/home/web/html"
 
   find "$TARGET_DIR" -type f -name "wp-config-sample.php" | while read -r FILE; do
-	# 이전 정의 삭제
+	# 删除旧定义
 	sed -i "/define(['\"]WP_HOME['\"].*/d" "$FILE"
 	sed -i "/define(['\"]WP_SITEURL['\"].*/d" "$FILE"
 
-	# 삽입 콘텐츠 생성
+	# 生成插入内容
 	INSERT="
 define('WP_HOME', '$HOME_URL');
 define('WP_SITEURL', '$SITE_URL');
 "
 
-	# '행복한 출판' 앞에 삽입
+	# 插入到 “Happy publishing” 之前
 	awk -v insert="$INSERT" '
 	  /Happy publishing/ {
 		print insert
@@ -1987,7 +1987,7 @@ nginx_br() {
 	fi
 
 	if [ "$mode" == "on" ]; then
-		# Brotli 켜기: 댓글 제거
+		# 开启 Brotli：去掉注释
 		sed -i 's|# load_module /etc/nginx/modules/ngx_http_brotli_filter_module.so;|load_module /etc/nginx/modules/ngx_http_brotli_filter_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 		sed -i 's|# load_module /etc/nginx/modules/ngx_http_brotli_static_module.so;|load_module /etc/nginx/modules/ngx_http_brotli_static_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 
@@ -2001,7 +2001,7 @@ nginx_br() {
 		sed -i '/brotli_types/,+6 s/^\(\s*\)#\s*/\1/' /home/web/nginx.conf
 
 	elif [ "$mode" == "off" ]; then
-		# Brotli 닫기: 댓글 추가
+		# 关闭 Brotli：加上注释
 		sed -i 's|^load_module /etc/nginx/modules/ngx_http_brotli_filter_module.so;|# load_module /etc/nginx/modules/ngx_http_brotli_filter_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 		sed -i 's|^load_module /etc/nginx/modules/ngx_http_brotli_static_module.so;|# load_module /etc/nginx/modules/ngx_http_brotli_static_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 
@@ -2017,11 +2017,11 @@ nginx_br() {
 		}' /home/web/nginx.conf
 
 	else
-		echo "잘못된 인수: 'on' 또는 'off'를 사용하세요."
+		echo "无效的参数：使用 'on' 或 'off'"
 		return 1
 	fi
 
-	# nginx 이미지를 확인하고 그에 따라 처리하세요.
+	# 检查 nginx 镜像并根据情况处理
 	if grep -q "kjlion/nginx:alpine" /home/web/docker-compose.yml; then
 		docker exec nginx nginx -s reload
 	else
@@ -2043,7 +2043,7 @@ nginx_zstd() {
 	fi
 
 	if [ "$mode" == "on" ]; then
-		# Zstd 켜기: 주석 제거
+		# 开启 Zstd：去掉注释
 		sed -i 's|# load_module /etc/nginx/modules/ngx_http_zstd_filter_module.so;|load_module /etc/nginx/modules/ngx_http_zstd_filter_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 		sed -i 's|# load_module /etc/nginx/modules/ngx_http_zstd_static_module.so;|load_module /etc/nginx/modules/ngx_http_zstd_static_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 
@@ -2058,7 +2058,7 @@ nginx_zstd() {
 
 
 	elif [ "$mode" == "off" ]; then
-		# Zstd 닫기: 설명 추가
+		# 关闭 Zstd：加上注释
 		sed -i 's|^load_module /etc/nginx/modules/ngx_http_zstd_filter_module.so;|# load_module /etc/nginx/modules/ngx_http_zstd_filter_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 		sed -i 's|^load_module /etc/nginx/modules/ngx_http_zstd_static_module.so;|# load_module /etc/nginx/modules/ngx_http_zstd_static_module.so;|' /home/web/nginx.conf > /dev/null 2>&1
 
@@ -2074,11 +2074,11 @@ nginx_zstd() {
 
 
 	else
-		echo "잘못된 인수: 'on' 또는 'off'를 사용하세요."
+		echo "无效的参数：使用 'on' 或 'off'"
 		return 1
 	fi
 
-	# nginx 이미지를 확인하고 그에 따라 처리하세요.
+	# 检查 nginx 镜像并根据情况处理
 	if grep -q "kjlion/nginx:alpine" /home/web/docker-compose.yml; then
 		docker exec nginx nginx -s reload
 	else
@@ -2105,7 +2105,7 @@ nginx_gzip() {
 	elif [ "$mode" == "off" ]; then
 		sed -i 's|^\(\s*\)gzip on;|\1# gzip on;|' /home/web/nginx.conf > /dev/null 2>&1
 	else
-		echo "잘못된 인수: 'on' 또는 'off'를 사용하세요."
+		echo "无效的参数：使用 'on' 或 'off'"
 		return 1
 	fi
 
@@ -2119,31 +2119,31 @@ nginx_gzip() {
 
 
 web_security() {
-	  send_stats "LDNMP 환경 방어"
+	  send_stats "LDNMP环境防御"
 	  while true; do
 		check_f2b_status
 		check_waf_status
 		check_cf_mode
 			  clear
-			  echo -e "서버 웹사이트 방어 프로그램${check_f2b_status}${gl_lv}${CFmessage}${waf_status}${gl_bai}"
+			  echo -e "服务器网站防御程序 ${check_f2b_status}${gl_lv}${CFmessage}${waf_status}${gl_bai}"
 			  echo "------------------------"
-			  echo "1. 방어 프로그램 설치"
+			  echo "1. 安装防御程序"
 			  echo "------------------------"
-			  echo "5. SSH 차단 기록 보기 6. 웹사이트 차단 기록 보기"
+			  echo "5. 查看SSH拦截记录                6. 查看网站拦截记录"
 			  echo "7. 방어규칙 목록 보기 8. 실시간 모니터링을 위한 로그 보기"
 			  echo "------------------------"
-			  echo "11. 차단 매개변수 구성 12. 차단된 IP 모두 삭제"
+			  echo "11. 配置拦截参数                  12. 清除所有拉黑的IP"
 			  echo "------------------------"
 			  echo "21. cloudflare 모드 22. 고부하에서 5초 보호 활성화"
 			  echo "------------------------"
-			  echo "31. WAF 켜기 32. WAF 끄기"
-			  echo "33. DDOS 방어 켜기 34. DDOS 방어 끄기"
+			  echo "31. 开启WAF                       32. 关闭WAF"
+			  echo "33. 开启DDOS防御                  34. 关闭DDOS防御"
 			  echo "------------------------"
-			  echo "9. 방어 프로그램 제거"
+			  echo "9. 卸载防御程序"
 			  echo "------------------------"
-			  echo "0. 이전 메뉴로 돌아가기"
+			  echo "0. 返回上一级选单"
 			  echo "------------------------"
-			  read -e -p "선택사항을 입력하세요:" sub_choice
+			  read -e -p "请输入你的选择: " sub_choice
 			  case $sub_choice in
 				  1)
 					  f2b_install_sshd
@@ -2208,7 +2208,7 @@ web_security() {
 					  remove fail2ban
 					  rm -rf /etc/fail2ban
 					  crontab -l | grep -v "CF-Under-Attack.sh" | crontab - 2>/dev/null
-					  echo "Fail2Ban 방어 프로그램이 제거되었습니다."
+					  echo "Fail2Ban防御程序已卸载"
 					  break
 					  ;;
 
@@ -2224,11 +2224,11 @@ web_security() {
 					  ;;
 
 				  21)
-					  send_stats "클라우드플레어 모드"
-					  echo "cf 백엔드 오른쪽 상단에 있는 내 프로필로 이동하여 왼쪽에 있는 API 토큰을 선택하고 글로벌 API 키를 받으세요."
+					  send_stats "cloudflare模式"
+					  echo "到cf后台右上角我的个人资料，选择左侧API令牌，获取Global API Key"
 					  echo "https://dash.cloudflare.com/login"
-					  read -e -p "CF의 계좌번호를 입력하세요:" cfuser
-					  read -e -p "CF의 글로벌 API 키를 입력하세요:" cftoken
+					  read -e -p "输入CF的账号: " cfuser
+					  read -e -p "输入CF的Global API Key: " cftoken
 
 					  wget -O /home/web/conf.d/default.conf ${gh_proxy}raw.githubusercontent.com/kejilion/nginx/main/default11.conf
 					  docker exec nginx nginx -s reload
@@ -2248,11 +2248,11 @@ web_security() {
 
 				  22)
 					  send_stats "고부하로 5초 쉴드 가능"
-					  echo -e "${gl_huang}웹사이트는 5분마다 자동으로 감지합니다. 높은 부하를 감지하면 자동으로 쉴드가 열리고, 낮은 부하가 감지되면 자동으로 5초 동안 쉴드가 닫힙니다.${gl_bai}"
+					  echo -e "${gl_huang}网站每5分钟自动检测，当达检测到高负载会自动开盾，低负载也会自动关闭5秒盾。${gl_bai}"
 					  echo "--------------"
-					  echo "CF 매개변수 가져오기:"
-					  echo -e "cf 백엔드 오른쪽 상단에 있는 내 프로필로 이동하여 왼쪽에 있는 API 토큰을 선택하고${gl_huang}Global API Key${gl_bai}"
-					  echo -e "cf 백엔드 도메인 이름 요약 페이지 오른쪽 하단으로 이동하여 가져오세요.${gl_huang}지역 ID${gl_bai}"
+					  echo "获取CF参数: "
+					  echo -e "到cf后台右上角我的个人资料，选择左侧API令牌，获取${gl_huang}Global API Key${gl_bai}"
+					  echo -e "到cf后台域名概要页面右下方获取${gl_huang}지역 ID${gl_bai}"
 					  echo "https://dash.cloudflare.com/login"
 					  echo "--------------"
 					  read -e -p "CF의 계좌번호를 입력하세요:" cfuser
@@ -2348,7 +2348,7 @@ check_nginx_compression() {
 
 	# gzip이 활성화되어 있고 주석 처리가 해제되어 있는지 확인하세요.
 	if grep -qE '^\s*gzip\s+on;' "$CONFIG_FILE"; then
-		gzip_status="gzip 압축이 켜져 있습니다"
+		gzip_status=" gzip压缩已开启"
 	else
 		gzip_status=""
 	fi
@@ -2363,17 +2363,17 @@ web_optimization() {
 			  check_nginx_compression
 			  clear
 			  send_stats "LDNMP 환경 최적화"
-			  echo -e "LDNMP 환경 최적화${gl_lv}${mode_info}${gzip_status}${br_status}${zstd_status}${gl_bai}"
+			  echo -e "优化LDNMP环境${gl_lv}${mode_info}${gzip_status}${br_status}${zstd_status}${gl_bai}"
 			  echo "------------------------"
 			  echo "1. 표준 모드 2. 고성능 모드(2H4G 이상 권장)"
 			  echo "------------------------"
-			  echo "3. gzip 압축 켜기 4. gzip 압축 끄기"
+			  echo "3. 开启gzip压缩          4. 关闭gzip压缩"
 			  echo "5. br 압축을 켭니다. 6. br 압축을 끕니다."
 			  echo "7. zstd 압축을 켭니다. 8. zstd 압축을 끕니다."
 			  echo "------------------------"
-			  echo "0. 이전 메뉴로 돌아가기"
+			  echo "0. 返回上一级选单"
 			  echo "------------------------"
-			  read -e -p "선택사항을 입력하세요:" sub_choice
+			  read -e -p "请输入你的选择: " sub_choice
 			  case $sub_choice in
 				  1)
 				  send_stats "사이트 표준 모드"
@@ -2402,7 +2402,7 @@ web_optimization() {
 				  fix_phpfpm_conf php
 				  fix_phpfpm_conf php74
 
-				  # MySQL 튜닝
+				  # mysql调优
 				  wget -O /home/custom_mysql_config.cnf ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/custom_mysql_config-1.cnf
 				  docker cp /home/custom_mysql_config.cnf mysql:/etc/mysql/conf.d/
 				  rm -rf /home/custom_mysql_config.cnf
@@ -2413,13 +2413,13 @@ web_optimization() {
 				  optimize_balanced
 
 
-				  echo "LDNMP 환경이 표준 모드로 설정되었습니다."
+				  echo "LDNMP环境已设置成 标准模式"
 
 					  ;;
 				  2)
 				  send_stats "사이트 고성능 모드"
 
-				  # nginx 튜닝
+				  # nginx调优
 				  local cpu_cores=$(nproc)
 				  local connections=$((2048 * ${cpu_cores}))
 				  sed -i "s/worker_processes.*/worker_processes ${cpu_cores};/" /home/web/nginx.conf
@@ -2431,7 +2431,7 @@ web_optimization() {
 				  docker cp /home/optimized_php.ini php74:/usr/local/etc/php/conf.d/optimized_php.ini
 				  rm -rf /home/optimized_php.ini
 
-				  # PHP 튜닝
+				  # php调优
 				  wget -O /home/www.conf ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/www.conf
 				  docker cp /home/www.conf php:/usr/local/etc/php-fpm.d/www.conf
 				  docker cp /home/www.conf php74:/usr/local/etc/php-fpm.d/www.conf
@@ -2443,7 +2443,7 @@ web_optimization() {
 				  fix_phpfpm_conf php
 				  fix_phpfpm_conf php74
 
-				  # MySQL 튜닝
+				  # mysql调优
 				  wget -O /home/custom_mysql_config.cnf ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/custom_mysql_config.cnf
 				  docker cp /home/custom_mysql_config.cnf mysql:/etc/mysql/conf.d/
 				  rm -rf /home/custom_mysql_config.cnf
@@ -2452,7 +2452,7 @@ web_optimization() {
 
 				  optimize_web_server
 
-				  echo "LDNMP 환경이 고성능 모드로 설정되었습니다."
+				  echo "LDNMP环境已设置成 高性能模式"
 
 					  ;;
 				  3)
@@ -2501,7 +2501,7 @@ web_optimization() {
 
 check_docker_app() {
 	if docker ps -a --format '{{.Names}}' 2>/dev/null | grep -q "$docker_name" ; then
-		check_docker="${gl_lv}설치됨${gl_bai}"
+		check_docker="${gl_lv}已安装${gl_bai}"
 	else
 		check_docker="${gl_hui}설치되지 않음${gl_bai}"
 	fi
@@ -2514,7 +2514,7 @@ check_docker_app() {
 # if docker ps -a --format '{{.Names}}' 2>/dev/null | grep -q "$docker_name"; then
 # check_docker="${gl_lv}가 ${gl_bai}를 설치했습니다."
 # else
-# check_docker="${gl_hui}이(가) ${gl_bai}" 설치되지 않았습니다.
+# check_docker="${gl_hui}未安装${gl_bai}"
 # fi
 
 # }
@@ -2522,7 +2522,7 @@ check_docker_app() {
 
 check_docker_app_ip() {
 echo "------------------------"
-echo "방문 주소:"
+echo "访问地址:"
 ip_address
 
 
@@ -2554,11 +2554,11 @@ check_docker_image_update() {
 	local container_name=$1
 	update_status=""
 
-	# 1. 지역점검
+	# 1. 区域检查
 	local country=$(curl -s --max-time 2 ipinfo.io/country)
 	[[ "$country" == "CN" ]] && return
 
-	# 2. 로컬 미러 정보 얻기
+	# 2. 获取本地镜像信息
 	local container_info=$(docker inspect --format='{{.Created}},{{.Config.Image}}' "$container_name" 2>/dev/null)
 	[[ -z "$container_info" ]] && return
 
@@ -2566,9 +2566,9 @@ check_docker_image_update() {
 	local full_image_name=$(echo "$container_info" | cut -d',' -f2)
 	local container_created_ts=$(date -d "$container_created" +%s 2>/dev/null)
 
-	# 3. 지능형 라우팅 판단
+	# 3. 智能路由判断
 	if [[ "$full_image_name" == ghcr.io* ]]; then
-		# --- 시나리오 A: GitHub(ghcr.io)의 미러링 ---
+		# --- 场景 A: 镜像在 GitHub (ghcr.io) ---
 		# 웨어하우스 경로를 추출합니다(예: ghcr.io/onexru/oneimg -> onexru/oneimg).
 		local repo_path=$(echo "$full_image_name" | sed 's/ghcr.io\///' | cut -d':' -f1)
 		# 참고: ghcr.io의 API는 비교적 복잡합니다. 일반적으로 가장 빠른 방법은 GitHub Repo 릴리스를 확인하는 것입니다.
@@ -2581,7 +2581,7 @@ check_docker_image_update() {
 		local remote_date=$(curl -s "$api_url" | jq -r '.published_at' 2>/dev/null)
 
 	else
-		# --- 시나리오 C: 표준 Docker 허브 ---
+		# --- 场景 C: 标准 Docker Hub ---
 		local image_repo=${full_image_name%%:*}
 		local image_tag=${full_image_name##*:}
 		[[ "$image_repo" == "$image_tag" ]] && image_tag="latest"
@@ -2591,11 +2591,11 @@ check_docker_image_update() {
 		local remote_date=$(curl -s "$api_url" | jq -r '.last_updated' 2>/dev/null)
 	fi
 
-	# 4. 타임스탬프 비교
+	# 4. 时间戳对比
 	if [[ -n "$remote_date" && "$remote_date" != "null" ]]; then
 		local remote_ts=$(date -d "$remote_date" +%s 2>/dev/null)
 		if [[ $container_created_ts -lt $remote_ts ]]; then
-			update_status="${gl_huang}새 버전이 발견되었습니다!${gl_bai}"
+			update_status="${gl_huang}发现新版本!${gl_bai}"
 		fi
 	fi
 }
@@ -2620,34 +2620,34 @@ block_container_port() {
 	install iptables
 
 
-	# 다른 모든 IP를 확인하고 차단하세요.
+	# 检查并封禁其他所有 IP
 	if ! iptables -C DOCKER-USER -p tcp -d "$container_ip" -j DROP &>/dev/null; then
 		iptables -I DOCKER-USER -p tcp -d "$container_ip" -j DROP
 	fi
 
-	# 지정된 IP 확인 및 해제
+	# 检查并放行指定 IP
 	if ! iptables -C DOCKER-USER -p tcp -s "$allowed_ip" -d "$container_ip" -j ACCEPT &>/dev/null; then
 		iptables -I DOCKER-USER -p tcp -s "$allowed_ip" -d "$container_ip" -j ACCEPT
 	fi
 
-	# 로컬 네트워크 127.0.0.0/8 확인 및 허용
+	# 检查并放行本地网络 127.0.0.0/8
 	if ! iptables -C DOCKER-USER -p tcp -s 127.0.0.0/8 -d "$container_ip" -j ACCEPT &>/dev/null; then
 		iptables -I DOCKER-USER -p tcp -s 127.0.0.0/8 -d "$container_ip" -j ACCEPT
 	fi
 
 
 
-	# 다른 모든 IP를 확인하고 차단하세요.
+	# 检查并封禁其他所有 IP
 	if ! iptables -C DOCKER-USER -p udp -d "$container_ip" -j DROP &>/dev/null; then
 		iptables -I DOCKER-USER -p udp -d "$container_ip" -j DROP
 	fi
 
-	# 지정된 IP 확인 및 해제
+	# 检查并放行指定 IP
 	if ! iptables -C DOCKER-USER -p udp -s "$allowed_ip" -d "$container_ip" -j ACCEPT &>/dev/null; then
 		iptables -I DOCKER-USER -p udp -s "$allowed_ip" -d "$container_ip" -j ACCEPT
 	fi
 
-	# 로컬 네트워크 127.0.0.0/8 확인 및 허용
+	# 检查并放行本地网络 127.0.0.0/8
 	if ! iptables -C DOCKER-USER -p udp -s 127.0.0.0/8 -d "$container_ip" -j ACCEPT &>/dev/null; then
 		iptables -I DOCKER-USER -p udp -s 127.0.0.0/8 -d "$container_ip" -j ACCEPT
 	fi
@@ -2657,7 +2657,7 @@ block_container_port() {
 	fi
 
 
-	echo "IP+포트가 서비스 접근을 차단했습니다."
+	echo "已阻止IP+端口访问该服务"
 	save_iptables_rules
 }
 
@@ -2678,17 +2678,17 @@ clear_container_rules() {
 	install iptables
 
 
-	# 다른 모든 IP를 차단하는 명확한 규칙
+	# 清除封禁其他所有 IP 的规则
 	if iptables -C DOCKER-USER -p tcp -d "$container_ip" -j DROP &>/dev/null; then
 		iptables -D DOCKER-USER -p tcp -d "$container_ip" -j DROP
 	fi
 
-	# 특정 IP를 허용하는 규칙 지우기
+	# 清除放行指定 IP 的规则
 	if iptables -C DOCKER-USER -p tcp -s "$allowed_ip" -d "$container_ip" -j ACCEPT &>/dev/null; then
 		iptables -D DOCKER-USER -p tcp -s "$allowed_ip" -d "$container_ip" -j ACCEPT
 	fi
 
-	# 로컬 네트워크 127.0.0.0/8을 허용하는 규칙을 지웁니다.
+	# 清除放行本地网络 127.0.0.0/8 的规则
 	if iptables -C DOCKER-USER -p tcp -s 127.0.0.0/8 -d "$container_ip" -j ACCEPT &>/dev/null; then
 		iptables -D DOCKER-USER -p tcp -s 127.0.0.0/8 -d "$container_ip" -j ACCEPT
 	fi
@@ -2702,12 +2702,12 @@ clear_container_rules() {
 		iptables -D DOCKER-USER -p udp -d "$container_ip" -j DROP
 	fi
 
-	# 특정 IP를 허용하는 규칙 지우기
+	# 清除放行指定 IP 的规则
 	if iptables -C DOCKER-USER -p udp -s "$allowed_ip" -d "$container_ip" -j ACCEPT &>/dev/null; then
 		iptables -D DOCKER-USER -p udp -s "$allowed_ip" -d "$container_ip" -j ACCEPT
 	fi
 
-	# 로컬 네트워크 127.0.0.0/8을 허용하는 규칙을 지웁니다.
+	# 清除放行本地网络 127.0.0.0/8 的规则
 	if iptables -C DOCKER-USER -p udp -s 127.0.0.0/8 -d "$container_ip" -j ACCEPT &>/dev/null; then
 		iptables -D DOCKER-USER -p udp -s 127.0.0.0/8 -d "$container_ip" -j ACCEPT
 	fi
@@ -2718,7 +2718,7 @@ clear_container_rules() {
 	fi
 
 
-	echo "IP+포트로 서비스 접속이 허용되었습니다"
+	echo "已允许IP+端口访问该服务"
 	save_iptables_rules
 }
 
@@ -2732,25 +2732,25 @@ block_host_port() {
 	local allowed_ip=$2
 
 	if [[ -z "$port" || -z "$allowed_ip" ]]; then
-		echo "오류: 액세스를 허용하려면 포트 번호와 IP를 입력하세요."
-		echo "사용법: block_host_port <포트 번호> <허용 IP>"
+		echo "错误：请提供端口号和允许访问的 IP。"
+		echo "用法: block_host_port <端口号> <允许的IP>"
 		return 1
 	fi
 
 	install iptables
 
 
-	# 다른 모든 IP의 접근을 거부
+	# 拒绝其他所有 IP 访问
 	if ! iptables -C INPUT -p tcp --dport "$port" -j DROP &>/dev/null; then
 		iptables -I INPUT -p tcp --dport "$port" -j DROP
 	fi
 
-	# 지정된 IP에 대한 접근을 허용
+	# 允许指定 IP 访问
 	if ! iptables -C INPUT -p tcp --dport "$port" -s "$allowed_ip" -j ACCEPT &>/dev/null; then
 		iptables -I INPUT -p tcp --dport "$port" -s "$allowed_ip" -j ACCEPT
 	fi
 
-	# 로컬 액세스 허용
+	# 允许本机访问
 	if ! iptables -C INPUT -p tcp --dport "$port" -s 127.0.0.0/8 -j ACCEPT &>/dev/null; then
 		iptables -I INPUT -p tcp --dport "$port" -s 127.0.0.0/8 -j ACCEPT
 	fi
@@ -2759,27 +2759,27 @@ block_host_port() {
 
 
 
-	# 다른 모든 IP의 접근을 거부
+	# 拒绝其他所有 IP 访问
 	if ! iptables -C INPUT -p udp --dport "$port" -j DROP &>/dev/null; then
 		iptables -I INPUT -p udp --dport "$port" -j DROP
 	fi
 
-	# 지정된 IP에 대한 접근을 허용
+	# 允许指定 IP 访问
 	if ! iptables -C INPUT -p udp --dport "$port" -s "$allowed_ip" -j ACCEPT &>/dev/null; then
 		iptables -I INPUT -p udp --dport "$port" -s "$allowed_ip" -j ACCEPT
 	fi
 
-	# 로컬 액세스 허용
+	# 允许本机访问
 	if ! iptables -C INPUT -p udp --dport "$port" -s 127.0.0.0/8 -j ACCEPT &>/dev/null; then
 		iptables -I INPUT -p udp --dport "$port" -s 127.0.0.0/8 -j ACCEPT
 	fi
 
-	# 확립된 관련 연결에 대한 트래픽 허용
+	# 允许已建立和相关连接的流量
 	if ! iptables -C INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT &>/dev/null; then
 		iptables -I INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 	fi
 
-	echo "IP+포트가 서비스 접근을 차단했습니다."
+	echo "已阻止IP+端口访问该服务"
 	save_iptables_rules
 }
 
@@ -2791,8 +2791,8 @@ clear_host_port_rules() {
 	local allowed_ip=$2
 
 	if [[ -z "$port" || -z "$allowed_ip" ]]; then
-		echo "오류: 액세스를 허용하려면 포트 번호와 IP를 입력하세요."
-		echo "사용법:clear_host_port_rules <포트 번호> <허용 IP>"
+		echo "错误：请提供端口号和允许访问的 IP。"
+		echo "用法: clear_host_port_rules <端口号> <允许的IP>"
 		return 1
 	fi
 
@@ -2804,12 +2804,12 @@ clear_host_port_rules() {
 		iptables -D INPUT -p tcp --dport "$port" -j DROP
 	fi
 
-	# 로컬 액세스를 허용하는 명확한 규칙
+	# 清除允许本机访问的规则
 	if iptables -C INPUT -p tcp --dport "$port" -s 127.0.0.0/8 -j ACCEPT &>/dev/null; then
 		iptables -D INPUT -p tcp --dport "$port" -s 127.0.0.0/8 -j ACCEPT
 	fi
 
-	# 지정된 IP로부터의 액세스를 허용하는 명확한 규칙
+	# 清除允许指定 IP 访问的规则
 	if iptables -C INPUT -p tcp --dport "$port" -s "$allowed_ip" -j ACCEPT &>/dev/null; then
 		iptables -D INPUT -p tcp --dport "$port" -s "$allowed_ip" -j ACCEPT
 	fi
@@ -2820,7 +2820,7 @@ clear_host_port_rules() {
 		iptables -D INPUT -p udp --dport "$port" -j DROP
 	fi
 
-	# 로컬 액세스를 허용하는 명확한 규칙
+	# 清除允许本机访问的规则
 	if iptables -C INPUT -p udp --dport "$port" -s 127.0.0.0/8 -j ACCEPT &>/dev/null; then
 		iptables -D INPUT -p udp --dport "$port" -s 127.0.0.0/8 -j ACCEPT
 	fi
@@ -2870,7 +2870,7 @@ grep -qxF "${app_id}" /home/docker/appno.txt || echo "${app_id}" >> /home/docker
 
 
 docker_app() {
-send_stats "${docker_name}관리하다"
+send_stats "${docker_name}管理"
 
 while true; do
 	clear
@@ -2890,19 +2890,19 @@ while true; do
 	fi
 	echo ""
 	echo "------------------------"
-	echo "1. 설치 2. 업데이트 3. 제거"
+	echo "1. 安装              2. 更新            3. 卸载"
 	echo "------------------------"
 	echo "5. 도메인 이름 액세스 추가 6. 도메인 이름 액세스 삭제"
-	echo "7. IP+포트 접근 허용 8. IP+포트 접근 차단"
+	echo "7. 允许IP+端口访问   8. 阻止IP+端口访问"
 	echo "------------------------"
 	echo "0. 이전 메뉴로 돌아가기"
 	echo "------------------------"
-	read -e -p "선택사항을 입력하세요:" choice
+	read -e -p "请输入你的选择: " choice
 	 case $choice in
 		1)
 			setup_docker_dir
 			check_disk_space $app_size /home/docker
-			read -e -p "애플리케이션 외부 서비스 포트를 입력하고 Enter를 누르면 기본적으로 사용됩니다.${docker_port}포트:" app_port
+			read -e -p "输入应用对外服务端口，回车默认使用${docker_port}端口: " app_port
 			local app_port=${app_port:-${docker_port}}
 			local docker_port=$app_port
 
@@ -2914,12 +2914,12 @@ while true; do
 			add_app_id
 
 			clear
-			echo "$docker_name설치 완료"
+			echo "$docker_name 已经安装完成"
 			check_docker_app_ip
 			echo ""
 			$docker_use
 			$docker_passwd
-			send_stats "설치하다$docker_name"
+			send_stats "安装$docker_name"
 			;;
 		2)
 			docker rm -f "$docker_name"
@@ -2929,12 +2929,12 @@ while true; do
 			add_app_id
 
 			clear
-			echo "$docker_name설치 완료"
+			echo "$docker_name 已经安装完成"
 			check_docker_app_ip
 			echo ""
 			$docker_use
 			$docker_passwd
-			send_stats "고쳐 쓰다$docker_name"
+			send_stats "更新$docker_name"
 			;;
 		3)
 			docker rm -f "$docker_name"
@@ -2943,30 +2943,30 @@ while true; do
 			rm -f /home/docker/${docker_name}_port.conf
 
 			sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
-			echo "앱이 제거되었습니다."
-			send_stats "제거$docker_name"
+			echo "应用已卸载"
+			send_stats "卸载$docker_name"
 			;;
 
 		5)
-			echo "${docker_name}도메인 이름 액세스 설정"
-			send_stats "${docker_name}도메인 이름 액세스 설정"
+			echo "${docker_name}域名访问设置"
+			send_stats "${docker_name}域名访问设置"
 			add_yuming
 			ldnmp_Proxy ${yuming} 127.0.0.1 ${docker_port}
 			block_container_port "$docker_name" "$ipv4_address"
 			;;
 
 		6)
-			echo "https://가 없는 도메인 이름 형식 example.com"
+			echo "域名格式 example.com 不带https://"
 			web_del
 			;;
 
 		7)
-			send_stats "IP 액세스 허용${docker_name}"
+			send_stats "允许IP访问 ${docker_name}"
 			clear_container_rules "$docker_name" "$ipv4_address"
 			;;
 
 		8)
-			send_stats "IP 접근 차단${docker_name}"
+			send_stats "阻止IP访问 ${docker_name}"
 			block_container_port "$docker_name" "$ipv4_address"
 			;;
 
@@ -3003,19 +3003,19 @@ docker_app_plus() {
 		fi
 		echo ""
 		echo "------------------------"
-		echo "1. 설치 2. 업데이트 3. 제거"
+		echo "1. 安装             2. 更新             3. 卸载"
 		echo "------------------------"
-		echo "5. 도메인 이름 액세스 추가 6. 도메인 이름 액세스 삭제"
-		echo "7. IP+포트 접근 허용 8. IP+포트 접근 차단"
+		echo "5. 添加域名访问     6. 删除域名访问"
+		echo "7. 允许IP+端口访问  8. 阻止IP+端口访问"
 		echo "------------------------"
 		echo "0. 이전 메뉴로 돌아가기"
 		echo "------------------------"
-		read -e -p "선택 항목을 입력하세요." choice
+		read -e -p "输入你的选择: " choice
 		case $choice in
 			1)
 				setup_docker_dir
 				check_disk_space $app_size /home/docker
-				read -e -p "애플리케이션 외부 서비스 포트를 입력하고 Enter 키를 누르면 기본적으로 사용됩니다.${docker_port}포트:" app_port
+				read -e -p "输入应用对外服务端口，回车默认使用${docker_port}端口: " app_port
 				local app_port=${app_port:-${docker_port}}
 				local docker_port=$app_port
 				install jq
@@ -3024,13 +3024,13 @@ docker_app_plus() {
 				echo "$docker_port" > "/home/docker/${docker_name}_port.conf"
 
 				add_app_id
-				send_stats "$app_name설치하다"
+				send_stats "$app_name 安装"
 				;;
 
 			2)
 				docker_app_update
 				add_app_id
-				send_stats "$app_name고쳐 쓰다"
+				send_stats "$app_name 更新"
 				;;
 
 			3)
@@ -3038,27 +3038,27 @@ docker_app_plus() {
 				rm -f /home/docker/${docker_name}_port.conf
 
 				sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
-				send_stats "$app_name제거"
+				send_stats "$app_name 卸载"
 				;;
 
 			5)
-				echo "${docker_name}도메인 이름 액세스 설정"
-				send_stats "${docker_name}도메인 이름 액세스 설정"
+				echo "${docker_name}域名访问设置"
+				send_stats "${docker_name}域名访问设置"
 				add_yuming
 				ldnmp_Proxy ${yuming} 127.0.0.1 ${docker_port}
 				block_container_port "$docker_name" "$ipv4_address"
 
 				;;
 			6)
-				echo "https://가 없는 도메인 이름 형식 example.com"
+				echo "域名格式 example.com 不带https://"
 				web_del
 				;;
 			7)
-				send_stats "IP 액세스 허용${docker_name}"
+				send_stats "允许IP访问 ${docker_name}"
 				clear_container_rules "$docker_name" "$ipv4_address"
 				;;
 			8)
-				send_stats "IP 접근 차단${docker_name}"
+				send_stats "阻止IP访问 ${docker_name}"
 				block_container_port "$docker_name" "$ipv4_address"
 				;;
 			*)
@@ -3143,12 +3143,12 @@ tmux_run_d() {
 local base_name="tmuxd"
 local tmuxd_ID=1
 
-# 세션이 존재하는지 확인하는 함수
+# 检查会话是否存在的函数
 session_exists() {
   tmux has-session -t $1 2>/dev/null
 }
 
-# 존재하지 않는 세션 이름을 찾을 때까지 반복
+# 循环直到找到一个不存在的会话名称
 while session_exists "$base_name-$tmuxd_ID"; do
   local tmuxd_ID=$((tmuxd_ID + 1))
 done
@@ -3173,9 +3173,9 @@ f2b_status_xxx() {
 
 check_f2b_status() {
 	if command -v fail2ban-client >/dev/null 2>&1; then
-		check_f2b_status="${gl_lv}설치됨${gl_bai}"
+		check_f2b_status="${gl_lv}已安装${gl_bai}"
 	else
-		check_f2b_status="${gl_hui}설치되지 않음${gl_bai}"
+		check_f2b_status="${gl_hui}未安装${gl_bai}"
 	fi
 }
 
@@ -3217,11 +3217,11 @@ server_reboot() {
 	read -e -p "$(echo -e "${gl_huang}提示: ${gl_bai}现在重启服务器吗？(Y/N): ")" rboot
 	case "$rboot" in
 	  [Yy])
-		echo "다시 시작됨"
+		echo "已重启"
 		reboot
 		;;
 	  *)
-		echo "취소"
+		echo "已取消"
 		;;
 	esac
 
@@ -3265,7 +3265,7 @@ ldnmp_install_status_one() {
    if docker inspect "php" &>/dev/null; then
 	clear
 	send_stats "LDNMP 환경을 다시 설치할 수 없습니다"
-	echo -e "${gl_huang}힌트:${gl_bai}홈페이지 구축 환경이 설치되었습니다. 다시 설치할 필요가 없습니다!"
+	echo -e "${gl_huang}힌트:${gl_bai}建站环境已安装。无需再次安装！"
 	break_end
 	linux_ldnmp
    fi
@@ -3278,7 +3278,7 @@ cd ~
 send_stats "LDNMP 환경 설치"
 root_use
 clear
-echo -e "${gl_huang}LDNMP 환경이 설치되지 않았습니다. LDNMP 환경 설치를 시작합니다...${gl_bai}"
+echo -e "${gl_huang}LDNMP环境未安装，开始安装LDNMP环境...${gl_bai}"
 check_disk_space 3 /home
 install_dependency
 install_docker
@@ -3291,10 +3291,10 @@ install_ldnmp
 
 nginx_install_all() {
 cd ~
-send_stats "nginx 환경 설치"
+send_stats "安装nginx环境"
 root_use
 clear
-echo -e "${gl_huang}nginx가 설치되지 않았습니다. nginx 환경 설치를 시작하세요...${gl_bai}"
+echo -e "${gl_huang}nginx未安装，开始安装nginx环境...${gl_bai}"
 check_disk_space 1 /home
 install_dependency
 install_docker
@@ -3304,7 +3304,7 @@ nginx_upgrade
 clear
 local nginx_version=$(docker exec nginx nginx -v 2>&1)
 local nginx_version=$(echo "$nginx_version" | grep -oP "nginx/\K[0-9]+\.[0-9]+\.[0-9]+")
-echo "nginx가 설치되었습니다"
+echo "nginx已安装完成"
 echo -e "현재 버전:${gl_huang}v$nginx_version${gl_bai}"
 echo ""
 
@@ -3316,7 +3316,7 @@ echo ""
 ldnmp_install_status() {
 
 	if ! docker inspect "php" &>/dev/null; then
-		send_stats "먼저 LDNMP 환경을 설치해 주세요"
+		send_stats "请先安装LDNMP环境"
 		ldnmp_install_all
 	fi
 
@@ -3326,7 +3326,7 @@ ldnmp_install_status() {
 nginx_install_status() {
 
 	if ! docker inspect "nginx" &>/dev/null; then
-		send_stats "먼저 nginx 환경을 설치해주세요"
+		send_stats "请先安装nginx环境"
 		nginx_install_all
 	fi
 
@@ -3337,10 +3337,10 @@ nginx_install_status() {
 
 ldnmp_web_on() {
 	  clear
-	  echo "당신의$webname지어졌습니다!"
+	  echo "당신의$webname 搭建好了！"
 	  echo "https://$yuming"
 	  echo "------------------------"
-	  echo "$webname설치정보는 다음과 같습니다."
+	  echo "$webname 安装信息如下: "
 
 }
 
@@ -3350,7 +3350,7 @@ nginx_web_on() {
 	local ipv4_pattern='^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'
 	local ipv6_pattern='^(([0-9A-Fa-f]{1,4}:){1,7}:|([0-9A-Fa-f]{1,4}:){7,7}[0-9A-Fa-f]{1,4}|::1)$'
 
-	echo "당신의$webname지어졌습니다!"
+	echo "您的 $webname 搭建好了！"
 
 	if [[ "$yuming" =~ $ipv4_pattern || "$yuming" =~ $ipv6_pattern ]]; then
 		mv /home/web/conf.d/"$yuming".conf /home/web/conf.d/"${yuming}_${access_port}".conf
@@ -3369,8 +3369,8 @@ ldnmp_wp() {
   # wordpress
   webname="WordPress"
   yuming="${1:-}"
-  send_stats "설치하다$webname"
-  echo "배포 시작$webname"
+  send_stats "安装$webname"
+  echo "开始部署 $webname"
   if [ -z "$yuming" ]; then
 	add_yuming
   fi
@@ -3416,7 +3416,7 @@ ldnmp_Proxy() {
 	port="${3:-}"
 
 	send_stats "설치하다$webname"
-	echo "배포 시작$webname"
+	echo "开始部署 $webname"
 	if [ -z "$yuming" ]; then
 		add_yuming
 	fi
@@ -3424,7 +3424,7 @@ ldnmp_Proxy() {
 	check_ip_and_get_access_port "$yuming"
 
 	if [ -z "$reverseproxy" ]; then
-		read -e -p "세대 방지 IP를 입력하십시오(기본값은 로컬 IP 127.0.0.1로 설정하려면 Enter를 누르십시오)." reverseproxy
+		read -e -p "请输入你的反代IP (回车默认本机IP 127.0.0.1): " reverseproxy
 		reverseproxy=${reverseproxy:-127.0.0.1}
 	fi
 
@@ -3452,7 +3452,7 @@ ldnmp_Proxy() {
 		upstream_servers="$upstream_servers    server $server;\n"
 	done
 
-	sed -i "s/# 동적으로 추가/$upstream_servers/g" /home/web/conf.d/$yuming.conf
+	sed -i "s/# 动态添加/$upstream_servers/g" /home/web/conf.d/$yuming.conf
 	sed -i '/remote_addr/d' /home/web/conf.d/$yuming.conf
 
 	update_nginx_listen_port "$yuming" "$access_port"
@@ -3468,8 +3468,8 @@ ldnmp_Proxy_backend() {
 	clear
 	webname="역방향 프록시-로드 밸런싱"
 
-	send_stats "설치하다$webname"
-	echo "배포 시작$webname"
+	send_stats "安装$webname"
+	echo "开始部署 $webname"
 	if [ -z "$yuming" ]; then
 		add_yuming
 	fi
@@ -3477,7 +3477,7 @@ ldnmp_Proxy_backend() {
 	check_ip_and_get_access_port "$yuming"
 
 	if [ -z "$reverseproxy_port" ]; then
-		read -e -p "여러 세대 방지 IP+포트를 공백으로 구분하여 입력하세요(예: 127.0.0.1:3000 127.0.0.1:3002)." reverseproxy_port
+		read -e -p "请输入你的多个反代IP+端口用空格隔开（例如 127.0.0.1:3000 127.0.0.1:3002）： " reverseproxy_port
 	fi
 
 	nginx_install_status
@@ -3500,7 +3500,7 @@ ldnmp_Proxy_backend() {
 		upstream_servers="$upstream_servers    server $server;\n"
 	done
 
-	sed -i "s/# 동적으로 추가/$upstream_servers/g" /home/web/conf.d/$yuming.conf
+	sed -i "s/# 动态添加/$upstream_servers/g" /home/web/conf.d/$yuming.conf
 
 	update_nginx_listen_port "$yuming" "$access_port"
 
@@ -3517,7 +3517,7 @@ ldnmp_Proxy_backend() {
 list_stream_services() {
 
 	STREAM_DIR="/home/web/stream.d"
-	printf "%-25s %-18s %-25s %-20s\n" "서비스 이름" "통신 유형" "현지 주소" "백엔드 주소"
+	printf "%-25s %-18s %-25s %-20s\n" "服务名" "通信类型" "本机地址" "后端地址"
 
 	if [ -z "$(ls -A "$STREAM_DIR")" ]; then
 		return
@@ -3527,24 +3527,24 @@ list_stream_services() {
 		# 서비스 이름은 파일 이름을 사용합니다.
 		service_name=$(basename "$conf" .conf)
 
-		# 업스트림 블록에서 서버 백엔드 IP:포트 가져오기
+		# 获取 upstream 块中的 server 后端 IP:端口
 		backend=$(grep -Po '(?<=server )[^;]+' "$conf" | head -n1)
 
-		# 청취 포트 가져오기
+		# 获取 listen 端口
 		listen_port=$(grep -Po '(?<=listen )[^;]+' "$conf" | head -n1)
 
-		# 기본 로컬 IP
+		# 默认本地 IP
 		ip_address
 		local_ip="$ipv4_address"
 
-		# 먼저 파일 이름 접미사 또는 내용으로 판단하여 통신 유형을 가져옵니다.
+		# 获取通信类型，优先从文件名后缀或内容判断
 		if grep -qi 'udp;' "$conf"; then
 			proto="udp"
 		else
 			proto="tcp"
 		fi
 
-		# 스플라이스 청취 IP:포트
+		# 拼接监听 IP:端口
 		local_addr="$local_ip:$listen_port"
 
 		printf "%-22s %-14s %-21s %-20s\n" "$service_name" "$proto" "$local_addr" "$backend"
@@ -3560,7 +3560,7 @@ list_stream_services() {
 
 
 stream_panel() {
-	send_stats "4계층 프록시 스트리밍"
+	send_stats "Stream四层代理"
 	local app_id="104"
 	local docker_name="nginx"
 
@@ -3568,42 +3568,42 @@ stream_panel() {
 		clear
 		check_docker_app
 		check_docker_image_update $docker_name
-		echo -e "스트림 4계층 프록시 전달 도구$check_docker $update_status"
-		echo "NGINX 스트림은 고성능 전송 계층 트래픽 전달 및 로드 밸런싱을 달성하는 데 사용되는 NGINX의 TCP/UDP 프록시 모듈입니다."
+		echo -e "Stream四层代理转发工具 $check_docker $update_status"
+		echo "NGINX Stream 是 NGINX 的 TCP/UDP 代理模块，用于实现高性能的 传输层流量转发和负载均衡。"
 		echo "------------------------"
 		if [ -d "/home/web/stream.d" ]; then
 			list_stream_services
 		fi
 		echo ""
 		echo "------------------------"
-		echo "1. 설치 2. 업데이트 3. 제거"
+		echo "1. 安装               2. 更新               3. 卸载"
 		echo "------------------------"
-		echo "4. 포워딩 서비스 추가 5. 포워딩 서비스 수정 6. 포워딩 서비스 삭제"
+		echo "4. 添加转发服务       5. 修改转发服务       6. 删除转发服务"
 		echo "------------------------"
-		echo "0. 이전 메뉴로 돌아가기"
+		echo "0. 返回上一级选单"
 		echo "------------------------"
-		read -e -p "선택 항목을 입력하세요." choice
+		read -e -p "输入你的选择: " choice
 		case $choice in
 			1)
 				nginx_install_status
 				add_app_id
-				send_stats "Stream 4계층 에이전트 설치"
+				send_stats "安装Stream四层代理"
 				;;
 			2)
 				update_docker_compose_with_db_creds
 				nginx_upgrade
 				add_app_id
-				send_stats "Stream 4계층 프록시 업데이트"
+				send_stats "更新Stream四层代理"
 				;;
 			3)
-				read -e -p "nginx 컨테이너를 삭제하시겠습니까? 이는 웹사이트 기능에 영향을 미칠 수 있습니다! (예/아니요):" confirm
+				read -e -p "确定要删除 nginx 容器吗？这可能会影响网站功能！(y/N): " confirm
 				if [[ "$confirm" =~ ^[Yy]$ ]]; then
 					docker rm -f nginx
 					sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
-					send_stats "Stream 4계층 프록시 업데이트"
-					echo "nginx 컨테이너가 삭제되었습니다."
+					send_stats "更新Stream四层代理"
+					echo "nginx 容器已删除。"
 				else
-					echo "작업이 취소되었습니다."
+					echo "操作已取消。"
 				fi
 
 				;;
@@ -3614,19 +3614,19 @@ stream_panel() {
 				send_stats "레이어 4 프록시 추가"
 				;;
 			5)
-				send_stats "전달 구성 수정"
-				read -e -p "편집하려는 서비스 이름을 입력하십시오:" stream_name
+				send_stats "编辑转发配置"
+				read -e -p "请输入你要编辑的服务名: " stream_name
 				install nano
 				nano /home/web/stream.d/$stream_name.conf
 				docker restart nginx
-				send_stats "레이어 4 프록시 수정"
+				send_stats "修改四层代理"
 				;;
 			6)
-				send_stats "전달 구성 삭제"
-				read -e -p "삭제하려는 서비스 이름을 입력하세요." stream_name
+				send_stats "删除转发配置"
+				read -e -p "请输入你要删除的服务名: " stream_name
 				rm /home/web/stream.d/$stream_name.conf > /dev/null 2>&1
 				docker restart nginx
-				send_stats "레이어 4 프록시 삭제"
+				send_stats "删除四层代理"
 				;;
 			*)
 				break
@@ -3640,21 +3640,21 @@ stream_panel() {
 
 ldnmp_Proxy_backend_stream() {
 	clear
-	webname="스트리밍 4계층 프록시-로드 밸런싱"
+	webname="Stream四层代理-负载均衡"
 
-	send_stats "설치하다$webname"
-	echo "배포 시작$webname"
+	send_stats "安装$webname"
+	echo "开始部署 $webname"
 
 	# 에이전트 이름 가져오기
-	read -rp "프록시 전달 이름(예: mysql_proxy)을 입력하세요." proxy_name
+	read -rp "请输入代理转发名称 (如 mysql_proxy): " proxy_name
 	if [ -z "$proxy_name" ]; then
-		echo "이름은 비워둘 수 없습니다."; return 1
+		echo "名称不能为空"; return 1
 	fi
 
-	# 수신 포트 가져오기
-	read -rp "로컬 수신 포트(예: 3306)를 입력하십시오." listen_port
+	# 获取监听端口
+	read -rp "请输入本机监听端口 (如 3306): " listen_port
 	if ! [[ "$listen_port" =~ ^[0-9]+$ ]]; then
-		echo "포트는 숫자여야 합니다."; return 1
+		echo "端口必须是数字"; return 1
 	fi
 
 	echo "계약 유형을 선택하십시오:"
@@ -3688,7 +3688,7 @@ ldnmp_Proxy_backend_stream() {
 
 	docker exec nginx nginx -s reload
 	clear
-	echo "당신의$webname지어졌습니다!"
+	echo "당신의$webname건설되었습니다!"
 	echo "------------------------"
 	echo "방문 주소:"
 	ip_address
@@ -3766,7 +3766,7 @@ ldnmp_web_status() {
 
 		echo "------------------------"
 		echo ""
-		echo -e "데이터 베이스:${db_output}"
+		echo -e "数据库: ${db_output}"
 		echo -e "------------------------"
 		local dbrootpasswd=$(grep -oP 'MYSQL_ROOT_PASSWORD:\s*\K.*' /home/web/docker-compose.yml | tr -d '[:space:]')
 		docker exec mysql mysql -u root -p"$dbrootpasswd" -e "SHOW DATABASES;" 2> /dev/null | grep -Ev "Database|information_schema|mysql|performance_schema|sys"
@@ -3782,19 +3782,19 @@ ldnmp_web_status() {
 		echo "------------------------"
 		echo "1. 도메인 이름 인증서 적용/업데이트 2. 사이트 도메인 이름 복제"
 		echo "3. 사이트 캐시 지우기 4. 관련 사이트 생성"
-		echo "5. 접속 로그 보기 6. 오류 로그 보기"
+		echo "5.  查看访问日志                    6.  查看错误日志"
 		echo "7. 전역 구성 편집 8. 사이트 구성 편집"
 		echo "9. 사이트 데이터베이스 관리 10. 사이트 분석 보고서 보기"
 		echo "------------------------"
 		echo "20. 특정 사이트 데이터 삭제"
 		echo "------------------------"
-		echo "0. 이전 메뉴로 돌아가기"
+		echo "0. 返回上一级选单"
 		echo "------------------------"
-		read -e -p "선택사항을 입력하세요:" sub_choice
+		read -e -p "请输入你的选择: " sub_choice
 		case $sub_choice in
 			1)
-				send_stats "도메인 이름 인증서 신청"
-				read -e -p "도메인 이름을 입력하세요:" yuming
+				send_stats "申请域名证书"
+				read -e -p "请输入你的域名: " yuming
 				install_certbot
 				docker run --rm -v /etc/letsencrypt/:/etc/letsencrypt certbot/certbot delete --cert-name "$yuming" -n 2>/dev/null
 				install_ssltls
@@ -3803,8 +3803,8 @@ ldnmp_web_status() {
 				;;
 
 			2)
-				send_stats "복제 사이트 도메인 이름"
-				read -e -p "이전 도메인 이름을 입력하세요:" oddyuming
+				send_stats "克隆站点域名"
+				read -e -p "请输入旧域名: " oddyuming
 				read -e -p "새 도메인 이름을 입력하세요:" yuming
 				install_certbot
 				install_ssltls
@@ -3843,9 +3843,9 @@ ldnmp_web_status() {
 				web_cache
 				;;
 			4)
-				send_stats "연결된 사이트 만들기"
+				send_stats "创建关联站点"
 				echo -e "액세스하려면 새 도메인 이름을 기존 사이트에 연결하세요."
-				read -e -p "기존 도메인 이름을 입력하세요:" oddyuming
+				read -e -p "请输入现有的域名: " oddyuming
 				read -e -p "새 도메인 이름을 입력하세요:" yuming
 				install_certbot
 				install_ssltls
@@ -3888,7 +3888,7 @@ ldnmp_web_status() {
 				break_end
 				;;
 			10)
-				send_stats "사이트 데이터 보기"
+				send_stats "查看站点数据"
 				install goaccess
 				goaccess --log-format=COMBINED /home/web/log/nginx/access.log
 				;;
@@ -3919,21 +3919,21 @@ fi
 
 
 install_panel() {
-send_stats "${panelname}관리하다"
+send_stats "${panelname}管理"
 while true; do
 	clear
 	check_panel_app
 	echo -e "$panelname $check_panel"
-	echo "${panelname}대중적이고 강력한 운영 및 유지 관리 관리 패널입니다."
-	echo "공식 웹사이트 소개:$panelurl "
+	echo "${panelname}是一款时下流行且强大的运维管理面板。"
+	echo "官网介绍: $panelurl "
 
 	echo ""
 	echo "------------------------"
-	echo "1. 설치 2. 관리 3. 제거"
+	echo "1. 安装            2. 管理            3. 卸载"
 	echo "------------------------"
-	echo "0. 이전 메뉴로 돌아가기"
+	echo "0. 返回上一级选单"
 	echo "------------------------"
-	read -e -p "선택사항을 입력하세요:" choice
+	read -e -p "请输入你的选择: " choice
 	 case $choice in
 		1)
 			check_disk_space 1
@@ -3942,20 +3942,20 @@ while true; do
 			panel_app_install
 
 			add_app_id
-			send_stats "${panelname}설치하다"
+			send_stats "${panelname}安装"
 			;;
 		2)
 			panel_app_manage
 
 			add_app_id
-			send_stats "${panelname}제어"
+			send_stats "${panelname}控制"
 
 			;;
 		3)
 			panel_app_uninstall
 
 			sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
-			send_stats "${panelname}제거"
+			send_stats "${panelname}卸载"
 			;;
 		*)
 			break
@@ -3999,7 +3999,7 @@ donlond_frp() {
 
 generate_frps_config() {
 
-	send_stats "FRP 서버 설치"
+	send_stats "安装frp服务端"
 	# 임의의 포트 및 자격 증명 생성
 	local bind_port=8055
 	local dashboard_port=8056
@@ -4021,17 +4021,17 @@ EOF
 
 	donlond_frp frps
 
-	# 생성된 정보를 출력
+	# 생성된 정보 출력
 	ip_address
 	echo "------------------------"
-	echo "클라이언트 배포에 필요한 매개변수"
-	echo "서비스 IP:$ipv4_address"
+	echo "客户端部署时需要用的参数"
+	echo "服务IP: $ipv4_address"
 	echo "token: $token"
 	echo
-	echo "FRP 패널 정보"
-	echo "FRP 패널 주소: http://$ipv4_address:$dashboard_port"
-	echo "FRP 패널 사용자 이름:$dashboard_user"
-	echo "FRP 패널 비밀번호:$dashboard_pwd"
+	echo "FRP面板信息"
+	echo "FRP面板地址: http://$ipv4_address:$dashboard_port"
+	echo "FRP面板用户名: $dashboard_user"
+	echo "FRP面板密码: $dashboard_pwd"
 	echo
 
 	open_port 8055 8056
@@ -4041,9 +4041,9 @@ EOF
 
 
 configure_frpc() {
-	send_stats "FRP 클라이언트 설치"
-	read -e -p "외부 네트워크 도킹 IP를 입력하세요." server_addr
-	read -e -p "외부 네트워크 도킹 토큰을 입력하세요." token
+	send_stats "安装frp客户端"
+	read -e -p "请输入外网对接IP: " server_addr
+	read -e -p "请输入外网对接token: " token
 	echo
 
 	mkdir -p /home/frp
@@ -4063,15 +4063,15 @@ EOF
 }
 
 add_forwarding_service() {
-	send_stats "FRP 인트라넷 서비스 추가"
-	# 사용자에게 서비스 이름 및 전달 정보를 묻는 메시지를 표시합니다.
-	read -e -p "서비스 이름을 입력하세요:" service_name
-	read -e -p "전달 유형(tcp/udp)을 입력하십시오. [기본값을 tcp로 입력]:" service_type
+	send_stats "添加frp内网服务"
+	# 提示用户输入服务名称和转发信息
+	read -e -p "请输入服务名称: " service_name
+	read -e -p "请输入转发类型 (tcp/udp) [回车默认tcp]: " service_type
 	local service_type=${service_type:-tcp}
-	read -e -p "인트라넷 IP를 입력하십시오. [Enter를 누르면 기본값은 127.0.0.1입니다]:" local_ip
+	read -e -p "인트라넷 IP를 입력하십시오[Enter를 누르면 기본값은 127.0.0.1입니다]." local_ip
 	local local_ip=${local_ip:-127.0.0.1}
 	read -e -p "인트라넷 포트를 입력하십시오:" local_port
-	read -e -p "외부 네트워크 포트를 입력하세요:" remote_port
+	read -e -p "请输入外网端口: " remote_port
 
 	# 구성 파일에 사용자 입력 쓰기
 	cat <<EOF >> /home/frp/frpc.toml
@@ -4083,8 +4083,8 @@ remote_port = ${remote_port}
 
 EOF
 
-	# 생성된 정보를 출력
-	echo "제공하다$service_namefrpc.toml에 성공적으로 추가되었습니다."
+	# 输出生成的信息
+	echo "服务 $service_name 已成功添加到 frpc.toml"
 
 	docker restart frpc
 
@@ -4096,11 +4096,11 @@ EOF
 
 delete_forwarding_service() {
 	send_stats "FRP 인트라넷 서비스 삭제"
-	# 삭제해야 하는 서비스 이름을 입력하라는 메시지를 사용자에게 표시합니다.
-	read -e -p "삭제할 서비스 이름을 입력하세요:" service_name
-	# sed를 사용하여 서비스 및 관련 구성 삭제
+	# 提示用户输入需要删除的服务名称
+	read -e -p "请输入需要删除的服务名称: " service_name
+	# 使用 sed 删除该服务及其相关配置
 	sed -i "/\[$service_name\]/,/^$/d" /home/frp/frpc.toml
-	echo "제공하다$service_namefrpc.toml에서 성공적으로 제거되었습니다."
+	echo "服务 $service_name 已成功从 frpc.toml 删除"
 
 	docker restart frpc
 
@@ -4110,8 +4110,8 @@ delete_forwarding_service() {
 list_forwarding_services() {
 	local config_file="$1"
 
-	# 헤더 인쇄
-	printf "%-20s %-25s %-30s %-10s\n" "서비스 이름" "인트라넷 주소" "외부 네트워크 주소" "규약"
+	# 打印表头
+	printf "%-20s %-25s %-30s %-10s\n" "服务名称" "内网地址" "外网地址" "协议"
 
 	awk '
 	BEGIN {
@@ -4131,7 +4131,7 @@ list_forwarding_services() {
 	}
 
 	/^\[.*\]/ {
-		# 서비스 정보가 이미 존재하는 경우 새 서비스를 처리하기 전에 현재 서비스를 인쇄하십시오.
+		# 如果已有服务信息，在处理新服务之前打印当前服务
 		if (current_service != "" && current_service != "common" && local_ip != "" && local_port != "") {
 			printf "%-16s %-21s %-26s %-10s\n", \
 				current_service, \
@@ -4140,11 +4140,11 @@ list_forwarding_services() {
 				type
 		}
 
-		# 현재 서비스 이름 업데이트
+		# 更新当前服务名称
 		if ($1 != "[common]") {
 			gsub(/[\[\]]/, "", $1)
 			current_service=$1
-			# 이전 값 지우기
+			# 清除之前的值
 			local_ip=""
 			local_port=""
 			remote_port=""
@@ -4173,7 +4173,7 @@ list_forwarding_services() {
 	}
 
 	END {
-		# 마지막 서비스에 대한 정보 인쇄
+		# 打印最后一个服务的信息
 		if (current_service != "" && current_service != "common" && local_ip != "" && local_port != "") {
 			printf "%-16s %-21s %-26s %-10s\n", \
 				current_service, \
@@ -4186,14 +4186,14 @@ list_forwarding_services() {
 
 
 
-# FRP 서버 포트 가져오기
+# 获取 FRP 服务端端口
 get_frp_ports() {
 	mapfile -t ports < <(ss -tulnape | grep frps | awk '{print $5}' | awk -F':' '{print $NF}' | sort -u)
 }
 
-# 액세스 주소 생성
+# 生成访问地址
 generate_access_urls() {
-	# 먼저 모든 포트를 확보하십시오.
+	# 首先获取所有端口
 	get_frp_ports
 
 	# 8055/8056 이외의 포트가 있는지 확인하세요.
@@ -4205,11 +4205,11 @@ generate_access_urls() {
 		fi
 	done
 
-	# 유효한 포트가 있는 경우에만 제목과 내용 표시
+	# 只在有有效端口时显示标题和内容
 	if [ "$has_valid_ports" = true ]; then
-		echo "FRP 서비스 외부 액세스 주소:"
+		echo "FRP服务对外访问地址:"
 
-		# IPv4 주소 처리
+		# 处理 IPv4 地址
 		for port in "${ports[@]}"; do
 			if [[ $port != "8055" && $port != "8056" ]]; then
 				echo "http://${ipv4_address}:${port}"
@@ -4225,7 +4225,7 @@ generate_access_urls() {
 			done
 		fi
 
-		# HTTPS 구성 처리
+		# 处理 HTTPS 配置
 		for port in "${ports[@]}"; do
 			if [[ $port != "8055" && $port != "8056" ]]; then
 				local frps_search_pattern="${ipv4_address}:${port}"
@@ -4252,7 +4252,7 @@ frps_main_ports() {
 
 
 frps_panel() {
-	send_stats "FRP 서버"
+	send_stats "FRP服务端"
 	local app_id="55"
 	local docker_name="frps"
 	local docker_port=8056
@@ -4261,24 +4261,24 @@ frps_panel() {
 		check_frp_app
 		check_docker_image_update $docker_name
 		echo -e "FRP 서버$check_frp $update_status"
-		echo "FRP 인트라넷 침투 서비스 환경을 구축하고 공인 IP가 없는 장치를 인터넷에 노출시킵니다."
-		echo "공식 홈페이지 소개: https://github.com/fatedier/frp/"
-		echo "비디오 튜토리얼: https://www.bilibili.com/video/BV1yMw6e2EwL?t=124.0"
+		echo "构建FRP内网穿透服务环境，将无公网IP的设备暴露到互联网"
+		echo "官网介绍: https://github.com/fatedier/frp/"
+		echo "视频教学: https://www.bilibili.com/video/BV1yMw6e2EwL?t=124.0"
 		if [ -d "/home/frp/" ]; then
 			check_docker_app_ip
 			frps_main_ports
 		fi
 		echo ""
 		echo "------------------------"
-		echo "1. 설치 2. 업데이트 3. 제거"
+		echo "1. 安装                  2. 更新                  3. 卸载"
 		echo "------------------------"
-		echo "5. 인트라넷 서비스 도메인 이름 접근 6. 도메인 이름 접근 삭제"
+		echo "5. 内网服务域名访问      6. 删除域名访问"
 		echo "------------------------"
-		echo "7. IP+포트 접근 허용 8. IP+포트 접근 차단"
+		echo "7. 允许IP+端口访问       8. 阻止IP+端口访问"
 		echo "------------------------"
 		echo "00. 서비스 상태 새로고침 0. 이전 메뉴로 돌아가기"
 		echo "------------------------"
-		read -e -p "선택 항목을 입력하세요." choice
+		read -e -p "输入你的选择: " choice
 		case $choice in
 			1)
 				install jq grep ss
@@ -4286,7 +4286,7 @@ frps_panel() {
 				generate_frps_config
 
 				add_app_id
-				echo "FRP 서버가 설치되었습니다"
+				echo "FRP服务端已经安装完成"
 				;;
 			2)
 				crontab -l | grep -v 'frps' | crontab - > /dev/null 2>&1
@@ -4296,7 +4296,7 @@ frps_panel() {
 				donlond_frp frps
 
 				add_app_id
-				echo "FRP 서버가 업데이트되었습니다"
+				echo "FRP服务端已经更新完成"
 				;;
 			3)
 				crontab -l | grep -v 'frps' | crontab - > /dev/null 2>&1
@@ -4307,37 +4307,37 @@ frps_panel() {
 				close_port 8055 8056
 
 				sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
-				echo "앱이 제거되었습니다."
+				echo "应用已卸载"
 				;;
 			5)
-				echo "도메인 이름 액세스에 대한 역인트라넷 침투 서비스"
-				send_stats "FRP 외부 도메인 이름 액세스"
+				echo "将内网穿透服务反代成域名访问"
+				send_stats "FRP对外域名访问"
 				add_yuming
-				read -e -p "인트라넷 침투 서비스 포트를 입력하십시오:" frps_port
+				read -e -p "请输入你的内网穿透服务端口: " frps_port
 				ldnmp_Proxy ${yuming} 127.0.0.1 ${frps_port}
 				block_host_port "$frps_port" "$ipv4_address"
 				;;
 			6)
-				echo "https://가 없는 도메인 이름 형식 example.com"
+				echo "域名格式 example.com 不带https://"
 				web_del
 				;;
 
 			7)
-				send_stats "IP 액세스 허용"
-				read -e -p "해제해야 하는 포트를 입력하세요." frps_port
+				send_stats "允许IP访问"
+				read -e -p "请输入需要放行的端口: " frps_port
 				clear_host_port_rules "$frps_port" "$ipv4_address"
 				;;
 
 			8)
-				send_stats "IP 접근 차단"
-				echo "역방향 도메인 이름 접근이 있는 경우, 이 기능을 사용하면 IP+포트 접근을 차단할 수 있어 더욱 안전합니다."
-				read -e -p "차단할 포트를 입력하세요:" frps_port
+				send_stats "阻止IP访问"
+				echo "如果你已经反代域名访问了，可用此功能阻止IP+端口访问，这样更安全。"
+				read -e -p "请输入需要阻止的端口: " frps_port
 				block_host_port "$frps_port" "$ipv4_address"
 				;;
 
 			00)
-				send_stats "FRP 서비스 상태 새로 고침"
-				echo "FRP 서비스 상태가 새로 고쳐졌습니다."
+				send_stats "刷新FRP服务状态"
+				echo "已经刷新FRP服务状态"
 				;;
 
 			*)
@@ -4350,7 +4350,7 @@ frps_panel() {
 
 
 frpc_panel() {
-	send_stats "FRP 클라이언트"
+	send_stats "FRP客户端"
 	local app_id="56"
 	local docker_name="frpc"
 	local docker_port=8055
@@ -4358,10 +4358,10 @@ frpc_panel() {
 		clear
 		check_frp_app
 		check_docker_image_update $docker_name
-		echo -e "FRP 클라이언트$check_frp $update_status"
-		echo "서버에 연결하세요. 연결 후에는 인트라넷 침투 서비스를 만들어 인터넷에 액세스할 수 있습니다."
-		echo "공식 홈페이지 소개: https://github.com/fatedier/frp/"
-		echo "비디오 튜토리얼: https://www.bilibili.com/video/BV1yMw6e2EwL?t=173.9"
+		echo -e "FRP客户端 $check_frp $update_status"
+		echo "与服务端对接，对接后可创建内网穿透服务到互联网访问"
+		echo "官网介绍: https://github.com/fatedier/frp/"
+		echo "视频教学: https://www.bilibili.com/video/BV1yMw6e2EwL?t=173.9"
 		echo "------------------------"
 		if [ -d "/home/frp/" ]; then
 			[ -f /home/frp/frpc.toml ] || cp /home/frp/frp_0.61.0_linux_amd64/frpc.toml /home/frp/frpc.toml
@@ -4369,11 +4369,11 @@ frpc_panel() {
 		fi
 		echo ""
 		echo "------------------------"
-		echo "1. 설치 2. 업데이트 3. 제거"
+		echo "1. 安装               2. 更新               3. 卸载"
 		echo "------------------------"
-		echo "4. 외부 서비스 추가 5. 외부 서비스 삭제 6. 서비스 수동 구성"
+		echo "4. 添加对外服务       5. 删除对外服务       6. 手动配置服务"
 		echo "------------------------"
-		echo "0. 이전 메뉴로 돌아가기"
+		echo "0. 返回上一级选单"
 		echo "------------------------"
 		read -e -p "선택 항목을 입력하세요." choice
 		case $choice in
@@ -4383,7 +4383,7 @@ frpc_panel() {
 				configure_frpc
 
 				add_app_id
-				echo "FRP 클라이언트가 설치되었습니다"
+				echo "FRP客户端已经安装完成"
 				;;
 			2)
 				crontab -l | grep -v 'frpc' | crontab - > /dev/null 2>&1
@@ -4393,7 +4393,7 @@ frpc_panel() {
 				donlond_frp frpc
 
 				add_app_id
-				echo "FRP 클라이언트가 업데이트되었습니다."
+				echo "FRP客户端已经更新完成"
 				;;
 
 			3)
@@ -4404,7 +4404,7 @@ frpc_panel() {
 				close_port 8055
 
 				sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
-				echo "앱이 제거되었습니다."
+				echo "应用已卸载"
 				;;
 
 			4)
@@ -4444,32 +4444,32 @@ yt_menu_pro() {
 	while true; do
 
 		if [ -x "/usr/local/bin/yt-dlp" ]; then
-		   local YTDLP_STATUS="${gl_lv}설치됨${gl_bai}"
+		   local YTDLP_STATUS="${gl_lv}已安装${gl_bai}"
 		else
-		   local YTDLP_STATUS="${gl_hui}설치되지 않음${gl_bai}"
+		   local YTDLP_STATUS="${gl_hui}未安装${gl_bai}"
 		fi
 
 		clear
-		send_stats "yt-dlp 다운로드 도구"
+		send_stats "yt-dlp 下载工具"
 		echo -e "yt-dlp $YTDLP_STATUS"
-		echo -e "yt-dlp는 YouTube, Bilibili, Twitter 등과 같은 수천 개의 사이트를 지원하는 강력한 비디오 다운로드 도구입니다."
+		echo -e "yt-dlp 是一个功能强大的视频下载工具，支持 YouTube、Bilibili、Twitter 等数千站点。"
 		echo -e "공식 홈페이지 주소: https://github.com/yt-dlp/yt-dlp"
 		echo "-------------------------"
-		echo "다운로드한 동영상 목록:"
-		ls -td "$VIDEO_DIR"/*/ 2>/dev/null || echo "(아직 없음)"
+		echo "已下载视频列表:"
+		ls -td "$VIDEO_DIR"/*/ 2>/dev/null || echo "（暂无）"
 		echo "-------------------------"
-		echo "1. 설치 2. 업데이트 3. 제거"
+		echo "1.  安装               2.  更新               3.  卸载"
 		echo "-------------------------"
-		echo "5. 단일 비디오 다운로드 6. 일괄 비디오 다운로드 7. 사용자 정의 매개변수 다운로드"
-		echo "8. MP3 오디오로 다운로드 9. 비디오 디렉터리 삭제 10. 쿠키 관리(개발 중)"
+		echo "5.  单个视频下载       6.  批量视频下载       7.  自定义参数下载"
+		echo "8.  下载为MP3音频      9.  删除视频目录       10. Cookie管理（开发中）"
 		echo "-------------------------"
-		echo "0. 이전 메뉴로 돌아가기"
+		echo "0. 返回上一级选单"
 		echo "-------------------------"
-		read -e -p "옵션 번호를 입력하세요:" choice
+		read -e -p "请输入选项编号: " choice
 
 		case $choice in
 			1)
-				send_stats "yt-dlp 설치 중..."
+				send_stats "正在安装 yt-dlp..."
 				echo "yt-dlp 설치 중..."
 				install ffmpeg
 				curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
@@ -4480,38 +4480,38 @@ yt_menu_pro() {
 				read ;;
 			2)
 				send_stats "yt-dlp 업데이트 중..."
-				echo "yt-dlp 업데이트 중..."
+				echo "正在更新 yt-dlp..."
 				yt-dlp -U
 
 				add_app_id
-				echo "업데이트가 완료되었습니다. 계속하려면 아무 키나 누르세요..."
+				echo "更新完成。按任意键继续..."
 				read ;;
 			3)
-				send_stats "yt-dlp 제거 중..."
-				echo "yt-dlp 제거 중..."
+				send_stats "正在卸载 yt-dlp..."
+				echo "正在卸载 yt-dlp..."
 				rm -f /usr/local/bin/yt-dlp
 
 				sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
-				echo "제거가 완료되었습니다. 계속하려면 아무 키나 누르세요..."
+				echo "卸载完成。按任意键继续..."
 				read ;;
 			5)
-				send_stats "단일 비디오 다운로드"
-				read -e -p "동영상 링크를 입력하세요:" url
+				send_stats "单个视频下载"
+				read -e -p "请输入视频链接: " url
 				yt-dlp -P "$VIDEO_DIR" -f "bv*+ba/b" --merge-output-format mp4 \
 					--write-subs --sub-langs all \
 					--write-thumbnail --embed-thumbnail \
 					--write-info-json \
 					-o "$VIDEO_DIR/%(title)s/%(title)s.%(ext)s" \
 					--no-overwrites --no-post-overwrites "$url"
-				read -e -p "다운로드가 완료되었습니다. 계속하려면 아무 키나 누르세요..." ;;
+				read -e -p "下载完成，按任意键继续..." ;;
 			6)
-				send_stats "일괄 비디오 다운로드"
+				send_stats "批量视频下载"
 				install nano
 				if [ ! -f "$URL_FILE" ]; then
-				  echo -e "# 여러 개의 동영상 링크 주소를 입력하세요\n# https://www.bilibili.com/bangumi/play/ep733316?spm_id_from=333.337.0.0&from_spmid=666.25.episode.0" > "$URL_FILE"
+				  echo -e "# 输入多个视频链接地址\n# https://www.bilibili.com/bangumi/play/ep733316?spm_id_from=333.337.0.0&from_spmid=666.25.episode.0" > "$URL_FILE"
 				fi
 				nano $URL_FILE
-				echo "지금 일괄 다운로드를 시작하세요..."
+				echo "现在开始批量下载..."
 				yt-dlp -P "$VIDEO_DIR" -f "bv*+ba/b" --merge-output-format mp4 \
 					--write-subs --sub-langs all \
 					--write-thumbnail --embed-thumbnail \
@@ -4519,31 +4519,31 @@ yt_menu_pro() {
 					-a "$URL_FILE" \
 					-o "$VIDEO_DIR/%(title)s/%(title)s.%(ext)s" \
 					--no-overwrites --no-post-overwrites
-				read -e -p "일괄 다운로드가 완료되었습니다. 계속하려면 아무 키나 누르세요..." ;;
+				read -e -p "批量下载完成，按任意键继续..." ;;
 			7)
-				send_stats "맞춤형 비디오 다운로드"
-				read -e -p "전체 yt-dlp 매개변수를 입력하세요(yt-dlp 제외)." custom
+				send_stats "自定义视频下载"
+				read -e -p "请输入完整 yt-dlp 参数（不含 yt-dlp）: " custom
 				yt-dlp -P "$VIDEO_DIR" $custom \
 					--write-subs --sub-langs all \
 					--write-thumbnail --embed-thumbnail \
 					--write-info-json \
 					-o "$VIDEO_DIR/%(title)s/%(title)s.%(ext)s" \
 					--no-overwrites --no-post-overwrites
-				read -e -p "실행이 완료되었습니다. 계속하려면 아무 키나 누르세요..." ;;
+				read -e -p "执行完成，按任意键继续..." ;;
 			8)
-				send_stats "MP3 다운로드"
-				read -e -p "동영상 링크를 입력하세요:" url
+				send_stats "MP3下载"
+				read -e -p "请输入视频链接: " url
 				yt-dlp -P "$VIDEO_DIR" -x --audio-format mp3 \
 					--write-subs --sub-langs all \
 					--write-thumbnail --embed-thumbnail \
 					--write-info-json \
 					-o "$VIDEO_DIR/%(title)s/%(title)s.%(ext)s" \
 					--no-overwrites --no-post-overwrites "$url"
-				read -e -p "오디오 다운로드가 완료되었습니다. 계속하려면 아무 키나 누르세요..." ;;
+				read -e -p "音频下载完成，按任意键继续..." ;;
 
 			9)
-				send_stats "동영상 삭제"
-				read -e -p "삭제된 동영상의 이름을 입력하세요:" rmdir
+				send_stats "删除视频"
+				read -e -p "请输入删除视频名称: " rmdir
 				rm -rf "$VIDEO_DIR/$rmdir"
 				;;
 			*)
@@ -4579,7 +4579,7 @@ set_timedate() {
 
 
 
-# dpkg 중단 문제 수정
+# 修复dpkg中断问题
 fix_dpkg() {
 	pkill -9 -f 'apt|dpkg'
 	rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock
@@ -4588,7 +4588,7 @@ fix_dpkg() {
 
 
 linux_update() {
-	echo -e "${gl_huang}시스템 업데이트 진행 중...${gl_bai}"
+	echo -e "${gl_huang}正在系统更新...${gl_bai}"
 	if command -v dnf &>/dev/null; then
 		dnf -y update
 	elif command -v yum &>/dev/null; then
@@ -4607,7 +4607,7 @@ linux_update() {
 	elif command -v opkg &>/dev/null; then
 		opkg update
 	else
-		echo "알 수 없는 패키지 관리자입니다!"
+		echo "未知的包管理器!"
 		return
 	fi
 }
@@ -4615,7 +4615,7 @@ linux_update() {
 
 
 linux_clean() {
-	echo -e "${gl_huang}시스템 청소 진행 중...${gl_bai}"
+	echo -e "${gl_huang}正在系统清理...${gl_bai}"
 	if command -v dnf &>/dev/null; then
 		rpm --rebuilddb
 		dnf autoremove -y
@@ -4644,13 +4644,13 @@ linux_clean() {
 		journalctl --vacuum-size=500M
 
 	elif command -v apk &>/dev/null; then
-		echo "패키지 관리자 캐시 정리..."
+		echo "清理包管理器缓存..."
 		apk cache clean
-		echo "시스템 로그 삭제..."
+		echo "删除系统日志..."
 		rm -rf /var/log/*
-		echo "APK 캐시 삭제..."
+		echo "删除APK缓存..."
 		rm -rf /var/cache/apk/*
-		echo "임시 파일 삭제..."
+		echo "删除临时文件..."
 		rm -rf /tmp/*
 
 	elif command -v pacman &>/dev/null; then
@@ -4668,13 +4668,13 @@ linux_clean() {
 		journalctl --vacuum-size=500M
 
 	elif command -v opkg &>/dev/null; then
-		echo "시스템 로그 삭제..."
+		echo "删除系统日志..."
 		rm -rf /var/log/*
 		echo "임시 파일 삭제..."
 		rm -rf /tmp/*
 
 	elif command -v pkg &>/dev/null; then
-		echo "사용하지 않는 종속성을 정리합니다..."
+		echo "清理未使用的依赖..."
 		pkg autoremove -y
 		echo "패키지 관리자 캐시 정리..."
 		pkg clean -y
@@ -4851,7 +4851,7 @@ add_sshkey() {
 	chmod 600 ~/.ssh/authorized_keys
 
 	ip_address
-	echo -e "개인키 정보가 생성되었습니다. 꼭 복사해서 저장하세요. 다음과 같이 저장될 수 있습니다.${gl_huang}${ipv4_address}_ssh.key${gl_bai}향후 SSH 로그인을 위한 파일"
+	echo -e "私钥信息已生成，务必复制保存，可保存成 ${gl_huang}${ipv4_address}_ssh.key${gl_bai} 文件，用于以后的SSH登录"
 
 	echo "--------------------------------"
 	cat ~/.ssh/sshkey
@@ -4863,7 +4863,7 @@ add_sshkey() {
 		   -e 's/^\s*#\?\s*ChallengeResponseAuthentication .*/ChallengeResponseAuthentication no/' /etc/ssh/sshd_config
 	rm -rf /etc/ssh/sshd_config.d/* /etc/ssh/ssh_config.d/*
 	restart_ssh
-	echo -e "${gl_lv}ROOT 개인키 로그인이 활성화되어 있고, ROOT 비밀번호 로그인이 비활성화되어 재접속이 적용됩니다.${gl_bai}"
+	echo -e "${gl_lv}ROOT私钥登录已开启，已关闭ROOT密码登录，重连将会生效${gl_bai}"
 
 }
 
@@ -4900,20 +4900,20 @@ import_sshkey() {
 
 add_sshpasswd() {
 
-echo "루트 비밀번호를 설정하세요"
+echo "设置你的ROOT密码"
 passwd
 sed -i 's/^\s*#\?\s*PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config;
 sed -i 's/^\s*#\?\s*PasswordAuthentication.*/PasswordAuthentication yes/g' /etc/ssh/sshd_config;
 rm -rf /etc/ssh/sshd_config.d/* /etc/ssh/ssh_config.d/*
 restart_ssh
-echo -e "${gl_lv}ROOT 로그인 설정이 완료되었습니다!${gl_bai}"
+echo -e "${gl_lv}ROOT登录设置完毕！${gl_bai}"
 
 }
 
 
 root_use() {
 clear
-[ "$EUID" -ne 0 ] && echo -e "${gl_huang}힌트:${gl_bai}이 기능을 실행하려면 루트 사용자가 필요합니다!" && break_end && kejilion
+[ "$EUID" -ne 0 ] && echo -e "${gl_huang}提示: ${gl_bai}이 기능을 실행하려면 루트 사용자가 필요합니다!" && break_end && kejilion
 }
 
 
@@ -4930,7 +4930,7 @@ dd_xitong() {
 		}
 
 		dd_xitong_1() {
-		  echo -e "재설치 후 초기 사용자 이름:${gl_huang}root${gl_bai}초기 비밀번호:${gl_huang}LeitboGi0ro${gl_bai}초기 포트:${gl_huang}22${gl_bai}"
+		  echo -e "재설치 후 초기 사용자 이름:${gl_huang}root${gl_bai}  初始密码: ${gl_huang}LeitboGi0ro${gl_bai}  初始端口: ${gl_huang}22${gl_bai}"
 		  echo -e "${gl_huang}재설치 후에는 초기 비밀번호를 적시에 변경하여 폭력적인 침입을 방지하시기 바랍니다. 비밀번호를 변경하려면 명령줄에 passwd를 입력하세요.${gl_bai}"
 		  echo -e "계속하려면 아무 키나 누르세요..."
 		  read -n 1 -s -r -p ""
@@ -4939,7 +4939,7 @@ dd_xitong() {
 		}
 
 		dd_xitong_2() {
-		  echo -e "재설치 후 초기 사용자 이름:${gl_huang}Administrator${gl_bai}초기 비밀번호:${gl_huang}Teddysun.com${gl_bai}초기 포트:${gl_huang}3389${gl_bai}"
+		  echo -e "重装后初始用户名: ${gl_huang}Administrator${gl_bai}초기 비밀번호:${gl_huang}Teddysun.com${gl_bai}초기 포트:${gl_huang}3389${gl_bai}"
 		  echo -e "계속하려면 아무 키나 누르세요..."
 		  read -n 1 -s -r -p ""
 		  install wget
@@ -4947,14 +4947,14 @@ dd_xitong() {
 		}
 
 		dd_xitong_3() {
-		  echo -e "재설치 후 초기 사용자 이름:${gl_huang}root${gl_bai}초기 비밀번호:${gl_huang}123@@@${gl_bai}초기 포트:${gl_huang}22${gl_bai}"
+		  echo -e "重装后初始用户名: ${gl_huang}root${gl_bai}  初始密码: ${gl_huang}123@@@${gl_bai}  初始端口: ${gl_huang}22${gl_bai}"
 		  echo -e "계속하려면 아무 키나 누르세요..."
 		  read -n 1 -s -r -p ""
 		  dd_xitong_bin456789
 		}
 
 		dd_xitong_4() {
-		  echo -e "재설치 후 초기 사용자 이름:${gl_huang}Administrator${gl_bai}초기 비밀번호:${gl_huang}123@@@${gl_bai}초기 포트:${gl_huang}3389${gl_bai}"
+		  echo -e "重装后初始用户名: ${gl_huang}Administrator${gl_bai}  初始密码: ${gl_huang}123@@@${gl_bai}  初始端口: ${gl_huang}3389${gl_bai}"
 		  echo -e "계속하려면 아무 키나 누르세요..."
 		  read -n 1 -s -r -p ""
 		  dd_xitong_bin456789
@@ -4962,10 +4962,10 @@ dd_xitong() {
 
 		  while true; do
 			root_use
-			echo "시스템 재설치"
+			echo "重装系统"
 			echo "--------------------------------"
-			echo -e "${gl_hong}알아채다:${gl_bai}재설치 시 연결이 끊어질 수 있으니 걱정되시는 분들은 주의해서 사용해주세요. 재설치에는 약 15분 정도 소요될 예정이오니, 사전에 데이터를 백업해 주시기 바랍니다."
-			echo -e "${gl_hui}스크립트를 지원해주신 bin456789 보스와 leitbogioro 보스에게 감사드립니다!${gl_bai} "
+			echo -e "${gl_hong}알아채다:${gl_bai}重装有风险失联，不放心者慎用。重装预计花费15分钟，请提前备份数据。"
+			echo -e "${gl_hui}感谢bin456789大佬和leitbogioro大佬的脚本支持！${gl_bai} "
 			echo -e "${gl_hui}bin456789 프로젝트 주소: https://github.com/bin456789/reinstall${gl_bai}"
 			echo -e "${gl_hui}leitbogioro 프로젝트 주소: https://github.com/leitbogioro/Tools${gl_bai}"
 			echo "------------------------"
@@ -4983,21 +4983,21 @@ dd_xitong() {
 			echo "------------------------"
 			echo "31. Alpine Linux              32. Arch Linux"
 			echo "33. Kali Linux                34. openEuler"
-			echo "35. openSUSE Tumbleweed 36. fnos Feiniu 공개 베타 버전"
+			echo "35. openSUSE Tumbleweed       36. fnos飞牛公测版"
 			echo "------------------------"
 			echo "41. Windows 11                42. Windows 10"
 			echo "43. Windows 7                 44. Windows Server 2025"
 			echo "45. Windows Server 2022       46. Windows Server 2019"
 			echo "47. Windows 11 ARM"
 			echo "------------------------"
-			echo "0. 이전 메뉴로 돌아가기"
+			echo "0. 返回上一级选单"
 			echo "------------------------"
-			read -e -p "다시 설치하려는 시스템을 선택하십시오:" sys_choice
+			read -e -p "请选择要重装的系统: " sys_choice
 			case "$sys_choice" in
 
 
 			  1)
-				send_stats "데비안 13 재설치"
+				send_stats "重装debian 13"
 				dd_xitong_3
 				bash reinstall.sh debian 13
 				reboot
@@ -5019,28 +5019,28 @@ dd_xitong() {
 				exit
 				;;
 			  4)
-				send_stats "데비안 10 다시 설치"
+				send_stats "重装debian 10"
 				dd_xitong_1
 				bash InstallNET.sh -debian 10
 				reboot
 				exit
 				;;
 			  11)
-				send_stats "우분투 24.04 다시 설치"
+				send_stats "重装ubuntu 24.04"
 				dd_xitong_1
 				bash InstallNET.sh -ubuntu 24.04
 				reboot
 				exit
 				;;
 			  12)
-				send_stats "우분투 22.04 다시 설치"
+				send_stats "重装ubuntu 22.04"
 				dd_xitong_1
 				bash InstallNET.sh -ubuntu 22.04
 				reboot
 				exit
 				;;
 			  13)
-				send_stats "우분투 20.04 다시 설치"
+				send_stats "重装ubuntu 20.04"
 				dd_xitong_1
 				bash InstallNET.sh -ubuntu 20.04
 				reboot
@@ -5056,7 +5056,7 @@ dd_xitong() {
 
 
 			  21)
-				send_stats "rockylinux10 재설치"
+				send_stats "重装rockylinux10"
 				dd_xitong_3
 				bash reinstall.sh rocky
 				reboot
@@ -5080,7 +5080,7 @@ dd_xitong() {
 				;;
 
 			  24)
-				send_stats "alma9 재설치"
+				send_stats "重装alma9"
 				dd_xitong_3
 				bash reinstall.sh almalinux 9
 				reboot
@@ -5262,17 +5262,17 @@ bbrv3() {
 			while true; do
 				  clear
 				  local kernel_version=$(uname -r)
-				  echo "xanmod의 BBRv3 커널이 설치되어 있습니다."
-				  echo "현재 커널 버전:$kernel_version"
+				  echo "您已安装xanmod的BBRv3内核"
+				  echo "当前内核版本: $kernel_version"
 
 				  echo ""
 				  echo "커널 관리"
 				  echo "------------------------"
-				  echo "1. BBRv3 커널 업데이트 2. BBRv3 커널 제거"
+				  echo "1. 更新BBRv3内核              2. 卸载BBRv3内核"
 				  echo "------------------------"
-				  echo "0. 이전 메뉴로 돌아가기"
+				  echo "0. 返回上一级选单"
 				  echo "------------------------"
-				  read -e -p "선택사항을 입력하세요:" sub_choice
+				  read -e -p "请输入你的选择: " sub_choice
 
 				  case $sub_choice in
 					  1)
@@ -5282,7 +5282,7 @@ bbrv3() {
 						# wget -qO - https://dl.xanmod.org/archive.key | gpg --dearmor -o /usr/share/keyrings/xanmod-archive-keyring.gpg --yes
 						wget -qO - ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/archive.key | gpg --dearmor -o /usr/share/keyrings/xanmod-archive-keyring.gpg --yes
 
-						# 3단계: 저장소 추가
+						# 步骤3：添加存储库
 						echo 'deb [signed-by=/usr/share/keyrings/xanmod-archive-keyring.gpg] http://deb.xanmod.org releases main' | tee /etc/apt/sources.list.d/xanmod-release.list
 
 						# version=$(wget -q https://dl.xanmod.org/check_x86-64_psabi.sh && chmod +x check_x86-64_psabi.sh && ./check_x86-64_psabi.sh | grep -oP 'x86-64-v\K\d+|x86-64-v\d+')
@@ -5291,7 +5291,7 @@ bbrv3() {
 						apt update -y
 						apt install -y linux-xanmod-x64v$version
 
-						echo "XanMod 커널이 업데이트되었습니다. 재시작 후 적용"
+						echo "XanMod内核已更新。重启后生效"
 						rm -f /etc/apt/sources.list.d/xanmod-release.list
 						rm -f check_x86-64_psabi.sh*
 
@@ -5301,7 +5301,7 @@ bbrv3() {
 					  2)
 						apt purge -y 'linux-*xanmod1*'
 						update-grub
-						echo "XanMod 커널이 제거되었습니다. 재시작 후 적용"
+						echo "XanMod内核已卸载。重启后生效"
 						server_reboot
 						  ;;
 
@@ -5318,9 +5318,9 @@ bbrv3() {
 		  echo "영상 소개: https://www.bilibili.com/video/BV14K421x7BS?t=0.1"
 		  echo "------------------------------------------------"
 		  echo "데비안/우분투만 지원"
-		  echo "데이터를 백업해 주시면 Linux 커널을 업그레이드하고 BBR3을 활성화하겠습니다."
+		  echo "请备份数据，将为你升级Linux内核开启BBR3"
 		  echo "------------------------------------------------"
-		  read -e -p "계속하시겠습니까? (예/아니요):" choice
+		  read -e -p "确定继续吗？(Y/N): " choice
 
 		  case "$choice" in
 			[Yy])
@@ -5328,12 +5328,12 @@ bbrv3() {
 			if [ -r /etc/os-release ]; then
 				. /etc/os-release
 				if [ "$ID" != "debian" ] && [ "$ID" != "ubuntu" ]; then
-					echo "현재 환경에서는 지원하지 않으며 Debian 및 Ubuntu 시스템만 지원됩니다."
+					echo "当前环境不支持，仅支持Debian和Ubuntu系统"
 					break_end
 					linux_Settings
 				fi
 			else
-				echo "운영 체제 유형을 확인할 수 없습니다."
+				echo "无法确定操作系统类型"
 				break_end
 				linux_Settings
 			fi
@@ -5344,7 +5344,7 @@ bbrv3() {
 			# wget -qO - https://dl.xanmod.org/archive.key | gpg --dearmor -o /usr/share/keyrings/xanmod-archive-keyring.gpg --yes
 			wget -qO - ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/archive.key | gpg --dearmor -o /usr/share/keyrings/xanmod-archive-keyring.gpg --yes
 
-			# 3단계: 저장소 추가
+			# 步骤3：添加存储库
 			echo 'deb [signed-by=/usr/share/keyrings/xanmod-archive-keyring.gpg] http://deb.xanmod.org releases main' | tee /etc/apt/sources.list.d/xanmod-release.list
 
 			# version=$(wget -q https://dl.xanmod.org/check_x86-64_psabi.sh && chmod +x check_x86-64_psabi.sh && ./check_x86-64_psabi.sh | grep -oP 'x86-64-v\K\d+|x86-64-v\d+')
@@ -5355,17 +5355,17 @@ bbrv3() {
 
 			bbr_on
 
-			echo "XanMod 커널이 설치되고 BBR3이 성공적으로 활성화되었습니다. 재시작 후 적용"
+			echo "XanMod内核安装并BBR3启用成功。重启后生效"
 			rm -f /etc/apt/sources.list.d/xanmod-release.list
 			rm -f check_x86-64_psabi.sh*
 			server_reboot
 
 			  ;;
 			[Nn])
-			  echo "취소"
+			  echo "已取消"
 			  ;;
 			*)
-			  echo "선택이 잘못되었습니다. Y 또는 N을 입력하세요."
+			  echo "无效的选择，请输入 Y 或 N。"
 			  ;;
 		  esac
 		fi
@@ -5374,40 +5374,40 @@ bbrv3() {
 
 
 elrepo_install() {
-	# ELRepo GPG 공개 키 가져오기
-	echo "ELRepo GPG 공개 키 가져오기..."
+	# 导入 ELRepo GPG 公钥
+	echo "导入 ELRepo GPG 公钥..."
 	rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
-	# 시스템 버전 확인
+	# 检测系统版本
 	local os_version=$(rpm -q --qf "%{VERSION}" $(rpm -qf /etc/os-release) 2>/dev/null | awk -F '.' '{print $1}')
 	local os_name=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
 	# 지원되는 운영 체제에서 실행되고 있는지 확인하세요.
 	if [[ "$os_name" != *"Red Hat"* && "$os_name" != *"AlmaLinux"* && "$os_name" != *"Rocky"* && "$os_name" != *"Oracle"* && "$os_name" != *"CentOS"* ]]; then
-		echo "지원되지 않는 운영 체제:$os_name"
+		echo "不支持的操作系统：$os_name"
 		break_end
 		linux_Settings
 	fi
-	# 감지된 운영 체제 정보 인쇄
-	echo "감지된 운영 체제:$os_name $os_version"
+	# 打印检测到的操作系统信息
+	echo "检测到的操作系统: $os_name $os_version"
 	# 시스템 버전에 따라 해당 ELRepo 창고 구성을 설치하십시오.
 	if [[ "$os_version" == 8 ]]; then
-		echo "ELRepo 저장소 구성(버전 8) 설치 중..."
+		echo "安装 ELRepo 仓库配置 (版本 8)..."
 		yum -y install https://www.elrepo.org/elrepo-release-8.el8.elrepo.noarch.rpm
 	elif [[ "$os_version" == 9 ]]; then
-		echo "ELRepo 저장소 구성(버전 9) 설치 중..."
+		echo "安装 ELRepo 仓库配置 (版本 9)..."
 		yum -y install https://www.elrepo.org/elrepo-release-9.el9.elrepo.noarch.rpm
 	elif [[ "$os_version" == 10 ]]; then
-		echo "ELRepo 저장소 구성(버전 10) 설치 중..."
+		echo "安装 ELRepo 仓库配置 (版本 10)..."
 		yum -y install https://www.elrepo.org/elrepo-release-10.el10.elrepo.noarch.rpm
 	else
-		echo "지원되지 않는 시스템 버전:$os_version"
+		echo "不支持的系统版本：$os_version"
 		break_end
 		linux_Settings
 	fi
 	# ELRepo 커널 저장소를 활성화하고 최신 메인라인 커널을 설치합니다.
-	echo "ELRepo 커널 저장소를 활성화하고 최신 메인라인 커널을 설치하세요..."
+	echo "启用 ELRepo 内核仓库并安装最新的主线内核..."
 	# yum -y --enablerepo=elrepo-kernel install kernel-ml
 	yum --nogpgcheck -y --enablerepo=elrepo-kernel install kernel-ml
-	echo "ELRepo 저장소 구성을 설치하고 최신 메인라인 커널로 업데이트했습니다."
+	echo "已安装 ELRepo 仓库配置并更新到最新主线内核。"
 	server_reboot
 
 }
@@ -5415,18 +5415,18 @@ elrepo_install() {
 
 elrepo() {
 		  root_use
-		  send_stats "Red Hat 커널 관리"
+		  send_stats "红帽内核管理"
 		  if uname -r | grep -q 'elrepo'; then
 			while true; do
 				  clear
 				  kernel_version=$(uname -r)
 				  echo "elrepo 커널을 설치했습니다"
-				  echo "현재 커널 버전:$kernel_version"
+				  echo "当前内核版本: $kernel_version"
 
 				  echo ""
-				  echo "커널 관리"
+				  echo "内核管理"
 				  echo "------------------------"
-				  echo "1. elrepo 커널 업데이트 2. elrepo 커널 제거"
+				  echo "1. 更新elrepo内核              2. 卸载elrepo内核"
 				  echo "------------------------"
 				  echo "0. 이전 메뉴로 돌아가기"
 				  echo "------------------------"
@@ -5437,15 +5437,15 @@ elrepo() {
 						dnf remove -y elrepo-release
 						rpm -qa | grep elrepo | grep kernel | xargs rpm -e --nodeps
 						elrepo_install
-						send_stats "Red Hat 커널 업데이트"
+						send_stats "更新红帽内核"
 						server_reboot
 
 						  ;;
 					  2)
 						dnf remove -y elrepo-release
 						rpm -qa | grep elrepo | grep kernel | xargs rpm -e --nodeps
-						echo "elrepo 커널이 제거되었습니다. 재시작 후 적용"
-						send_stats "Red Hat 커널 제거"
+						echo "elrepo内核已卸载。重启后生效"
+						send_stats "卸载红帽内核"
 						server_reboot
 
 						  ;;
@@ -5462,7 +5462,7 @@ elrepo() {
 		  echo "영상 소개: https://www.bilibili.com/video/BV1mH4y1w7qA?t=529.2"
 		  echo "------------------------------------------------"
 		  echo "Red Hat 시리즈 배포판 CentOS/RedHat/Alma/Rocky/oracle만 지원"
-		  echo "Linux 커널을 업그레이드하면 시스템 성능과 보안이 향상될 수 있습니다. 가능하다면 시도해 보시고, 프로덕션 환경을 주의해서 업그레이드하시는 것을 추천드립니다!"
+		  echo "升级Linux内核可提升系统性能和安全，建议有条件的尝试，生产环境谨慎升级！"
 		  echo "------------------------------------------------"
 		  read -e -p "계속하시겠습니까? (예/아니요):" choice
 
@@ -5470,14 +5470,14 @@ elrepo() {
 			[Yy])
 			  check_swap
 			  elrepo_install
-			  send_stats "Red Hat 커널 업그레이드"
+			  send_stats "升级红帽内核"
 			  server_reboot
 			  ;;
 			[Nn])
-			  echo "취소"
+			  echo "已取消"
 			  ;;
 			*)
-			  echo "선택이 잘못되었습니다. Y 또는 N을 입력하세요."
+			  echo "无效的选择，请输入 Y 或 N。"
 			  ;;
 		  esac
 		fi
@@ -5627,7 +5627,7 @@ optimize_high_performance() {
 	echo -e "${gl_lv}기타 최적화...${gl_bai}"
 	# 대기 시간을 줄이기 위해 투명한 대용량 페이지를 비활성화합니다.
 	echo never > /sys/kernel/mm/transparent_hugepage/enabled
-	# NUMA 밸런싱 비활성화
+	# 禁用 NUMA balancing
 	sysctl -w kernel.numa_balancing=0 2>/dev/null
 
 
@@ -5635,7 +5635,7 @@ optimize_high_performance() {
 
 # 균형 모드 최적화 기능
 optimize_balanced() {
-	echo -e "${gl_lv}이퀄라이제이션 모드로 전환...${gl_bai}"
+	echo -e "${gl_lv}切换到均衡模式...${gl_bai}"
 
 	echo -e "${gl_lv}파일 설명자 최적화...${gl_bai}"
 	ulimit -n 32768
@@ -5662,11 +5662,11 @@ optimize_balanced() {
 	echo -e "${gl_lv}캐시 관리 최적화...${gl_bai}"
 	sysctl -w vm.vfs_cache_pressure=75 2>/dev/null
 
-	echo -e "${gl_lv}CPU 설정 최적화...${gl_bai}"
+	echo -e "${gl_lv}优化CPU设置...${gl_bai}"
 	sysctl -w kernel.sched_autogroup_enabled=1 2>/dev/null
 
-	echo -e "${gl_lv}기타 최적화...${gl_bai}"
-	# 투명한 대용량 페이지 복원
+	echo -e "${gl_lv}其他优化...${gl_bai}"
+	# 还原透明大页面
 	echo always > /sys/kernel/mm/transparent_hugepage/enabled
 	# NUMA 밸런싱 복원
 	sysctl -w kernel.numa_balancing=1 2>/dev/null
@@ -5676,12 +5676,12 @@ optimize_balanced() {
 
 # 기본 설정 복원 기능
 restore_defaults() {
-	echo -e "${gl_lv}기본 설정으로 되돌리기...${gl_bai}"
+	echo -e "${gl_lv}还原到默认设置...${gl_bai}"
 
 	echo -e "${gl_lv}파일 설명자를 복원합니다...${gl_bai}"
 	ulimit -n 1024
 
-	echo -e "${gl_lv}가상 메모리 복원...${gl_bai}"
+	echo -e "${gl_lv}还原虚拟内存...${gl_bai}"
 	sysctl -w vm.swappiness=60 2>/dev/null
 	sysctl -w vm.dirty_ratio=20 2>/dev/null
 	sysctl -w vm.dirty_background_ratio=10 2>/dev/null
@@ -5700,14 +5700,14 @@ restore_defaults() {
 	sysctl -w net.ipv4.tcp_tw_reuse=0 2>/dev/null
 	sysctl -w net.ipv4.ip_local_port_range='32768 60999' 2>/dev/null
 
-	echo -e "${gl_lv}캐시 관리 복원...${gl_bai}"
+	echo -e "${gl_lv}还原缓存管理...${gl_bai}"
 	sysctl -w vm.vfs_cache_pressure=100 2>/dev/null
 
 	echo -e "${gl_lv}CPU 설정 복원...${gl_bai}"
 	sysctl -w kernel.sched_autogroup_enabled=1 2>/dev/null
 
 	echo -e "${gl_lv}다른 최적화 되돌리기...${gl_bai}"
-	# 투명한 대용량 페이지 복원
+	# 还原透明大页面
 	echo always > /sys/kernel/mm/transparent_hugepage/enabled
 	# NUMA 밸런싱 복원
 	sysctl -w kernel.numa_balancing=1 2>/dev/null
@@ -5716,21 +5716,21 @@ restore_defaults() {
 
 
 
-# 웹사이트 구축 최적화 기능
+# 网站搭建优化函数
 optimize_web_server() {
-	echo -e "${gl_lv}웹사이트 구축 최적화 모드로 전환...${gl_bai}"
+	echo -e "${gl_lv}切换到网站搭建优化模式...${gl_bai}"
 
-	echo -e "${gl_lv}파일 설명자 최적화...${gl_bai}"
+	echo -e "${gl_lv}优化文件描述符...${gl_bai}"
 	ulimit -n 65535
 
-	echo -e "${gl_lv}가상 메모리 최적화...${gl_bai}"
+	echo -e "${gl_lv}优化虚拟内存...${gl_bai}"
 	sysctl -w vm.swappiness=10 2>/dev/null
 	sysctl -w vm.dirty_ratio=20 2>/dev/null
 	sysctl -w vm.dirty_background_ratio=10 2>/dev/null
 	sysctl -w vm.overcommit_memory=1 2>/dev/null
 	sysctl -w vm.min_free_kbytes=65536 2>/dev/null
 
-	echo -e "${gl_lv}네트워크 설정 최적화...${gl_bai}"
+	echo -e "${gl_lv}优化网络设置...${gl_bai}"
 	sysctl -w net.core.rmem_max=16777216 2>/dev/null
 	sysctl -w net.core.wmem_max=16777216 2>/dev/null
 	sysctl -w net.core.netdev_max_backlog=5000 2>/dev/null
@@ -5742,16 +5742,16 @@ optimize_web_server() {
 	sysctl -w net.ipv4.tcp_tw_reuse=1 2>/dev/null
 	sysctl -w net.ipv4.ip_local_port_range='1024 65535' 2>/dev/null
 
-	echo -e "${gl_lv}캐시 관리 최적화...${gl_bai}"
+	echo -e "${gl_lv}优化缓存管理...${gl_bai}"
 	sysctl -w vm.vfs_cache_pressure=50 2>/dev/null
 
 	echo -e "${gl_lv}CPU 설정 최적화...${gl_bai}"
 	sysctl -w kernel.sched_autogroup_enabled=0 2>/dev/null
 
-	echo -e "${gl_lv}기타 최적화...${gl_bai}"
-	# 대기 시간을 줄이기 위해 투명한 대용량 페이지를 비활성화합니다.
+	echo -e "${gl_lv}其他优化...${gl_bai}"
+	# 禁用透明大页面，减少延迟
 	echo never > /sys/kernel/mm/transparent_hugepage/enabled
-	# NUMA 밸런싱 비활성화
+	# 禁用 NUMA balancing
 	sysctl -w kernel.numa_balancing=0 2>/dev/null
 
 
@@ -5762,15 +5762,15 @@ Kernel_optimize() {
 	root_use
 	while true; do
 	  clear
-	  send_stats "Linux 커널 튜닝 관리"
+	  send_stats "Linux内核调优管理"
 	  echo "Linux 시스템 커널 매개변수 최적화"
 	  echo "영상 소개: https://www.bilibili.com/video/BV1Kb421J7yg?t=0.1"
 	  echo "------------------------------------------------"
-	  echo "다양한 시스템 매개변수 조정 모드를 제공하며 사용자는 자신의 사용 시나리오에 따라 전환하도록 선택할 수 있습니다."
+	  echo "提供多种系统参数调优模式，用户可以根据自身使用场景进行选择切换。"
 	  echo -e "${gl_huang}힌트:${gl_bai}프로덕션 환경에서는 주의해서 사용해주세요!"
 	  echo "--------------------"
-	  echo "1. 고성능 최적화 모드: 시스템 성능을 최대화하고 파일 설명자, 가상 메모리, 네트워크 설정, 캐시 관리 및 CPU 설정을 최적화합니다."
-	  echo "2. 균형 잡힌 최적화 모드: 일상적인 사용에 적합한 성능과 리소스 소비 사이의 균형을 유지합니다."
+	  echo "1. 高性能优化模式：     最大化系统性能，优化文件描述符、虚拟内存、网络设置、缓存管理和CPU设置。"
+	  echo "2. 均衡优化模式：       在性能与资源消耗之间取得平衡，适合日常使用。"
 	  echo "3. 웹사이트 최적화 모드: 웹사이트 서버를 최적화하여 동시 연결 처리 기능, 응답 속도 및 전반적인 성능을 향상시킵니다."
 	  echo "4. 라이브 방송 최적화 모드: 라이브 스트리밍의 특별한 요구 사항을 최적화하여 지연을 줄이고 전송 성능을 향상시킵니다."
 	  echo "5. 게임 서버 최적화 모드: 게임 서버를 최적화하여 동시 처리 기능과 응답 속도를 향상시킵니다."
@@ -6038,14 +6038,14 @@ linux_trash() {
 		  mv "$TRASH_DIR/$file_to_restore" "$HOME/"
 		  echo "$file_to_restore홈 디렉토리로 복원되었습니다."
 		else
-		  echo "文件不存在。"
+		  echo "파일이 존재하지 않습니다."
 		fi
 		;;
 	  4)
-		read -e -p "确认清空回收站？[y/n]: " confirm
+		read -e -p "휴지통을 비우시겠습니까? [예/아니요]:" confirm
 		if [[ "$confirm" == "y" ]]; then
 		  trash-empty
-		  echo "回收站已清空。"
+		  echo "휴지통이 비워졌습니다."
 		fi
 		;;
 	  *)
@@ -6065,14 +6065,14 @@ create_backup() {
 	send_stats "백업 만들기"
 	local TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 
-	# 提示用户输入备份目录
+	# 사용자에게 백업 디렉터리를 묻는 메시지 표시
 	echo "백업 생성 예:"
-	echo "  - 备份单个目录: /var/www"
+	echo "- 단일 디렉터리 백업: /var/www"
 	echo "- 여러 디렉터리 백업: /etc /home /var/log"
 	echo "- Enter를 눌러 기본 디렉터리(/etc/usr/home)를 사용합니다."
-	read -r -p "请输入要备份的目录（多个目录用空格分隔，直接回车则使用默认目录）：" input
+	read -r -p "백업할 디렉터리를 입력하십시오(여러 디렉터리를 공백으로 구분하고 Enter를 눌러 기본 디렉터리를 사용하십시오)." input
 
-	# 如果用户没有输入目录，则使用默认目录
+	# 사용자가 디렉터리를 입력하지 않으면 기본 디렉터리가 사용됩니다.
 	if [ -z "$input" ]; then
 		BACKUP_PATHS=(
 			"/etc"              # 配置文件和软件包配置
@@ -6105,15 +6105,15 @@ create_backup() {
 	done
 
 	# 백업 만들기
-	echo "백업 생성$BACKUP_NAME..."
+	echo "正在创建备份 $BACKUP_NAME..."
 	install tar
 	tar -czvf "$BACKUP_DIR/$BACKUP_NAME" "${BACKUP_PATHS[@]}"
 
 	# 명령이 성공했는지 확인
 	if [ $? -eq 0 ]; then
-		echo "백업이 성공적으로 생성되었습니다:$BACKUP_DIR/$BACKUP_NAME"
+		echo "备份创建成功: $BACKUP_DIR/$BACKUP_NAME"
 	else
-		echo "백업 생성에 실패했습니다!"
+		echo "备份创建失败！"
 		exit 1
 	fi
 }
@@ -6121,12 +6121,12 @@ create_backup() {
 # 백업 복원
 restore_backup() {
 	send_stats "백업 복원"
-	# 복원할 백업을 선택하세요
-	read -e -p "복원할 백업 파일 이름을 입력하십시오:" BACKUP_NAME
+	# 选择要恢复的备份
+	read -e -p "请输入要恢复的备份文件名: " BACKUP_NAME
 
 	# 백업 파일이 있는지 확인
 	if [ ! -f "$BACKUP_DIR/$BACKUP_NAME" ]; then
-		echo "백업 파일이 존재하지 않습니다!"
+		echo "备份文件不存在！"
 		exit 1
 	fi
 
@@ -6136,54 +6136,54 @@ restore_backup() {
 	if [ $? -eq 0 ]; then
 		echo "백업 및 복원 성공!"
 	else
-		echo "백업 복원에 실패했습니다!"
+		echo "备份恢复失败！"
 		exit 1
 	fi
 }
 
-# 백업 나열
+# 列出备份
 list_backups() {
 	echo "사용 가능한 백업:"
 	ls -1 "$BACKUP_DIR"
 }
 
-# 删除备份
+# 백업 삭제
 delete_backup() {
-	send_stats "백업 삭제"
+	send_stats "删除备份"
 
-	read -e -p "삭제할 백업 파일 이름을 입력하십시오:" BACKUP_NAME
+	read -e -p "请输入要删除的备份文件名: " BACKUP_NAME
 
-	# 백업 파일이 있는지 확인
+	# 检查备份文件是否存在
 	if [ ! -f "$BACKUP_DIR/$BACKUP_NAME" ]; then
 		echo "备份文件不存在！"
 		exit 1
 	fi
 
-	# 백업 삭제
+	# 删除备份
 	rm -f "$BACKUP_DIR/$BACKUP_NAME"
 
 	if [ $? -eq 0 ]; then
-		echo "백업이 삭제되었습니다!"
+		echo "备份删除成功！"
 	else
 		echo "백업 삭제에 실패했습니다!"
 		exit 1
 	fi
 }
 
-# 백업 메인 메뉴
+# 备份主菜单
 linux_backup() {
 	BACKUP_DIR="/backups"
 	mkdir -p "$BACKUP_DIR"
 	while true; do
 		clear
 		send_stats "시스템 백업 기능"
-		echo "시스템 백업 기능"
+		echo "系统备份功能"
 		echo "------------------------"
 		list_backups
 		echo "------------------------"
 		echo "1. 백업 생성 2. 백업 복원 3. 백업 삭제"
 		echo "------------------------"
-		echo "0. 이전 메뉴로 돌아가기"
+		echo "0. 返回上一级选单"
 		echo "------------------------"
 		read -e -p "선택사항을 입력하세요:" choice
 		case $choice in
@@ -6192,7 +6192,7 @@ linux_backup() {
 			3) delete_backup ;;
 			*) break ;;
 		esac
-		read -e -p "계속하려면 Enter를 누르세요..."
+		read -e -p "按回车键继续..."
 	done
 }
 
@@ -6204,56 +6204,56 @@ linux_backup() {
 
 
 
-# 연결 목록 표시
+# 显示连接列表
 list_connections() {
-	echo "저장된 연결:"
+	echo "已保存的连接:"
 	echo "------------------------"
 	cat "$CONFIG_FILE" | awk -F'|' '{print NR " - " $1 " (" $2 ")"}'
 	echo "------------------------"
 }
 
 
-# 새 연결 추가
+# 添加新连接
 add_connection() {
-	send_stats "새 연결 추가"
-	echo "새 연결 생성의 예:"
-	echo "- 연결 이름: my_server"
-	echo "- IP 주소: 192.168.1.100"
-	echo "- 사용자 이름: 루트"
-	echo "- 포트: 22"
+	send_stats "添加新连接"
+	echo "创建新连接示例："
+	echo "  - 连接名称: my_server"
+	echo "  - IP地址: 192.168.1.100"
+	echo "  - 用户名: root"
+	echo "  - 端口: 22"
 	echo "------------------------"
-	read -e -p "연결 이름을 입력하세요:" name
-	read -e -p "IP 주소를 입력하세요:" ip
-	read -e -p "사용자 이름을 입력하십시오(기본값: 루트):" user
+	read -e -p "请输入连接名称: " name
+	read -e -p "请输入IP地址: " ip
+	read -e -p "请输入用户名 (默认: root): " user
 	local user=${user:-root}  # 如果用户未输入，则使用默认值 root
-	read -e -p "포트 번호를 입력하십시오(기본값: 22):" port
+	read -e -p "请输入端口号 (默认: 22): " port
 	local port=${port:-22}  # 如果用户未输入，则使用默认值 22
 
-	echo "인증 방법을 선택하세요:"
+	echo "请选择身份验证方式:"
 	echo "1. 비밀번호"
-	echo "2. 열쇠"
+	echo "2. 密钥"
 	read -e -p "원하는 항목(1/2)을 입력하세요." auth_choice
 
 	case $auth_choice in
 		1)
-			read -s -p "비밀번호를 입력하세요:" password_or_key
+			read -s -p "请输入密码: " password_or_key
 			echo  # 换行
 			;;
 		2)
-			echo "주요 내용을 붙여넣으세요(붙인 후 Enter를 두 번 누르세요)."
+			echo "请粘贴密钥内容 (粘贴完成后按两次回车)："
 			local password_or_key=""
 			while IFS= read -r line; do
-				# 입력이 빈 줄이고 키 내용에 이미 시작 부분이 포함된 경우 입력을 종료합니다.
+				# 如果输入为空行且密钥内容已经包含了开头，则结束输入
 				if [[ -z "$line" && "$password_or_key" == *"-----BEGIN"* ]]; then
 					break
 				fi
-				# 첫 번째 줄이거나 이미 핵심 내용 입력을 시작했다면 계속해서 추가하세요.
+				# 如果是第一行或已经开始输入密钥内容，则继续添加
 				if [[ -n "$line" || "$password_or_key" == *"-----BEGIN"* ]]; then
 					local password_or_key+="${line}"$'\n'
 				fi
 			done
 
-			# 핵심 내용인지 확인해보세요
+			# 检查是否是密钥内容
 			if [[ "$password_or_key" == *"-----BEGIN"* && "$password_or_key" == *"PRIVATE KEY-----"* ]]; then
 				local key_file="$KEY_DIR/$name.key"
 				echo -n "$password_or_key" > "$key_file"
@@ -6262,59 +6262,59 @@ add_connection() {
 			fi
 			;;
 		*)
-			echo "잘못된 선택입니다!"
+			echo "无效的选择！"
 			return
 			;;
 	esac
 
 	echo "$name|$ip|$user|$port|$password_or_key" >> "$CONFIG_FILE"
-	echo "연결이 저장되었습니다!"
+	echo "连接已保存!"
 }
 
 
 
-# 연결 삭제
+# 删除连接
 delete_connection() {
-	send_stats "연결 삭제"
-	read -e -p "삭제할 연결 번호를 입력하세요:" num
+	send_stats "删除连接"
+	read -e -p "请输入要删除的连接编号: " num
 
 	local connection=$(sed -n "${num}p" "$CONFIG_FILE")
 	if [[ -z "$connection" ]]; then
-		echo "오류: 해당 연결을 찾을 수 없습니다."
+		echo "错误：未找到对应的连接。"
 		return
 	fi
 
 	IFS='|' read -r name ip user port password_or_key <<< "$connection"
 
-	# 연결이 키 파일을 사용하는 경우 키 파일을 삭제하세요.
+	# 如果连接使用的是密钥文件，则删除该密钥文件
 	if [[ "$password_or_key" == "$KEY_DIR"* ]]; then
 		rm -f "$password_or_key"
 	fi
 
 	sed -i "${num}d" "$CONFIG_FILE"
-	echo "연결이 삭제되었습니다!"
+	echo "连接已删除!"
 }
 
-# 연결 사용
+# 使用连接
 use_connection() {
-	send_stats "연결 사용"
-	read -e -p "사용할 연결 번호를 입력하세요:" num
+	send_stats "使用连接"
+	read -e -p "请输入要使用的连接编号: " num
 
 	local connection=$(sed -n "${num}p" "$CONFIG_FILE")
 	if [[ -z "$connection" ]]; then
-		echo "오류: 해당 연결을 찾을 수 없습니다."
+		echo "错误：未找到对应的连接。"
 		return
 	fi
 
 	IFS='|' read -r name ip user port password_or_key <<< "$connection"
 
-	echo "연결 중$name ($ip)..."
+	echo "正在连接到 $name ($ip)..."
 	if [[ -f "$password_or_key" ]]; then
-		# 키를 사용하여 연결
+		# 使用密钥连接
 		ssh -o StrictHostKeyChecking=no -i "$password_or_key" -p "$port" "$user@$ip"
 		if [[ $? -ne 0 ]]; then
-			echo "연결에 실패했습니다! 다음 사항을 확인하세요."
-			echo "1. 키파일 경로가 맞나요?$password_or_key"
+			echo "连接失败！请检查以下内容："
+			echo "1. 密钥文件路径是否正确：$password_or_key"
 			echo "2. 키 파일 권한이 올바른가요(600이어야 함)."
 			echo "3. 대상 서버에서 키를 이용한 로그인을 허용하는지 여부."
 		fi
@@ -6525,7 +6525,7 @@ disk_manager() {
 	send_stats "하드디스크 관리 기능"
 	while true; do
 		clear
-		echo "하드 디스크 파티션 관리"
+		echo "하드 드라이브 파티션 관리"
 		echo -e "${gl_huang}이 기능은 내부 테스트 중이므로 프로덕션 환경에서는 사용하면 안 됩니다.${gl_bai}"
 		echo "------------------------"
 		list_partitions
@@ -6533,9 +6533,9 @@ disk_manager() {
 		echo "1. 파티션 마운트 2. 파티션 마운트 해제 3. 마운트된 파티션 보기"
 		echo "4. 파티션 포맷 5. 파티션 상태 확인"
 		echo "------------------------"
-		echo "0. 이전 메뉴로 돌아가기"
+		echo "0. 返回上一级选单"
 		echo "------------------------"
-		read -e -p "선택사항을 입력하세요:" choice
+		read -e -p "请输入你的选择: " choice
 		case $choice in
 			1) mount_partition ;;
 			2) unmount_partition ;;
@@ -6544,7 +6544,7 @@ disk_manager() {
 			5) check_partition ;;
 			*) break ;;
 		esac
-		read -e -p "계속하려면 Enter를 누르세요..."
+		read -e -p "按回车键继续..."
 	done
 }
 
@@ -6553,7 +6553,7 @@ disk_manager() {
 
 # 작업 목록 표시
 list_tasks() {
-	echo "저장된 동기화 작업:"
+	echo "已保存的同步任务:"
 	echo "---------------------------------"
 	awk -F'|' '{print NR " - " $1 " ( " $2 " -> " $3":"$4 " )"}' "$CONFIG_FILE"
 	echo "---------------------------------"
@@ -6561,25 +6561,25 @@ list_tasks() {
 
 # 새 작업 추가
 add_task() {
-	send_stats "새 동기화 작업 추가"
+	send_stats "添加新同步任务"
 	echo "새 동기화 작업 생성의 예:"
-	echo "- 작업 이름: backup_www"
-	echo "- 로컬 디렉터리: /var/www"
-	echo "- 원격 주소: user@192.168.1.100"
-	echo "- 원격 디렉터리: /backup/www"
+	echo "  - 任务名称: backup_www"
+	echo "  - 本地目录: /var/www"
+	echo "  - 远程地址: user@192.168.1.100"
+	echo "  - 远程目录: /backup/www"
 	echo "- 포트 번호(기본값 22)"
 	echo "---------------------------------"
-	read -e -p "작업 이름을 입력하세요:" name
-	read -e -p "로컬 디렉토리를 입력하십시오:" local_path
-	read -e -p "원격 디렉토리를 입력하십시오:" remote_path
+	read -e -p "请输入任务名称: " name
+	read -e -p "请输入本地目录: " local_path
+	read -e -p "请输入远程目录: " remote_path
 	read -e -p "원격 user@IP를 입력하십시오:" remote
 	read -e -p "SSH 포트(기본값 22)를 입력하세요." port
 	port=${port:-22}
 
 	echo "인증 방법을 선택하세요:"
-	echo "1. 비밀번호"
-	echo "2. 열쇠"
-	read -e -p "(1/2)을 선택하세요:" auth_choice
+	echo "1. 密码"
+	echo "2. 密钥"
+	read -e -p "请选择 (1/2): " auth_choice
 
 	case $auth_choice in
 		1)
@@ -6588,20 +6588,20 @@ add_task() {
 			auth_method="password"
 			;;
 		2)
-			echo "주요 내용을 붙여넣으세요(붙인 후 Enter를 두 번 누르세요)."
+			echo "请粘贴密钥内容 (粘贴完成后按两次回车)："
 			local password_or_key=""
 			while IFS= read -r line; do
-				# 입력이 빈 줄이고 키 내용에 이미 시작 부분이 포함된 경우 입력을 종료합니다.
+				# 如果输入为空行且密钥内容已经包含了开头，则结束输入
 				if [[ -z "$line" && "$password_or_key" == *"-----BEGIN"* ]]; then
 					break
 				fi
-				# 첫 번째 줄이거나 이미 핵심 내용 입력을 시작했다면 계속해서 추가하세요.
+				# 如果是第一行或已经开始输入密钥内容，则继续添加
 				if [[ -n "$line" || "$password_or_key" == *"-----BEGIN"* ]]; then
 					password_or_key+="${line}"$'\n'
 				fi
 			done
 
-			# 핵심 내용인지 확인해보세요
+			# 检查是否是密钥内容
 			if [[ "$password_or_key" == *"-----BEGIN"* && "$password_or_key" == *"PRIVATE KEY-----"* ]]; then
 				local key_file="$KEY_DIR/${name}_sync.key"
 				echo -n "$password_or_key" > "$key_file"
@@ -6609,7 +6609,7 @@ add_task() {
 				password_or_key="$key_file"
 				auth_method="key"
 			else
-				echo "잘못된 키 콘텐츠입니다!"
+				echo "无效的密钥内容！"
 				return
 			fi
 			;;
@@ -6619,53 +6619,53 @@ add_task() {
 			;;
 	esac
 
-	echo "동기화 모드를 선택하십시오:"
-	echo "1. 표준 모드(-avz)"
-	echo "2. 대상 파일 삭제(-avz --delete)"
-	read -e -p "(1/2)을 선택하세요:" mode
+	echo "请选择同步模式:"
+	echo "1. 标准模式 (-avz)"
+	echo "2. 删除目标文件 (-avz --delete)"
+	read -e -p "请选择 (1/2): " mode
 	case $mode in
 		1) options="-avz" ;;
 		2) options="-avz --delete" ;;
-		*) echo "선택이 잘못되었습니다. 기본값 -avz를 사용하세요."; options="-avz" ;;
+		*) echo "无效选择，使用默认 -avz"; options="-avz" ;;
 	esac
 
 	echo "$name|$local_path|$remote|$remote_path|$port|$options|$auth_method|$password_or_key" >> "$CONFIG_FILE"
 
 	install rsync rsync
 
-	echo "임무가 저장되었습니다!"
+	echo "任务已保存!"
 }
 
-# 할 일 삭제
+# 删除任务
 delete_task() {
 	send_stats "동기화 작업 삭제"
-	read -e -p "삭제할 작업 번호를 입력하세요:" num
+	read -e -p "请输入要删除的任务编号: " num
 
 	local task=$(sed -n "${num}p" "$CONFIG_FILE")
 	if [[ -z "$task" ]]; then
-		echo "오류: 해당 작업을 찾을 수 없습니다."
+		echo "错误：未找到对应的任务。"
 		return
 	fi
 
 	IFS='|' read -r name local_path remote remote_path port options auth_method password_or_key <<< "$task"
 
-	# 작업이 키 파일을 사용하는 경우 키 파일을 삭제하세요.
+	# 如果任务使用的是密钥文件，则删除该密钥文件
 	if [[ "$auth_method" == "key" && "$password_or_key" == "$KEY_DIR"* ]]; then
 		rm -f "$password_or_key"
 	fi
 
 	sed -i "${num}d" "$CONFIG_FILE"
-	echo "작업이 삭제되었습니다!"
+	echo "任务已删除!"
 }
 
 
 run_task() {
-	send_stats "동기화 작업 수행"
+	send_stats "执行同步任务"
 
 	CONFIG_FILE="$HOME/.rsync_tasks"
 	CRON_FILE="$HOME/.rsync_cron"
 
-	# 매개변수 구문 분석
+	# 解析参数
 	local direction="push"  # 默认是推送到远端
 	local num
 
@@ -6676,9 +6676,9 @@ run_task() {
 		num="$1"
 	fi
 
-	# 작업 번호가 전달되지 않으면 사용자에게 입력하라는 메시지가 표시됩니다.
+	# 如果没有传入任务编号，提示用户输入
 	if [[ -z "$num" ]]; then
-		read -e -p "실행할 작업 번호를 입력하세요:" num
+		read -e -p "请输入要执行的任务编号: " num
 	fi
 
 	local task=$(sed -n "${num}p" "$CONFIG_FILE")
@@ -6689,24 +6689,24 @@ run_task() {
 
 	IFS='|' read -r name local_path remote remote_path port options auth_method password_or_key <<< "$task"
 
-	# 동기화 방향에 따라 소스 및 대상 경로 조정
+	# 根据同步方向调整源和目标路径
 	if [[ "$direction" == "pull" ]]; then
-		echo "로컬로 가져오기 및 동기화:$remote:$local_path -> $remote_path"
+		echo "正在拉取同步到本地: $remote:$local_path -> $remote_path"
 		source="$remote:$local_path"
 		destination="$remote_path"
 	else
-		echo "원격 끝에 푸시 및 동기화:$local_path -> $remote:$remote_path"
+		echo "正在推送同步到远端: $local_path -> $remote:$remote_path"
 		source="$local_path"
 		destination="$remote:$remote_path"
 	fi
 
-	# SSH 연결 공통 매개변수 추가
+	# 添加 SSH 连接通用参数
 	local ssh_options="-p $port -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
 	if [[ "$auth_method" == "password" ]]; then
 		if ! command -v sshpass &> /dev/null; then
-			echo "오류: sshpass가 설치되지 않았습니다. 먼저 sshpass를 설치하십시오."
-			echo "설치 방법:"
+			echo "错误：未安装 sshpass，请先安装 sshpass。"
+			echo "安装方法："
 			echo "  - Ubuntu/Debian: apt install sshpass"
 			echo "  - CentOS/RHEL: yum install sshpass"
 			return
@@ -6732,7 +6732,7 @@ run_task() {
 	else
 		echo "동기화에 실패했습니다! 다음 사항을 확인하세요."
 		echo "1. 네트워크 연결이 정상인가요?"
-		echo "2. 원격 호스트에 접근 가능한지 여부"
+		echo "2. 원격 호스트에 접근할 수 있나요?"
 		echo "3. 인증정보가 정확합니까?"
 		echo "4. 로컬 및 원격 디렉터리에 올바른 액세스 권한이 있습니까?"
 	fi
@@ -6907,18 +6907,18 @@ linux_info() {
 	echo -e "${gl_kjlan}-------------"
 	echo -e "${gl_kjlan}CPU 아키텍처:${gl_bai}$cpu_arch"
 	echo -e "${gl_kjlan}CPU 모델:${gl_bai}$cpu_info"
-	echo -e "${gl_kjlan}CPU 코어 수:${gl_bai}$cpu_cores"
+	echo -e "${gl_kjlan}CPU核心数:      ${gl_bai}$cpu_cores"
 	echo -e "${gl_kjlan}CPU 주파수:${gl_bai}$cpu_freq"
 	echo -e "${gl_kjlan}-------------"
 	echo -e "${gl_kjlan}CPU 사용량:${gl_bai}$cpu_usage_percent%"
 	echo -e "${gl_kjlan}시스템 부하:${gl_bai}$load"
-	echo -e "${gl_kjlan}TCP|UDP 연결 수:${gl_bai}$tcp_count|$udp_count"
+	echo -e "${gl_kjlan}TCP|UDP连接数:  ${gl_bai}$tcp_count|$udp_count"
 	echo -e "${gl_kjlan}물리적 메모리:${gl_bai}$mem_info"
-	echo -e "${gl_kjlan}가상 메모리:${gl_bai}$swap_info"
-	echo -e "${gl_kjlan}하드 드라이브 사용량:${gl_bai}$disk_info"
+	echo -e "${gl_kjlan}虚拟内存:       ${gl_bai}$swap_info"
+	echo -e "${gl_kjlan}硬盘占用:       ${gl_bai}$disk_info"
 	echo -e "${gl_kjlan}-------------"
-	echo -e "${gl_kjlan}받은 총액:${gl_bai}$rx"
-	echo -e "${gl_kjlan}보낸 총액:${gl_bai}$tx"
+	echo -e "${gl_kjlan}总接收:         ${gl_bai}$rx"
+	echo -e "${gl_kjlan}总发送:         ${gl_bai}$tx"
 	echo -e "${gl_kjlan}-------------"
 	echo -e "${gl_kjlan}네트워크 알고리즘:${gl_bai}$congestion_algorithm $queue_algorithm"
 	echo -e "${gl_kjlan}-------------"
@@ -6928,13 +6928,13 @@ linux_info() {
 	fi
 
 	if [ -n "$ipv6_address" ]; then
-		echo -e "${gl_kjlan}IPv6 주소:${gl_bai}$ipv6_address"
+		echo -e "${gl_kjlan}IPv6地址:       ${gl_bai}$ipv6_address"
 	fi
-	echo -e "${gl_kjlan}DNS 주소:${gl_bai}$dns_addresses"
-	echo -e "${gl_kjlan}위치:${gl_bai}$country $city"
-	echo -e "${gl_kjlan}시스템 시간:${gl_bai}$timezone $current_time"
+	echo -e "${gl_kjlan}DNS地址:        ${gl_bai}$dns_addresses"
+	echo -e "${gl_kjlan}地理位置:       ${gl_bai}$country $city"
+	echo -e "${gl_kjlan}系统时间:       ${gl_bai}$timezone $current_time"
 	echo -e "${gl_kjlan}-------------"
-	echo -e "${gl_kjlan}실행 시간:${gl_bai}$runtime"
+	echo -e "${gl_kjlan}运行时长:       ${gl_bai}$runtime"
 	echo
 
 
@@ -6947,47 +6947,47 @@ linux_tools() {
 
   while true; do
 	  clear
-	  # send_stats "기본 도구"
-	  echo -e "기본 도구"
+	  # send_stats "基础工具"
+	  echo -e "基础工具"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}1.   ${gl_bai}컬 다운로드 도구${gl_huang}★${gl_bai}                   ${gl_kjlan}2.   ${gl_bai}wget 다운로드 도구${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}3.   ${gl_bai}sudo 최고 관리 권한 도구${gl_kjlan}4.   ${gl_bai}socat 통신 연결 도구"
-	  echo -e "${gl_kjlan}5.   ${gl_bai}htop 시스템 모니터링 도구${gl_kjlan}6.   ${gl_bai}iftop 네트워크 트래픽 모니터링 도구"
-	  echo -e "${gl_kjlan}7.   ${gl_bai}unzip ZIP 압축 및 압축 풀기 도구${gl_kjlan}8.   ${gl_bai}tar GZ 압축 및 압축 해제 도구"
-	  echo -e "${gl_kjlan}9.   ${gl_bai}tmux 다중 채널 백그라운드 실행 도구${gl_kjlan}10.  ${gl_bai}ffmpeg 비디오 인코딩 라이브 스트리밍 도구"
+	  echo -e "${gl_kjlan}1.   ${gl_bai}curl 下载工具 ${gl_huang}★${gl_bai}                   ${gl_kjlan}2.   ${gl_bai}wget 下载工具 ${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}3.   ${gl_bai}sudo 超级管理权限工具             ${gl_kjlan}4.   ${gl_bai}socat 通信连接工具"
+	  echo -e "${gl_kjlan}5.   ${gl_bai}htop 系统监控工具                 ${gl_kjlan}6.   ${gl_bai}iftop 网络流量监控工具"
+	  echo -e "${gl_kjlan}7.   ${gl_bai}unzip ZIP压缩解压工具             ${gl_kjlan}8.   ${gl_bai}tar GZ压缩解压工具"
+	  echo -e "${gl_kjlan}9.   ${gl_bai}tmux 多路后台运行工具             ${gl_kjlan}10.  ${gl_bai}ffmpeg 视频编码直播推流工具"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}11.  ${gl_bai}btop 최신 모니터링 도구${gl_huang}★${gl_bai}             ${gl_kjlan}12.  ${gl_bai}레인저 파일 관리 도구"
-	  echo -e "${gl_kjlan}13.  ${gl_bai}ncdu 디스크 사용량 보기 도구${gl_kjlan}14.  ${gl_bai}fzf 글로벌 검색 도구"
-	  echo -e "${gl_kjlan}15.  ${gl_bai}vim 텍스트 편집기${gl_kjlan}16.  ${gl_bai}나노 텍스트 편집기${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}17.  ${gl_bai}Git 버전 관리 시스템${gl_kjlan}18.  ${gl_bai}오픈코드 AI 프로그래밍 도우미${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}11.  ${gl_bai}btop 现代化监控工具 ${gl_huang}★${gl_bai}             ${gl_kjlan}12.  ${gl_bai}ranger 文件管理工具"
+	  echo -e "${gl_kjlan}13.  ${gl_bai}ncdu 디스크 사용량 보기 도구${gl_kjlan}14.  ${gl_bai}fzf 全局搜索工具"
+	  echo -e "${gl_kjlan}15.  ${gl_bai}vim 文本编辑器                    ${gl_kjlan}16.  ${gl_bai}nano 文本编辑器 ${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}17.  ${gl_bai}git 版本控制系统                  ${gl_kjlan}18.  ${gl_bai}opencode AI编程助手 ${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}21.  ${gl_bai}매트릭스 스크린세이버${gl_kjlan}22.  ${gl_bai}달리는 기차 화면 보호기"
-	  echo -e "${gl_kjlan}26.  ${gl_bai}테트리스 미니 게임${gl_kjlan}27.  ${gl_bai}뱀 미니게임"
-	  echo -e "${gl_kjlan}28.  ${gl_bai}우주 침략자 미니 게임"
+	  echo -e "${gl_kjlan}21.  ${gl_bai}黑客帝国屏保                      ${gl_kjlan}22.  ${gl_bai}跑火车屏保"
+	  echo -e "${gl_kjlan}26.  ${gl_bai}俄罗斯方块小游戏                  ${gl_kjlan}27.  ${gl_bai}贪吃蛇小游戏"
+	  echo -e "${gl_kjlan}28.  ${gl_bai}太空入侵者小游戏"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}31.  ${gl_bai}모두 설치${gl_kjlan}32.  ${gl_bai}모두 설치(화면 보호기 및 게임 제외)${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}33.  ${gl_bai}모두 제거"
+	  echo -e "${gl_kjlan}31.  ${gl_bai}全部安装                          ${gl_kjlan}32.  ${gl_bai}全部安装（不含屏保和游戏）${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}33.  ${gl_bai}全部卸载"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}41.  ${gl_bai}지정된 도구 설치${gl_kjlan}42.  ${gl_bai}지정된 도구 제거"
+	  echo -e "${gl_kjlan}41.  ${gl_bai}지정된 도구 설치${gl_kjlan}42.  ${gl_bai}卸载指定工具"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}0.   ${gl_bai}메인 메뉴로 돌아가기"
+	  echo -e "${gl_kjlan}0.   ${gl_bai}返回主菜单"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
-	  read -e -p "선택사항을 입력하세요:" sub_choice
+	  read -e -p "请输入你的选择: " sub_choice
 
 	  case $sub_choice in
 		  1)
 			  clear
 			  install curl
 			  clear
-			  echo "도구가 설치되었으며 다음과 같이 사용됩니다."
+			  echo "工具已安装，使用方法如下："
 			  curl --help
-			  send_stats "컬 설치"
+			  send_stats "安装curl"
 			  ;;
 		  2)
 			  clear
 			  install wget
 			  clear
-			  echo "도구가 설치되었으며 다음과 같이 사용됩니다."
+			  echo "工具已安装，使用方法如下："
 			  wget --help
 			  send_stats "wget 설치"
 			  ;;
@@ -6995,63 +6995,63 @@ linux_tools() {
 			  clear
 			  install sudo
 			  clear
-			  echo "도구가 설치되었으며 다음과 같이 사용됩니다."
+			  echo "工具已安装，使用方法如下："
 			  sudo --help
-			  send_stats "sudo 설치"
+			  send_stats "安装sudo"
 			  ;;
 			4)
 			  clear
 			  install socat
 			  clear
-			  echo "도구가 설치되었으며 다음과 같이 사용됩니다."
+			  echo "工具已安装，使用方法如下："
 			  socat -h
-			  send_stats "socat 설치"
+			  send_stats "安装socat"
 			  ;;
 			5)
 			  clear
 			  install htop
 			  clear
 			  htop
-			  send_stats "htop 설치"
+			  send_stats "安装htop"
 			  ;;
 			6)
 			  clear
 			  install iftop
 			  clear
 			  iftop
-			  send_stats "iftop 설치"
+			  send_stats "安装iftop"
 			  ;;
 			7)
 			  clear
 			  install unzip
 			  clear
-			  echo "도구가 설치되었으며 다음과 같이 사용됩니다."
+			  echo "工具已安装，使用方法如下："
 			  unzip
-			  send_stats "설치압축 해제"
+			  send_stats "安装unzip"
 			  ;;
 			8)
 			  clear
 			  install tar
 			  clear
-			  echo "도구가 설치되었으며 다음과 같이 사용됩니다."
+			  echo "工具已安装，使用方法如下："
 			  tar --help
-			  send_stats "타르 설치"
+			  send_stats "安装tar"
 			  ;;
 			9)
 			  clear
 			  install tmux
 			  clear
-			  echo "도구가 설치되었으며 다음과 같이 사용됩니다."
+			  echo "工具已安装，使用方法如下："
 			  tmux --help
-			  send_stats "tmux 설치"
+			  send_stats "安装tmux"
 			  ;;
 			10)
 			  clear
 			  install ffmpeg
 			  clear
-			  echo "도구가 설치되었으며 다음과 같이 사용됩니다."
+			  echo "工具已安装，使用方法如下："
 			  ffmpeg --help
-			  send_stats "ffmpeg 설치"
+			  send_stats "安装ffmpeg"
 			  ;;
 
 			11)
@@ -7295,7 +7295,7 @@ docker_ssh_migration() {
 
 		echo -e "${YELLOW}Docker 컨테이너 백업 중...${NC}"
 		docker ps --format '{{.Names}}'
-		read -e -p  "백업할 컨테이너의 이름을 입력하십시오(실행 중인 모든 컨테이너를 백업하려면 여러 개의 공백을 구분하고 Enter 키를 누르십시오)." containers
+		read -e -p  "백업할 컨테이너의 이름을 입력하십시오(여러 개의 공백을 구분하고 Enter를 눌러 실행 중인 모든 컨테이너를 백업하십시오)." containers
 
 		install tar jq gzip
 		install_docker
@@ -7434,7 +7434,7 @@ docker_ssh_migration() {
 
 				mkdir -p "$original_path"
 				tar -xzf "$BACKUP_DIR/compose_project_${project_name}.tar.gz" -C "$original_path"
-				echo -e "${GREEN}프로젝트 작성 [$project_name]는 다음 위치로 추출되었습니다.$original_path${NC}"
+				echo -e "${GREEN}프로젝트 작성 [$project_name]가 다음 위치로 추출되었습니다.$original_path${NC}"
 
 				cd "$original_path" || return
 				docker compose down || true
@@ -7450,7 +7450,7 @@ docker_ssh_migration() {
 			[[ ! -f "$json" ]] && continue
 			has_container=true
 			container=$(basename "$json" | sed 's/_inspect.json//')
-			echo -e "${GREEN}처리 용기:$container${NC}"
+			echo -e "${GREEN}처리용기:$container${NC}"
 
 			# 컨테이너가 이미 존재하고 실행 중인지 확인하세요.
 			if docker ps --format '{{.Names}}' | grep -q "^${container}$"; then
@@ -7524,7 +7524,7 @@ docker_ssh_migration() {
 	migrate_docker() {
 		send_stats "도커 마이그레이션"
 		install jq
-		read -e -p  "마이그레이션할 백업 디렉터리를 입력하십시오:" BACKUP_DIR
+		read -e -p  "마이그레이션할 백업 디렉터리를 입력하세요." BACKUP_DIR
 		[[ ! -d "$BACKUP_DIR" ]] && { echo -e "${RED}백업 디렉터리가 존재하지 않습니다.${NC}"; return; }
 
 		read -e -p  "대상 서버 IP:" TARGET_IP
@@ -7597,38 +7597,38 @@ linux_docker() {
 
 	while true; do
 	  clear
-	  # send_stats "도커 관리"
+	  # send_stats "docker管理"
 	  echo -e "도커 관리"
 	  docker_tato
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}1.   ${gl_bai}Docker 환경 설치 및 업데이트${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}1.   ${gl_bai}安装更新Docker环境 ${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}2.   ${gl_bai}Docker 전역 상태 보기${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}3.   ${gl_bai}도커 컨테이너 관리${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}4.   ${gl_bai}도커 이미지 관리"
-	  echo -e "${gl_kjlan}5.   ${gl_bai}도커 네트워크 관리"
-	  echo -e "${gl_kjlan}6.   ${gl_bai}도커 볼륨 관리"
+	  echo -e "${gl_kjlan}5.   ${gl_bai}Docker网络管理"
+	  echo -e "${gl_kjlan}6.   ${gl_bai}Docker卷管理"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}7.   ${gl_bai}쓸모없는 도커 컨테이너를 정리하고 네트워크 데이터 볼륨을 미러링하세요."
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}8.   ${gl_bai}Docker 소스 변경"
-	  echo -e "${gl_kjlan}9.   ${gl_bai}daemon.json 파일 편집"
+	  echo -e "${gl_kjlan}8.   ${gl_bai}更换Docker源"
+	  echo -e "${gl_kjlan}9.   ${gl_bai}编辑daemon.json文件"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}11.  ${gl_bai}Docker-ipv6 액세스 활성화"
+	  echo -e "${gl_kjlan}11.  ${gl_bai}开启Docker-ipv6访问"
 	  echo -e "${gl_kjlan}12.  ${gl_bai}Docker-ipv6 액세스 끄기"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}19.  ${gl_bai}Docker 환경 백업/마이그레이션/복원"
-	  echo -e "${gl_kjlan}20.  ${gl_bai}Docker 환경 제거"
+	  echo -e "${gl_kjlan}19.  ${gl_bai}备份/迁移/还原Docker环境"
+	  echo -e "${gl_kjlan}20.  ${gl_bai}卸载Docker环境"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}0.   ${gl_bai}메인 메뉴로 돌아가기"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
-	  read -e -p "선택사항을 입력하세요:" sub_choice
+	  read -e -p "请输入你的选择: " sub_choice
 
 	  case $sub_choice in
 		  1)
 			clear
-			send_stats "도커 환경 설치"
+			send_stats "安装docker环境"
 			install_add_docker
 
 			  ;;
@@ -7639,8 +7639,8 @@ linux_docker() {
 			  local network_count=$(docker network ls -q 2>/dev/null | wc -l)
 			  local volume_count=$(docker volume ls -q 2>/dev/null | wc -l)
 
-			  send_stats "도커 전역 상태"
-			  echo "도커 버전"
+			  send_stats "docker全局状态"
+			  echo "Docker版本"
 			  docker -v
 			  docker compose version
 
@@ -7648,10 +7648,10 @@ linux_docker() {
 			  echo -e "도커 이미지:${gl_lv}$image_count${gl_bai} "
 			  docker image ls
 			  echo ""
-			  echo -e "도커 컨테이너:${gl_lv}$container_count${gl_bai}"
+			  echo -e "Docker容器: ${gl_lv}$container_count${gl_bai}"
 			  docker ps -a
 			  echo ""
-			  echo -e "Docker 볼륨:${gl_lv}$volume_count${gl_bai}"
+			  echo -e "Docker卷: ${gl_lv}$volume_count${gl_bai}"
 			  docker volume ls
 			  echo ""
 			  echo -e "도커 네트워크:${gl_lv}$network_count${gl_bai}"
@@ -7723,7 +7723,7 @@ linux_docker() {
 					  3)
 						  send_stats "네트워크에 가입하세요"
 						  read -e -p "종료 네트워크 이름:" dockernetwork
-						  read -e -p "해당 컨테이너는 네트워크를 종료합니다(여러 컨테이너 이름을 공백으로 구분하세요)." dockernames
+						  read -e -p "이러한 컨테이너는 네트워크를 종료합니다(여러 컨테이너 이름을 공백으로 구분하세요)." dockernames
 
 						  for dockername in $dockernames; do
 							  docker network disconnect $dockernetwork $dockername
@@ -8084,7 +8084,7 @@ linux_Oracle() {
 		  1)
 			  clear
 			  echo "활성 스크립트: CPU 사용량 10-20% 메모리 사용량 20%"
-			  read -e -p "설치하시겠습니까? (예/아니요):" choice
+			  read -e -p "정말로 설치하시겠습니까? (예/아니요):" choice
 			  case "$choice" in
 				[Yy])
 
@@ -8139,7 +8139,7 @@ linux_Oracle() {
 		  clear
 		  echo "시스템 재설치"
 		  echo "--------------------------------"
-		  echo -e "${gl_hong}알아채다:${gl_bai}재설치 시 연결이 끊어질 수 있으니 걱정되시는 분들은 주의해서 사용해주세요. 재설치에는 약 15분 정도 소요될 예정이오니, 사전에 데이터를 백업해 주시기 바랍니다."
+		  echo -e "${gl_hong}알아채다:${gl_bai}重装有风险失联，不放心者慎用。重装预计花费15分钟，请提前备份数据。"
 		  read -e -p "계속하시겠습니까? (예/아니요):" choice
 
 		  case "$choice" in
@@ -8157,7 +8157,7 @@ linux_Oracle() {
 					break  # 结束循环
 					;;
 				  *)
-					echo "선택이 잘못되었습니다. 다시 입력해 주세요."
+					echo "无效的选择，请重新输入。"
 					;;
 				esac
 			  done
@@ -8168,7 +8168,7 @@ linux_Oracle() {
 			  send_stats "Oracle Cloud 재설치 시스템 스크립트"
 			  ;;
 			[Nn])
-			  echo "취소"
+			  echo "已取消"
 			  ;;
 			*)
 			  echo "선택이 잘못되었습니다. Y 또는 N을 입력하세요."
@@ -8221,7 +8221,7 @@ docker_tato() {
 
 	if command -v docker &> /dev/null; then
 		echo -e "${gl_kjlan}------------------------"
-		echo -e "${gl_lv}환경이 설치되었습니다.${gl_bai}컨테이너:${gl_lv}$container_count${gl_bai}거울:${gl_lv}$image_count${gl_bai}회로망:${gl_lv}$network_count${gl_bai}연타:${gl_lv}$volume_count${gl_bai}"
+		echo -e "${gl_lv}环境已经安装${gl_bai}  容器: ${gl_lv}$container_count${gl_bai}  镜像: ${gl_lv}$image_count${gl_bai}  网络: ${gl_lv}$network_count${gl_bai}연타:${gl_lv}$volume_count${gl_bai}"
 	fi
 }
 
@@ -8242,7 +8242,7 @@ local db_output="${gl_lv}${db_count}${gl_bai}"
 if command -v docker &>/dev/null; then
 	if docker ps --filter "name=nginx" --filter "status=running" | grep -q nginx; then
 		echo -e "${gl_huang}------------------------"
-		echo -e "${gl_lv}환경이 설치되었습니다${gl_bai}대지:$output데이터 베이스:$db_output"
+		echo -e "${gl_lv}환경이 설치되었습니다${gl_bai}대지:$output  数据库: $db_output"
 	fi
 fi
 
@@ -8270,8 +8270,8 @@ linux_ldnmp() {
   while true; do
 
 	clear
-	# send_stats "LDNMP 웹사이트 구축"
-	echo -e "${gl_huang}LDNMP 웹사이트 구축"
+	# send_stats "LDNMP建站"
+	echo -e "${gl_huang}LDNMP建站"
 	ldnmp_tato
 	echo -e "${gl_huang}------------------------"
 	echo -e "${gl_huang}1.   ${gl_bai}LDNMP 환경 설치${gl_huang}★${gl_bai}                   ${gl_huang}2.   ${gl_bai}워드프레스 설치${gl_huang}★${gl_bai}"
@@ -8489,8 +8489,8 @@ linux_ldnmp() {
 	  clear
 	  # 플라럼 포럼
 	  webname="플라럼 포럼"
-	  send_stats "설치하다$webname"
-	  echo "배포 시작$webname"
+	  send_stats "安装$webname"
+	  echo "开始部署 $webname"
 	  add_yuming
 	  repeat_add_yuming
 	  ldnmp_install_status
@@ -8534,12 +8534,12 @@ linux_ldnmp() {
 
 
 	  ldnmp_web_on
-	  echo "데이터베이스 주소: mysql"
-	  echo "데이터베이스 이름:$dbname"
+	  echo "数据库地址: mysql"
+	  echo "数据库名: $dbname"
 	  echo "사용자 이름:$dbuse"
-	  echo "비밀번호:$dbusepasswd"
-	  echo "테이블 접두사: flarum_"
-	  echo "관리자 정보는 직접 설정 가능"
+	  echo "密码: $dbusepasswd"
+	  echo "表前缀: flarum_"
+	  echo "管理员信息自行设置"
 
 		;;
 
@@ -8547,8 +8547,8 @@ linux_ldnmp() {
 	  clear
 	  # typecho
 	  webname="typecho"
-	  send_stats "설치하다$webname"
-	  echo "배포 시작$webname"
+	  send_stats "安装$webname"
+	  echo "开始部署 $webname"
 	  add_yuming
 	  repeat_add_yuming
 	  ldnmp_install_status
@@ -8576,11 +8576,11 @@ linux_ldnmp() {
 
 	  clear
 	  ldnmp_web_on
-	  echo "데이터베이스 접두사: typecho_"
+	  echo "数据库前缀: typecho_"
 	  echo "데이터베이스 주소: mysql"
-	  echo "사용자 이름:$dbuse"
-	  echo "비밀번호:$dbusepasswd"
-	  echo "데이터베이스 이름:$dbname"
+	  echo "用户名: $dbuse"
+	  echo "密码: $dbusepasswd"
+	  echo "数据库名: $dbname"
 
 		;;
 
@@ -8589,8 +8589,8 @@ linux_ldnmp() {
 	  clear
 	  # LinkStack
 	  webname="LinkStack"
-	  send_stats "설치하다$webname"
-	  echo "배포 시작$webname"
+	  send_stats "安装$webname"
+	  echo "开始部署 $webname"
 	  add_yuming
 	  repeat_add_yuming
 	  ldnmp_install_status
@@ -8618,18 +8618,18 @@ linux_ldnmp() {
 
 	  clear
 	  ldnmp_web_on
-	  echo "데이터베이스 주소: mysql"
+	  echo "数据库地址: mysql"
 	  echo "데이터베이스 포트: 3306"
-	  echo "데이터베이스 이름:$dbname"
-	  echo "사용자 이름:$dbuse"
-	  echo "비밀번호:$dbusepasswd"
+	  echo "数据库名: $dbname"
+	  echo "用户名: $dbuse"
+	  echo "密码: $dbusepasswd"
 		;;
 
 	  20)
 	  clear
-	  webname="PHP 동적 사이트"
-	  send_stats "설치하다$webname"
-	  echo "배포 시작$webname"
+	  webname="PHP动态站点"
+	  send_stats "安装$webname"
+	  echo "开始部署 $webname"
 	  add_yuming
 	  repeat_add_yuming
 	  ldnmp_install_status
@@ -8649,10 +8649,10 @@ linux_ldnmp() {
 	  cd $yuming
 
 	  clear
-	  echo -e "[${gl_huang}1/6${gl_bai}] PHP 소스 코드 업로드"
+	  echo -e "[${gl_huang}1/6${gl_bai}] 上传PHP源码"
 	  echo "-------------"
-	  echo "현재는 zip 형식의 소스 코드 패키지만 업로드할 수 있습니다. 소스 코드 패키지를 /home/web/html/에 넣어주세요.${yuming}디렉토리 아래"
-	  read -e -p "다운로드 링크를 입력하여 소스 코드 패키지를 원격으로 다운로드할 수도 있습니다. 원격 다운로드를 건너뛰려면 Enter를 직접 누르세요." url_download
+	  echo "目前只允许上传zip格式的源码包，请将源码包放到/home/web/html/${yuming}디렉토리 아래"
+	  read -e -p "也可以输入下载链接，远程下载源码包，直接回车将跳过远程下载： " url_download
 
 	  if [ -n "$url_download" ]; then
 		  wget "$url_download"
@@ -8662,7 +8662,7 @@ linux_ldnmp() {
 	  rm -f $(ls -t *.zip | head -n 1)
 
 	  clear
-	  echo -e "[${gl_huang}2/6${gl_bai}] index.php가 위치한 경로"
+	  echo -e "[${gl_huang}2/6${gl_bai}] index.php所在路径"
 	  echo "-------------"
 	  # find "$(realpath .)" -name "index.php" -print
 	  find "$(realpath .)" -name "index.php" -print | xargs -I {} dirname {}
@@ -8686,15 +8686,15 @@ linux_ldnmp() {
 		  local PHP_Version="php74"
 		  ;;
 		*)
-		  echo "선택이 잘못되었습니다. 다시 입력해 주세요."
+		  echo "无效的选择，请重新输入。"
 		  ;;
 	  esac
 
 
 	  clear
-	  echo -e "[${gl_huang}4/6${gl_bai}] 지정된 확장 설치"
+	  echo -e "[${gl_huang}4/6${gl_bai}] 安装指定扩展"
 	  echo "-------------"
-	  echo "설치된 확장 프로그램"
+	  echo "已经安装的扩展"
 	  docker exec php php -m
 
 	  read -e -p "$(echo -e "输入需要安装的扩展名称，如 ${gl_huang}SourceGuardian imap ftp${gl_bai} 等等。直接回车将跳过安装 ： ")" php_extensions
@@ -8704,7 +8704,7 @@ linux_ldnmp() {
 
 
 	  clear
-	  echo -e "[${gl_huang}5/6${gl_bai}] 사이트 구성 편집"
+	  echo -e "[${gl_huang}5/6${gl_bai}] 编辑站点配置"
 	  echo "-------------"
 	  echo "계속하려면 아무 키나 누르세요. 의사정적 콘텐츠 등 사이트 구성을 세부적으로 설정할 수 있습니다."
 	  read -n 1 -s -r -p ""
@@ -8808,7 +8808,7 @@ linux_ldnmp() {
 	  echo "배포 시작$webname"
 	  add_yuming
 	  echo -e "도메인 이름 형식:${gl_huang}google.com${gl_bai}"
-	  read -e -p "역방향 프록시 도메인 이름을 입력하세요:" fandai_yuming
+	  read -e -p "역방향 프록시 도메인 이름을 입력하세요." fandai_yuming
 	  nginx_install_status
 
 	  wget -O /home/web/conf.d/$yuming.conf ${gh_proxy}raw.githubusercontent.com/kejilion/nginx/main/reverse-proxy-domain.conf
@@ -8970,7 +8970,7 @@ linux_ldnmp() {
 	  send_stats "LDNMP 환경 백업"
 
 	  local backup_filename="web_$(date +"%Y%m%d%H%M%S").tar.gz"
-	  echo -e "${gl_huang}백업 중$backup_filename ...${gl_bai}"
+	  echo -e "${gl_huang}正在备份 $backup_filename ...${gl_bai}"
 	  cd /home/ && tar czvf "$backup_filename" web
 
 	  while true; do
@@ -8980,7 +8980,7 @@ linux_ldnmp() {
 		case "$choice" in
 		  [Yy])
 			read -e -p "원격 서버 IP를 입력하세요:" remote_ip
-			read -e -p "대상 서버 SSH 포트 [기본값 22]:" TARGET_PORT
+			read -e -p "目标服务器SSH端口 [默认22]: " TARGET_PORT
 			local TARGET_PORT=${TARGET_PORT:-22}
 			if [ -z "$remote_ip" ]; then
 			  echo "오류: 원격 서버 IP를 입력하세요."
@@ -8993,7 +8993,7 @@ linux_ldnmp() {
 			  scp -P "$TARGET_PORT" -o StrictHostKeyChecking=no "$latest_tar" "root@$remote_ip:/home/"
 			  echo "파일이 원격 서버 홈 디렉터리로 전송되었습니다."
 			else
-			  echo "전송할 파일을 찾을 수 없습니다."
+			  echo "未找到要传送的文件。"
 			fi
 			break
 			;;
@@ -9009,9 +9009,9 @@ linux_ldnmp() {
 
 	33)
 	  clear
-	  send_stats "예약된 원격 백업"
-	  read -e -p "원격 서버 IP를 입력하세요." useip
-	  read -e -p "원격 서버 비밀번호를 입력하세요:" usepasswd
+	  send_stats "定时远程备份"
+	  read -e -p "输入远程服务器IP: " useip
+	  read -e -p "输入远程服务器密码: " usepasswd
 
 	  cd ~
 	  wget -O ${useip}_beifen.sh ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/beifen.sh > /dev/null 2>&1
@@ -9022,7 +9022,7 @@ linux_ldnmp() {
 
 	  echo "------------------------"
 	  echo "1. 주간 백업 2. 일일 백업"
-	  read -e -p "선택사항을 입력하세요:" dingshi
+	  read -e -p "请输入你的选择: " dingshi
 
 	  case $dingshi in
 		  1)
@@ -9032,7 +9032,7 @@ linux_ldnmp() {
 			  ;;
 		  2)
 			  check_crontab_installed
-			  read -e -p "일일 백업 시간 선택(시간, 0-23):" hour
+			  read -e -p "选择每天备份的时间（小时，0-23）: " hour
 			  (crontab -l ; echo "0 $hour * * * ./${useip}_beifen.sh") | crontab - > /dev/null 2>&1
 			  ;;
 		  *)
@@ -9047,7 +9047,7 @@ linux_ldnmp() {
 	34)
 	  root_use
 	  send_stats "LDNMP 환경 복원"
-	  echo "사용 가능한 사이트 백업"
+	  echo "可用的站点备份"
 	  echo "-------------------------"
 	  ls -lt /home/*.gz | awk '{print $NF}'
 	  echo ""
@@ -9296,7 +9296,7 @@ while true; do
 
 	  echo -e "${gl_kjlan}1.   ${color1}파고다 패널 공식 버전${gl_kjlan}2.   ${color2}aaPanel Pagoda 국제 버전"
 	  echo -e "${gl_kjlan}3.   ${color3}1패널 차세대 관리 패널${gl_kjlan}4.   ${color4}NginxProxyManager 시각화 패널"
-	  echo -e "${gl_kjlan}5.   ${color5}OpenList 다중 저장소 파일 목록 프로그램${gl_kjlan}6.   ${color6}Ubuntu 원격 데스크톱 웹 버전"
+	  echo -e "${gl_kjlan}5.   ${color5}OpenList 다중 저장소 파일 목록 프로그램${gl_kjlan}6.   ${color6}Ubuntu 원격 데스크톱 웹 에디션"
 	  echo -e "${gl_kjlan}7.   ${color7}나타 프로브 VPS 모니터링 패널${gl_kjlan}8.   ${color8}QB 오프라인 BT 자기 다운로드 패널"
 	  echo -e "${gl_kjlan}9.   ${color9}Poste.io 메일 서버 프로그램${gl_kjlan}10.  ${color10}RocketChat 다자간 온라인 채팅 시스템"
 	  echo -e "${gl_kjlan}-------------------------"
@@ -9318,19 +9318,19 @@ while true; do
 	  echo -e "${gl_kjlan}37.  ${color37}MyIP 도구 상자${gl_huang}★${gl_bai}                        ${gl_kjlan}38.  ${color38}Xiaoya alist 가족 버킷"
 	  echo -e "${gl_kjlan}39.  ${color39}Bililive 라이브 방송 녹음 도구${gl_kjlan}40.  ${color40}webssh 웹 버전 SSH 연결 도구"
 	  echo -e "${gl_kjlan}-------------------------"
-	  echo -e "${gl_kjlan}41.  ${color41}마우스 관리 패널${gl_kjlan}42.  ${color42}Nexterm 원격 연결 도구"
-	  echo -e "${gl_kjlan}43.  ${color43}RustDesk 원격 데스크톱(서버)${gl_huang}★${gl_bai}          ${gl_kjlan}44.  ${color44}RustDesk 원격 데스크톱(릴레이)${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}41.  ${color41}마우스 관리 패널${gl_kjlan}42.  ${color42}Nexterm远程连接工具"
+	  echo -e "${gl_kjlan}43.  ${color43}RustDesk 원격 데스크톱(서버)${gl_huang}★${gl_bai}          ${gl_kjlan}44.  ${color44}RustDesk远程桌面(中继端) ${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}45.  ${color45}도커 가속 스테이션${gl_kjlan}46.  ${color46}GitHub 가속 스테이션${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}47.  ${color47}프로메테우스 모니터링${gl_kjlan}48.  ${color48}프로메테우스(호스트 모니터링)"
-	  echo -e "${gl_kjlan}49.  ${color49}프로메테우스(컨테이너 모니터링)${gl_kjlan}50.  ${color50}보충 모니터링 도구"
+	  echo -e "${gl_kjlan}47.  ${color47}普罗米修斯监控			 ${gl_kjlan}48.  ${color48}프로메테우스(호스트 모니터링)"
+	  echo -e "${gl_kjlan}49.  ${color49}普罗米修斯(容器监控)		 ${gl_kjlan}50.  ${color50}补货监控工具"
 	  echo -e "${gl_kjlan}-------------------------"
-	  echo -e "${gl_kjlan}51.  ${color51}PVE 오픈 병아리 패널${gl_kjlan}52.  ${color52}DPanel 컨테이너 관리 패널"
+	  echo -e "${gl_kjlan}51.  ${color51}PVE 오픈 병아리 패널${gl_kjlan}52.  ${color52}DPanel容器管理面板"
 	  echo -e "${gl_kjlan}53.  ${color53}라마3 채팅 AI 대형 모델${gl_kjlan}54.  ${color54}AMH 호스트 웹사이트 구축 관리 패널"
-	  echo -e "${gl_kjlan}55.  ${color55}FRP 인트라넷 침투(서버)${gl_huang}★${gl_bai}	         ${gl_kjlan}56.  ${color56}FRP 인트라넷 침투(클라이언트)${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}57.  ${color57}Deepseek 채팅 AI 대형 모델${gl_kjlan}58.  ${color58}대규모 모델 지식 기반 확장${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}59.  ${color59}NewAPI 대형 모델 자산 관리${gl_kjlan}60.  ${color60}JumpServer 오픈 소스 요새 머신"
+	  echo -e "${gl_kjlan}55.  ${color55}FRP内网穿透(服务端) ${gl_huang}★${gl_bai}	         ${gl_kjlan}56.  ${color56}FRP 인트라넷 침투(클라이언트)${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}57.  ${color57}Deepseek 채팅 AI 대형 모델${gl_kjlan}58.  ${color58}Dify大模型知识库 ${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}59.  ${color59}NewAPI大模型资产管理                ${gl_kjlan}60.  ${color60}JumpServer 오픈 소스 요새 머신"
 	  echo -e "${gl_kjlan}-------------------------"
-	  echo -e "${gl_kjlan}61.  ${color61}온라인 번역 서버${gl_kjlan}62.  ${color62}RAGFlow 대규모 모델 지식 기반"
+	  echo -e "${gl_kjlan}61.  ${color61}在线翻译服务器			 ${gl_kjlan}62.  ${color62}RAGFlow大模型知识库"
 	  echo -e "${gl_kjlan}63.  ${color63}OpenWebUI 자체 호스팅 AI 플랫폼${gl_huang}★${gl_bai}             ${gl_kjlan}64.  ${color64}it-tools 도구 상자"
 	  echo -e "${gl_kjlan}65.  ${color65}n8n 자동화된 워크플로우 플랫폼${gl_huang}★${gl_bai}               ${gl_kjlan}66.  ${color66}yt-dlp 비디오 다운로드 도구"
 	  echo -e "${gl_kjlan}67.  ${color67}ddns-go 동적 DNS 관리 도구${gl_huang}★${gl_bai}            ${gl_kjlan}68.  ${color68}AllinSSL 인증서 관리 플랫폼"
@@ -9348,37 +9348,37 @@ while true; do
 	  echo -e "${gl_kjlan}87.  ${color87}SyncTV는 함께 영화를 볼 수 있는 훌륭한 도구입니다${gl_kjlan}88.  ${color88}Owncast 자체 호스팅 라이브 스트리밍 플랫폼"
 	  echo -e "${gl_kjlan}89.  ${color89}FileCodeBox 파일 익스프레스${gl_kjlan}90.  ${color90}매트릭스 분산형 채팅 프로토콜"
 	  echo -e "${gl_kjlan}-------------------------"
-	  echo -e "${gl_kjlan}91.  ${color91}gitea 비공개 코드 저장소${gl_kjlan}92.  ${color92}FileBrowser 파일 관리자"
-	  echo -e "${gl_kjlan}93.  ${color93}Dufs 미니멀리스트 정적 파일 서버${gl_kjlan}94.  ${color94}Gopeed 고속 다운로드 도구"
-	  echo -e "${gl_kjlan}95.  ${color95}종이 없는 문서 관리 플랫폼${gl_kjlan}96.  ${color96}2FAuth 자체 호스팅 2단계 인증자"
-	  echo -e "${gl_kjlan}97.  ${color97}WireGuard 네트워킹(서버)${gl_kjlan}98.  ${color98}WireGuard 네트워킹(클라이언트)"
-	  echo -e "${gl_kjlan}99.  ${color99}DSM Synology 가상 컴퓨터${gl_kjlan}100. ${color100}P2P 파일 동기화 도구 동기화"
+	  echo -e "${gl_kjlan}91.  ${color91}gitea私有代码仓库                   ${gl_kjlan}92.  ${color92}FileBrowser 파일 관리자"
+	  echo -e "${gl_kjlan}93.  ${color93}Dufs极简静态文件服务器              ${gl_kjlan}94.  ${color94}Gopeed高速下载工具"
+	  echo -e "${gl_kjlan}95.  ${color95}paperless文档管理平台               ${gl_kjlan}96.  ${color96}2FAuth自托管二步验证器"
+	  echo -e "${gl_kjlan}97.  ${color97}WireGuard组网(服务端)               ${gl_kjlan}98.  ${color98}WireGuard组网(客户端)"
+	  echo -e "${gl_kjlan}99.  ${color99}DSM群晖虚拟机                       ${gl_kjlan}100. ${color100}Syncthing点对点文件同步工具"
 	  echo -e "${gl_kjlan}-------------------------"
-	  echo -e "${gl_kjlan}101. ${color101}AI 영상 생성 도구${gl_kjlan}102. ${color102}VoceChat 다자간 온라인 채팅 시스템"
-	  echo -e "${gl_kjlan}103. ${color103}Umami 웹사이트 통계 도구${gl_kjlan}104. ${color104}스트림 4계층 프록시 전달 도구"
-	  echo -e "${gl_kjlan}105. ${color105}쓰위안 노트${gl_kjlan}106. ${color106}Drawnix 오픈 소스 화이트보드 도구"
-	  echo -e "${gl_kjlan}107. ${color107}PanSou 네트워크 디스크 검색${gl_kjlan}108. ${color108}LangBot 챗봇"
-	  echo -e "${gl_kjlan}109. ${color109}ZFile 온라인 네트워크 디스크${gl_kjlan}110. ${color110}Karakeep 북마크 관리"
+	  echo -e "${gl_kjlan}101. ${color101}AI视频生成工具                      ${gl_kjlan}102. ${color102}VoceChat多人在线聊天系统"
+	  echo -e "${gl_kjlan}103. ${color103}Umami网站统计工具                   ${gl_kjlan}104. ${color104}Stream四层代理转发工具"
+	  echo -e "${gl_kjlan}105. ${color105}쓰위안 노트${gl_kjlan}106. ${color106}Drawnix开源白板工具"
+	  echo -e "${gl_kjlan}107. ${color107}PanSou网盘搜索                      ${gl_kjlan}108. ${color108}LangBot聊天机器人"
+	  echo -e "${gl_kjlan}109. ${color109}ZFile在线网盘                       ${gl_kjlan}110. ${color110}Karakeep书签管理"
 	  echo -e "${gl_kjlan}-------------------------"
-	  echo -e "${gl_kjlan}111. ${color111}다중 형식 파일 변환 도구${gl_kjlan}112. ${color112}행운의 대형 인트라넷 침투 도구"
-	  echo -e "${gl_kjlan}113. ${color113}파이어폭스 브라우저"
+	  echo -e "${gl_kjlan}111. ${color111}다중 형식 파일 변환 도구${gl_kjlan}112. ${color112}Lucky大内网穿透工具"
+	  echo -e "${gl_kjlan}113. ${color113}Firefox浏览器"
 	  echo -e "${gl_kjlan}-------------------------"
-	  echo -e "${gl_kjlan}타사 애플리케이션 목록"
+	  echo -e "${gl_kjlan}第三方应用列表"
   	  echo -e "${gl_kjlan}귀하의 앱이 여기에 표시되기를 원하십니까? 개발자 가이드를 확인하세요:${gl_huang}https://dev.kejilion.sh/${gl_bai}"
 
 	  for f in "$HOME"/apps/*.conf; do
 		  [ -e "$f" ] || continue
 		  local base_name=$(basename "$f" .conf)
-		  # 앱 설명 가져오기
+		  # 获取应用描述
 		  local app_text=$(grep "app_text=" "$f" | cut -d'=' -f2 | tr -d '"' | tr -d "'")
 
-		  # 설치 상태 확인(appno.txt의 ID 일치)
-		  # 여기서는 appno.txt에 기록되는 내용이 base_name(즉, 파일 이름)이라고 가정합니다.
+		  # 检查安装状态 (匹配 appno.txt 中的 ID)
+		  # 这里假设 appno.txt 中记录的是 base_name (即文件名)
 		  if echo "$app_numbers" | grep -q "^$base_name$"; then
-			  # 설치된 경우: show base_name - 설명 [설치됨](녹색)
-			  echo -e "${gl_kjlan}$base_name${gl_bai} - ${gl_lv}$app_text[설치됨]${gl_bai}"
+			  # 如果已安装：显示 base_name - 描述 [已安装] (绿色)
+			  echo -e "${gl_kjlan}$base_name${gl_bai} - ${gl_lv}$app_text [已安装]${gl_bai}"
 		  else
-			  # 설치되지 않은 경우: 정상적으로 표시됩니다.
+			  # 如果未安装：正常显示
 			  echo -e "${gl_kjlan}$base_name${gl_bai} - $app_text"
 		  fi
 	  done
@@ -9386,18 +9386,18 @@ while true; do
 
 
 	  echo -e "${gl_kjlan}-------------------------"
-	  echo -e "${gl_kjlan}b.   ${gl_bai}모든 애플리케이션 데이터 백업${gl_kjlan}r.   ${gl_bai}모든 앱 데이터 복원"
+	  echo -e "${gl_kjlan}b.   ${gl_bai}备份全部应用数据                    ${gl_kjlan}r.   ${gl_bai}모든 앱 데이터 복원"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}0.   ${gl_bai}메인 메뉴로 돌아가기"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
-	  read -e -p "선택사항을 입력하세요:" sub_choice
+	  read -e -p "请输入你的选择: " sub_choice
 	fi
 
 	case $sub_choice in
 	  1|bt|baota)
 		local app_id="1"
 		local lujing="[ -d "/www/server/panel" ]"
-		local panelname="탑 패널"
+		local panelname="宝塔面板"
 		local panelurl="https://www.bt.cn/new/index.html"
 
 		panel_app_install() {
@@ -9490,10 +9490,10 @@ while true; do
 
 		}
 
-		local docker_describe="도메인 이름 액세스 추가를 지원하지 않는 Nginx 역방향 프록시 도구 패널."
-		local docker_url="공식 홈페이지 소개: https://nginxproxymanager.com/"
-		local docker_use="echo \"초기 사용자 이름: admin@example.com\""
-		local docker_passwd="echo \"초기 비밀번호:changeme\""
+		local docker_describe="一个Nginx反向代理工具面板，不支持添加域名访问。"
+		local docker_url="官网介绍: https://nginxproxymanager.com/"
+		local docker_use="echo \"初始用户名: admin@example.com\""
+		local docker_passwd="echo \"初始密码: changeme\""
 		local app_size="1"
 
 		docker_app
@@ -9525,7 +9525,7 @@ while true; do
 		}
 
 
-		local docker_describe="gin 및 Solidjs로 구동되는 다중 저장소, 웹 브라우징 및 WebDAV를 지원하는 파일 목록 프로그램"
+		local docker_describe="一个支持多种存储，支持网页浏览和 WebDAV 的文件列表程序，由 gin 和 Solidjs 驱动"
 		local docker_url="공식 홈페이지 소개: https://github.com/OpenListTeam/OpenList"
 		local docker_use="docker exec openlist ./openlist admin random"
 		local docker_passwd=""
@@ -9543,8 +9543,8 @@ while true; do
 
 		docker_rum() {
 
-			read -e -p "로그인 사용자 이름 설정:" admin
-			read -e -p "로그인 사용자 비밀번호 설정:" admin_password
+			read -e -p "设置登录用户名: " admin
+			read -e -p "设置登录用户密码: " admin_password
 			docker run -d \
 			  --name=webtop-ubuntu \
 			  --security-opt seccomp=unconfined \
@@ -9566,8 +9566,8 @@ while true; do
 		}
 
 
-		local docker_describe="webtop은 Ubuntu 기반 컨테이너입니다. 해당 IP에 접근할 수 없는 경우, 접근할 도메인 이름을 추가해주세요."
-		local docker_url="공식 홈페이지 소개: https://docs.linuxserver.io/images/docker-webtop/"
+		local docker_describe="webtop基于Ubuntu的容器。若IP无法访问，请添加域名访问。"
+		local docker_url="官网介绍: https://docs.linuxserver.io/images/docker-webtop/"
 		local docker_use=""
 		local docker_passwd=""
 		local app_size="2"
@@ -9577,7 +9577,7 @@ while true; do
 		  ;;
 	  7|nezha)
 		clear
-		send_stats "나타 빌드"
+		send_stats "搭建哪吒"
 
 		local app_id="7"
 		local docker_name="nezha-dashboard"
@@ -9586,20 +9586,20 @@ while true; do
 			check_docker_app
 			check_docker_image_update $docker_name
 			clear
-			echo -e "네자 모니터링$check_docker $update_status"
+			echo -e "哪吒监控 $check_docker $update_status"
 			echo "오픈 소스, 가볍고 사용하기 쉬운 서버 모니터링 및 운영 및 유지 관리 도구"
-			echo "공식 웹사이트 구축 문서: https://nezha.wiki/guide/dashboard.html"
+			echo "官网搭建文档: https://nezha.wiki/guide/dashboard.html"
 			if docker ps -a --format '{{.Names}}' 2>/dev/null | grep -q "$docker_name"; then
 				local docker_port=$(docker port $docker_name | awk -F'[:]' '/->/ {print $NF}' | uniq)
 				check_docker_app_ip
 			fi
 			echo ""
 			echo "------------------------"
-			echo "1. 사용"
+			echo "1. 使用"
 			echo "------------------------"
-			echo "0. 이전 메뉴로 돌아가기"
+			echo "0. 返回上一级选单"
 			echo "------------------------"
-			read -e -p "선택 항목을 입력하세요." choice
+			read -e -p "输入你的选择: " choice
 
 			case $choice in
 				1)
@@ -9646,8 +9646,8 @@ while true; do
 
 		}
 
-		local docker_describe="qbittorrent 오프라인 BT 자기 다운로드 서비스"
-		local docker_url="공식 홈페이지 소개: https://hub.docker.com/r/linuxserver/qbittorrent"
+		local docker_describe="qbittorrent离线BT磁力下载服务"
+		local docker_url="官网介绍: https://hub.docker.com/r/linuxserver/qbittorrent"
 		local docker_use="sleep 3"
 		local docker_passwd="docker logs qbittorrent"
 		local app_size="1"
@@ -9656,7 +9656,7 @@ while true; do
 		  ;;
 
 	  9|mail)
-		send_stats "우체국을 짓다"
+		send_stats "搭建邮局"
 		clear
 		install telnet
 		local app_id="9"
@@ -9666,44 +9666,44 @@ while true; do
 			check_docker_image_update $docker_name
 
 			clear
-			echo -e "우편 서비스$check_docker $update_status"
-			echo "poste.io는 오픈 소스 메일 서버 솔루션입니다."
-			echo "영상 소개: https://www.bilibili.com/video/BV1wv421C71t?t=0.1"
+			echo -e "邮局服务 $check_docker $update_status"
+			echo "poste.io 是一个开源的邮件服务器解决方案，"
+			echo "视频介绍: https://www.bilibili.com/video/BV1wv421C71t?t=0.1"
 
 			echo ""
-			echo "포트 감지"
+			echo "端口检测"
 			port=25
 			timeout=3
 			if echo "quit" | timeout $timeout telnet smtp.qq.com $port | grep 'Connected'; then
-			  echo -e "${gl_lv}포트$port현재 사용 가능${gl_bai}"
+			  echo -e "${gl_lv}端口 $port 当前可用${gl_bai}"
 			else
-			  echo -e "${gl_hong}포트$port현재는 이용할 수 없습니다${gl_bai}"
+			  echo -e "${gl_hong}端口 $port 当前不可用${gl_bai}"
 			fi
 			echo ""
 
 			if docker ps -a --format '{{.Names}}' 2>/dev/null | grep -q "$docker_name"; then
 				yuming=$(cat /home/docker/mail.txt)
-				echo "방문 주소:"
+				echo "访问地址: "
 				echo "https://$yuming"
 			fi
 
 			echo "------------------------"
-			echo "1. 설치 2. 업데이트 3. 제거"
+			echo "1. 安装           2. 更新           3. 卸载"
 			echo "------------------------"
 			echo "0. 이전 메뉴로 돌아가기"
 			echo "------------------------"
-			read -e -p "선택 항목을 입력하세요." choice
+			read -e -p "输入你的选择: " choice
 
 			case $choice in
 				1)
 					setup_docker_dir
 					check_disk_space 2 /home/docker
-					read -e -p "이메일 도메인 이름을 설정하세요(예: mail.yuming.com):" yuming
+					read -e -p "请设置邮箱域名 例如 mail.yuming.com : " yuming
 					mkdir -p /home/docker
 					echo "$yuming" > /home/docker/mail.txt
 					echo "------------------------"
 					ip_address
-					echo "먼저 이 DNS 레코드를 구문 분석하세요."
+					echo "先解析这些DNS记录"
 					echo "A           mail            $ipv4_address"
 					echo "CNAME       imap            $yuming"
 					echo "CNAME       pop             $yuming"
@@ -9713,7 +9713,7 @@ while true; do
 					echo "TXT         ?               ?"
 					echo ""
 					echo "------------------------"
-					echo "계속하려면 아무 키나 누르세요..."
+					echo "按任意键继续..."
 					read -n 1 -s -r -p ""
 
 					install jq
@@ -9732,7 +9732,7 @@ while true; do
 					add_app_id
 
 					clear
-					echo "poste.io가 설치되었습니다"
+					echo "poste.io已经安装完成"
 					echo "------------------------"
 					echo "다음 주소를 사용하여 poste.io에 액세스할 수 있습니다."
 					echo "https://$yuming"
@@ -9997,7 +9997,7 @@ while true; do
 
 		}
 
-		local docker_describe="Speedtest 속도 측정 패널은 다양한 테스트 기능을 갖춘 VPS 네트워크 속도 테스트 도구이며 VPS 인바운드 및 아웃바운드 트래픽을 실시간으로 모니터링할 수도 있습니다."
+		local docker_describe="Speedtest 속도 테스트 패널은 다양한 테스트 기능을 갖춘 VPS 네트워크 속도 테스트 도구이며 VPS 인바운드 및 아웃바운드 트래픽을 실시간으로 모니터링할 수도 있습니다."
 		local docker_url="공식 웹사이트 소개:${gh_proxy}github.com/wikihost-opensource/als"
 		local docker_use=""
 		local docker_passwd=""
@@ -10266,7 +10266,7 @@ while true; do
 		}
 
 
-		local docker_describe="웹탑은 중국어 버전의 Alpine 컨테이너를 기반으로 합니다. 해당 IP에 접근할 수 없는 경우, 접근할 도메인 이름을 추가해주세요."
+		local docker_describe="웹탑은 중국어 버전의 Alpine 컨테이너를 기반으로 합니다. 해당 IP에 접근할 수 없는 경우, 접근할 도메인 이름을 추가해 주세요."
 		local docker_url="공식 홈페이지 소개: https://docs.linuxserver.io/images/docker-webtop/"
 		local docker_use=""
 		local docker_passwd=""
@@ -10432,7 +10432,7 @@ while true; do
 				 frooodle/s-pdf:latest
 		}
 
-		local docker_describe="이는 분할 병합, 변환, 재구성, 이미지 추가, 회전, 압축 등과 같은 PDF 파일에 대한 다양한 작업을 수행할 수 있는 Docker를 사용하여 로컬로 호스팅되는 강력한 웹 기반 PDF 조작 도구입니다."
+		local docker_describe="이는 분할 병합, 변환, 재구성, 이미지 추가, 회전, 압축 등과 같은 PDF 파일에 대한 다양한 작업을 수행할 수 있는 docker를 사용하여 로컬로 호스팅되는 강력한 웹 기반 PDF 조작 도구입니다."
 		local docker_url="공식 웹사이트 소개:${gh_proxy}github.com/Stirling-Tools/Stirling-PDF"
 		local docker_use=""
 		local docker_passwd=""
@@ -10529,7 +10529,7 @@ while true; do
 		}
 
 
-		local docker_describe="미니멀리스트 WeChat Moments, 높은 모방 WeChat Moments, 멋진 삶을 기록하세요"
+		local docker_describe="미니멀리스트 순간, 높은 모방 WeChat 순간, 멋진 삶을 기록하세요"
 		local docker_url="공식 웹사이트 소개:${gh_proxy}github.com/kingwrcy/moments?tab=readme-ov-file"
 		local docker_use="echo \"계정: admin 비밀번호: a123456\""
 		local docker_passwd=""
@@ -10936,7 +10936,7 @@ while true; do
 
 		}
 
-		local docker_describe="OpenWebUI는 새로운 llama3 대규모 언어 모델에 연결된 대규모 언어 모델 웹 페이지 프레임워크입니다."
+		local docker_describe="OpenWebUI는 새로운 llama3 대규모 언어 모델에 연결되는 대규모 언어 모델 웹 페이지 프레임워크입니다."
 		local docker_url="공식 홈페이지 소개: https://github.com/open-webui/open-webui"
 		local docker_use="docker exec ollama ollama run llama3.2:1b"
 		local docker_passwd=""
@@ -11163,7 +11163,7 @@ while true; do
 		local app_id="62"
 		local app_name="RAGFlow 지식 기반"
 		local app_text="깊은 문서 이해를 기반으로 한 오픈소스 RAG(Retrieval Augmented Generation) 엔진"
-		local app_url="공식 홈페이지: https://github.com/infiniflow/ragflow"
+		local app_url="官方网站: https://github.com/infiniflow/ragflow"
 		local docker_name="ragflow-server"
 		local docker_port="8062"
 		local app_size="8"
@@ -11210,7 +11210,7 @@ while true; do
 
 		}
 
-		local docker_describe="OpenWebUI는 대규모 언어 모델 웹 페이지 프레임워크로, 공식 간소화된 버전은 모든 주요 모델에 대한 API 액세스를 지원합니다."
+		local docker_describe="OpenWebUI一款大语言模型网页框架，官方精简版本，支持各大模型API接入"
 		local docker_url="공식 홈페이지 소개: https://github.com/open-webui/open-webui"
 		local docker_use=""
 		local docker_passwd=""
@@ -11228,8 +11228,8 @@ while true; do
 			docker run -d --name it-tools --restart=always -p ${docker_port}:80 corentinth/it-tools:latest
 		}
 
-		local docker_describe="개발자와 IT 작업자에게 매우 유용한 도구"
-		local docker_url="공식 홈페이지 소개: https://github.com/CorentinTh/it-tools"
+		local docker_describe="对开发人员和 IT 工作者来说非常有用的工具"
+		local docker_url="官网介绍: https://github.com/CorentinTh/it-tools"
 		local docker_use=""
 		local docker_passwd=""
 		local app_size="1"
@@ -11265,7 +11265,7 @@ while true; do
 		}
 
 		local docker_describe="강력한 자동화된 워크플로우 플랫폼입니다."
-		local docker_url="공식 홈페이지 소개: https://github.com/n8n-io/n8n"
+		local docker_url="官网介绍: https://github.com/n8n-io/n8n"
 		local docker_use=""
 		local docker_passwd=""
 		local app_size="1"
@@ -11293,8 +11293,8 @@ while true; do
 
 		}
 
-		local docker_describe="동적 도메인 이름 확인을 위해 공용 IP(IPv4/IPv6)를 주요 DNS 서비스 제공업체에 실시간으로 자동 업데이트합니다."
-		local docker_url="공식 홈페이지 소개: https://github.com/jeessy2/ddns-go"
+		local docker_describe="自动将你的公网 IP（IPv4/IPv6）实时更新到各大 DNS 服务商，实现动态域名解析。"
+		local docker_url="官网介绍: https://github.com/jeessy2/ddns-go"
 		local docker_use=""
 		local docker_passwd=""
 		local app_size="1"
@@ -11311,10 +11311,10 @@ while true; do
 			docker run -d --name allinssl -p ${docker_port}:8888 -v /home/docker/allinssl/data:/www/allinssl/data -e ALLINSSL_USER=allinssl -e ALLINSSL_PWD=allinssldocker -e ALLINSSL_URL=allinssl allinssl/allinssl:latest
 		}
 
-		local docker_describe="오픈 소스 무료 SSL 인증서 자동화 관리 플랫폼"
-		local docker_url="공식 홈페이지 소개: https://allinssl.com"
-		local docker_use="echo \"보안 입구: /allinssl\""
-		local docker_passwd="echo \"사용자 이름: allinssl 비밀번호: allinssldocker\""
+		local docker_describe="开源免费的 SSL 证书自动化管理平台"
+		local docker_url="官网介绍: https://allinssl.com"
+		local docker_use="echo \"安全入口: /allinssl\""
+		local docker_passwd="echo \"用户名: allinssl  密码: allinssldocker\""
 		local app_size="1"
 		docker_app
 		  ;;
@@ -11344,7 +11344,7 @@ while true; do
 		}
 
 		local docker_describe="언제 어디서나 무료 오픈 소스 SFTP FTP WebDAV 파일 전송 도구"
-		local docker_url="공식 홈페이지 소개 : https://sftpgo.com/"
+		local docker_url="官网介绍: https://sftpgo.com/"
 		local docker_use=""
 		local docker_passwd=""
 		local app_size="1"
@@ -11375,9 +11375,9 @@ while true; do
 
 		}
 
-		local docker_describe="대규모 AI 모델에 대한 WeChat, QQ 및 TG 액세스를 지원하는 오픈 소스 AI 챗봇 프레임워크"
+		local docker_describe="开源AI聊天机器人框架，支持微信，QQ，TG接入AI大模型"
 		local docker_url="공식 홈페이지 소개: https://astrbot.app/"
-		local docker_use="echo \"사용자 이름: astrbot 비밀번호: astrbot\""
+		local docker_use="echo \"用户名: astrbot  密码: astrbot\""
 		local docker_passwd=""
 		local app_size="1"
 		docker_app
@@ -11404,7 +11404,7 @@ while true; do
 
 		}
 
-		local docker_describe="경량, 고성능 음악 스트리밍 서버입니다."
+		local docker_describe="是一个轻量、高性能的音乐流媒体服务器"
 		local docker_url="공식 홈페이지 소개 : https://www.navidrome.org/"
 		local docker_use=""
 		local docker_passwd=""
@@ -11431,8 +11431,8 @@ while true; do
 
 		}
 
-		local docker_describe="귀하의 데이터를 통제할 수 있는 비밀번호 관리자"
-		local docker_url="공식 홈페이지 소개: https://bitwarden.com/"
+		local docker_describe="一个你可以控制数据的密码管理器"
+		local docker_url="官网介绍: https://bitwarden.com/"
 		local docker_use=""
 		local docker_passwd=""
 		local app_size="1"
@@ -11452,7 +11452,7 @@ while true; do
 
 		docker_rum() {
 
-			read -e -p "LibreTV 로그인 비밀번호 설정:" app_passwd
+			read -e -p "设置LibreTV的登录密码: " app_passwd
 
 			docker run -d \
 			  --name libretv \
@@ -11478,7 +11478,7 @@ while true; do
 
 		local app_id="74"
 
-		local app_name="Moontv 개인 영화 및 TV"
+		local app_name="moontv私有影视"
 		local app_text="무료 온라인 비디오 검색 및 시청 플랫폼"
 		local app_url="영상소개 : https://github.com/MoonTechLab/LunaTV"
 		local docker_name="moontv-core"
@@ -11487,7 +11487,7 @@ while true; do
 
 		docker_app_install() {
 			read -e -p "로그인 사용자 이름 설정:" admin
-			read -e -p "로그인 사용자 비밀번호 설정:" admin_password
+			read -e -p "设置登录用户密码: " admin_password
 			read -e -p "输入授权码: " shouquanma
 
 
@@ -11518,7 +11518,7 @@ while true; do
 		docker_app_uninstall() {
 			cd /home/docker/moontv/ && docker compose down --rmi all
 			rm -rf /home/docker/moontv
-			echo "앱이 제거되었습니다."
+			echo "应用已卸载"
 		}
 
 		docker_app_plus
@@ -11545,8 +11545,8 @@ while true; do
 
 		}
 
-		local docker_describe="음악을 더 잘 관리할 수 있도록 설계된 음악 마법사입니다."
-		local docker_url="공식 홈페이지 소개: https://github.com/foamzou/melody"
+		local docker_describe="你的音乐精灵，旨在帮助你更好地管理音乐。"
+		local docker_url="官网介绍: https://github.com/foamzou/melody"
 		local docker_use=""
 		local docker_passwd=""
 		local app_size="1"
@@ -11572,8 +11572,8 @@ while true; do
 
 		}
 
-		local docker_describe="중국의 DOS 게임 컬렉션 웹사이트입니다."
-		local docker_url="공식 홈페이지 소개: https://github.com/rwv/chinese-dos-games"
+		local docker_describe="是一个中文DOS游戏合集网站"
+		local docker_url="官网介绍: https://github.com/rwv/chinese-dos-games"
 		local docker_use=""
 		local docker_passwd=""
 		local app_size="2"
@@ -11607,9 +11607,9 @@ while true; do
 
 		}
 
-		local docker_describe="오프라인 고속 BT 자기 다운로드 도구인 Xunlei"
+		local docker_describe="迅雷你的离线高速BT磁力下载工具"
 		local docker_url="공식 홈페이지 소개: https://github.com/cnk3x/xunlei"
-		local docker_use="echo \"휴대폰으로 Xunlei에 로그인한 후 초대 코드를 입력하세요. 초대 코드: Xunlei Niutong\""
+		local docker_use="echo \"휴대폰으로 Xunlei에 로그인하고 초대 코드를 입력하세요. 초대 코드: Xunlei Niutong\""
 		local docker_passwd=""
 		local app_size="1"
 		docker_app
@@ -11622,8 +11622,8 @@ while true; do
 
 		local app_id="78"
 		local app_name="PandaWiki"
-		local app_text="PandaWiki是一款AI大模型驱动的开源智能文档管理系统，强烈建议不要自定义端口部署。"
-		local app_url="官方介绍: https://github.com/chaitin/PandaWiki"
+		local app_text="PandaWiki는 AI 대형 모델을 기반으로 하는 오픈 소스 지능형 문서 관리 시스템입니다. 포트 배포를 사용자 정의하지 않는 것이 좋습니다."
+		local app_url="공식 소개: https://github.com/chaitin/PandaWiki"
 		local docker_name="panda-wiki-nginx"
 		local docker_port="2443"
 		local app_size="2"
@@ -11665,7 +11665,7 @@ while true; do
 
 		}
 
-		local docker_describe="Beszel轻量易用的服务器监控"
+		local docker_describe="Beszel은 가볍고 사용하기 쉬운 서버 모니터링입니다."
 		local docker_url="공식 홈페이지 소개: https://beszel.dev/zh/"
 		local docker_use=""
 		local docker_passwd=""
@@ -11679,7 +11679,7 @@ while true; do
 
 		  local app_id="80"
 		  local app_name="링크워든 북마크 관리"
-		  local app_text="一个开源的自托管书签管理平台，支持标签、搜索和团队协作。"
+		  local app_text="태그 지정, 검색 및 팀 협업을 지원하는 오픈 소스 자체 호스팅 북마크 관리 플랫폼입니다."
 		  local app_url="공식 홈페이지: https://linkwarden.app/"
 		  local docker_name="linkwarden-linkwarden-1"
 		  local docker_port="8080"
@@ -11689,7 +11689,7 @@ while true; do
 			  install git openssl
 			  mkdir -p /home/docker/linkwarden && cd /home/docker/linkwarden
 
-			  # 下载官方 docker-compose 和 env 文件
+			  # 공식 docker-compose 및 env 파일 다운로드
 			  curl -O ${gh_proxy}raw.githubusercontent.com/linkwarden/linkwarden/refs/heads/main/docker-compose.yml
 			  curl -L ${gh_proxy}raw.githubusercontent.com/linkwarden/linkwarden/refs/heads/main/.env.sample -o ".env"
 
@@ -11750,7 +11750,7 @@ while true; do
 
 	  81|jitsi)
 		  local app_id="81"
-		  local app_name="JitsiMeet视频会议"
+		  local app_name="JitsiMeet 화상 회의"
 		  local app_text="다자간 온라인 회의, 화면 공유, 암호화된 통신을 지원하는 오픈 소스 보안 화상 회의 솔루션입니다."
 		  local app_url="공식 홈페이지: https://jitsi.org/"
 		  local docker_name="jitsi"
@@ -11988,9 +11988,9 @@ while true; do
 
 		}
 
-		local docker_describe="영화와 생방송을 원격으로 함께 시청할 수 있는 프로그램입니다. 동시 시청, 라이브 방송, 채팅 및 기타 기능을 제공합니다."
+		local docker_describe="원격으로 영화와 생방송을 함께 시청할 수 있는 프로그램입니다. 동시 시청, 라이브 방송, 채팅 및 기타 기능을 제공합니다."
 		local docker_url="공식 홈페이지 소개: https://github.com/synctv-org/synctv"
-		local docker_use="echo \"초기 계정 및 비밀번호: root. 로그인 후 시간에 맞춰 로그인 비밀번호를 변경하세요\""
+		local docker_use="echo \"初始账号和密码: root  登陆后请及时修改登录密码\""
 		local docker_passwd=""
 		local app_size="1"
 		docker_app
@@ -12018,10 +12018,10 @@ while true; do
 
 		}
 
-		local docker_describe="오픈 소스, 자체 구축한 무료 라이브 방송 플랫폼"
+		local docker_describe="开源、免费的自建直播平台"
 		local docker_url="공식 홈페이지 소개 : https://owncast.online"
-		local docker_use="echo \"접속 주소 뒤에는 /admin이 붙어서 관리자 페이지에 접근합니다\""
-		local docker_passwd="echo \"초기 계정: admin 초기 비밀번호: abc123 로그인 후 시간 내에 로그인 비밀번호를 변경해주세요\""
+		local docker_use="echo \"访问地址后面带 /admin 访问管理员页面\""
+		local docker_passwd="echo \"初始账号: admin  初始密码: abc123  登陆后请及时修改登录密码\""
 		local app_size="1"
 		docker_app
 
@@ -12048,9 +12048,9 @@ while true; do
 		}
 
 		local docker_describe="익명의 비밀번호로 텍스트와 파일을 공유하고 빠른 배송과 같은 파일 픽업"
-		local docker_url="공식 홈페이지 소개: https://github.com/vastsa/FileCodeBox"
-		local docker_use="echo \"접속 주소 뒤에는 /#/admin이 붙어서 관리자 페이지에 접속합니다\""
-		local docker_passwd="echo \"관리자 비밀번호: FileCodeBox2023\""
+		local docker_url="官网介绍: https://github.com/vastsa/FileCodeBox"
+		local docker_use="echo \"访问地址后面带 /#/admin 访问管理员页面\""
+		local docker_passwd="echo \"管理员密码: FileCodeBox2023\""
 		local app_size="1"
 		docker_app
 
@@ -12086,7 +12086,7 @@ while true; do
 			  --restart=always \
 			  matrixdotorg/synapse:latest
 
-			echo "초기 사용자 또는 관리자를 생성합니다. 다음 사용자 이름과 비밀번호를 설정하고 관리자인지 여부를 설정하세요."
+			echo "创建初始用户或管理员。请设置以下内容用户名和密码以及是否为管理员。"
 			docker exec -it matrix register_new_matrix_user \
 			  http://localhost:8008 \
 			  -c /data/homeserver.yaml
@@ -12103,8 +12103,8 @@ while true; do
 
 		}
 
-		local docker_describe="Matrix는 분산형 채팅 프로토콜입니다."
-		local docker_url="공식 홈페이지 소개 : https://matrix.org/"
+		local docker_describe="Matrix是一个去中心化的聊天协议"
+		local docker_url="官网介绍: https://matrix.org/"
 		local docker_use=""
 		local docker_passwd=""
 		local app_size="1"
@@ -12118,9 +12118,9 @@ while true; do
 
 		local app_id="91"
 
-		local app_name="gitea 비공개 코드 저장소"
-		local app_text="GitHub에 가까운 경험을 제공하는 무료 차세대 코드 호스팅 플랫폼입니다."
-		local app_url="영상소개 : https://github.com/go-gitea/gitea"
+		local app_name="gitea私有代码仓库"
+		local app_text="免费新一代的代码托管平台，提供接近 GitHub 的使用体验。"
+		local app_url="视频介绍: https://github.com/go-gitea/gitea"
 		local docker_name="gitea"
 		local docker_port="8091"
 		local app_size="2"
@@ -12138,7 +12138,7 @@ while true; do
 			cd /home/docker/gitea/
 			docker compose up -d
 			clear
-			echo "설치 완료"
+			echo "已经安装完成"
 			check_docker_app_ip
 		}
 
@@ -12152,7 +12152,7 @@ while true; do
 		docker_app_uninstall() {
 			cd /home/docker/gitea/ && docker compose down --rmi all
 			rm -rf /home/docker/gitea
-			echo "앱이 제거되었습니다."
+			echo "应用已卸载"
 		}
 
 		docker_app_plus
@@ -12182,8 +12182,8 @@ while true; do
 
 		}
 
-		local docker_describe="웹 기반 파일 관리자입니다"
-		local docker_url="공식 홈페이지 소개 : https://filebrowser.org/"
+		local docker_describe="是一个基于Web的文件管理器"
+		local docker_url="官网介绍: https://filebrowser.org/"
 		local docker_use="docker logs filebrowser"
 		local docker_passwd=""
 		local app_size="1"
@@ -12209,7 +12209,7 @@ while true; do
 
 		}
 
-		local docker_describe="미니멀리스트 정적 파일 서버, 업로드 및 다운로드 지원"
+		local docker_describe="极简静态文件服务器，支持上传下载"
 		local docker_url="공식 홈페이지 소개: https://github.com/sigoden/dufs"
 		local docker_use=""
 		local docker_passwd=""
@@ -12227,8 +12227,8 @@ while true; do
 
 		docker_rum() {
 
-			read -e -p "로그인 사용자 이름 설정:" app_use
-			read -e -p "로그인 비밀번호 설정:" app_passwd
+			read -e -p "设置登录用户名: " app_use
+			read -e -p "设置登录密码: " app_passwd
 
 			docker run -d \
 			  --name ${docker_name} \
@@ -12241,7 +12241,7 @@ while true; do
 		}
 
 		local docker_describe="여러 프로토콜을 지원하는 분산 고속 다운로드 도구"
-		local docker_url="공식 홈페이지 소개: https://github.com/GopeedLab/gopeed"
+		local docker_url="官网介绍: https://github.com/GopeedLab/gopeed"
 		local docker_use=""
 		local docker_passwd=""
 		local app_size="1"
@@ -12255,7 +12255,7 @@ while true; do
 
 		local app_id="95"
 
-		local app_name="종이 없는 문서 관리 플랫폼"
+		local app_name="paperless文档管理平台"
 		local app_text="오픈 소스 전자 문서 관리 시스템으로, 주요 목적은 종이 문서를 디지털화하고 관리하는 것입니다."
 		local app_url="영상 소개: https://docs.paperless-ngx.com/"
 		local docker_name="paperless-webserver-1"
@@ -12276,7 +12276,7 @@ while true; do
 			cd /home/docker/paperless
 			docker compose up -d
 			clear
-			echo "설치 완료"
+			echo "已经安装完成"
 			check_docker_app_ip
 		}
 
@@ -12290,7 +12290,7 @@ while true; do
 		docker_app_uninstall() {
 			cd /home/docker/paperless/ && docker compose down --rmi all
 			rm -rf /home/docker/paperless
-			echo "앱이 제거되었습니다."
+			echo "应用已卸载"
 		}
 
 		docker_app_plus
@@ -12304,8 +12304,8 @@ while true; do
 		local app_id="96"
 
 		local app_name="2FAuth 자체 호스팅 2단계 인증자"
-		local app_text="자체 호스팅 2FA(2단계 인증) 계정 관리 및 확인 코드 생성 도구입니다."
-		local app_url="공식 홈페이지: https://github.com/Bubka/2FAuth"
+		local app_text="自托管的双重身份验证 (2FA) 账户管理和验证码生成工具。"
+		local app_url="官网: https://github.com/Bubka/2FAuth"
 		local docker_name="2fauth"
 		local docker_port="8096"
 		local app_size="1"
@@ -12543,7 +12543,7 @@ while true; do
 
 		docker_app_install() {
 
-			read -e -p "CPU 코어 수를 설정합니다(기본값 2):" CPU_CORES
+			read -e -p "设置 CPU 核数 (默认 2): " CPU_CORES
 			local CPU_CORES=${CPU_CORES:-2}
 
 			read -e -p "메모리 크기 설정(기본 4G):" RAM_SIZE
@@ -12563,7 +12563,7 @@ while true; do
 			docker compose up -d
 
 			clear
-			echo "설치 완료"
+			echo "已经安装完成"
 			check_docker_app_ip
 		}
 
@@ -12607,7 +12607,7 @@ while true; do
 		}
 
 		local docker_describe="Dropbox 및 Resilio Sync와 유사하지만 완전히 분산된 오픈 소스 P2P 파일 동기화 도구입니다."
-		local docker_url="공식 홈페이지 소개: https://github.com/syncthing/syncthing"
+		local docker_url="官网介绍: https://github.com/syncthing/syncthing"
 		local docker_use=""
 		local docker_passwd=""
 		local app_size="1"
@@ -12619,8 +12619,8 @@ while true; do
 	  101|moneyprinterturbo)
 		local app_id="101"
 		local app_name="AI 영상 생성 도구"
-		local app_text="MoneyPrinterTurbo는 AI 대형 모델을 사용하여 고화질 짧은 동영상을 합성하는 도구입니다."
-		local app_url="공식 웹사이트: https://github.com/harry0703/MoneyPrinterTurbo"
+		local app_text="MoneyPrinterTurbo是一款使用AI大模型合成高清短视频的工具"
+		local app_url="官方网站: https://github.com/harry0703/MoneyPrinterTurbo"
 		local docker_name="moneyprinterturbo"
 		local docker_port="8101"
 		local app_size="3"
@@ -12632,7 +12632,7 @@ while true; do
 
 			docker compose up -d
 			clear
-			echo "설치 완료"
+			echo "已经安装完成"
 			check_docker_app_ip
 		}
 
@@ -12648,7 +12648,7 @@ while true; do
 		docker_app_uninstall() {
 			cd  /home/docker/MoneyPrinterTurbo/ && docker compose down --rmi all
 			rm -rf /home/docker/MoneyPrinterTurbo
-			echo "앱이 제거되었습니다."
+			echo "应用已卸载"
 		}
 
 		docker_app_plus
@@ -12675,7 +12675,7 @@ while true; do
 		}
 
 		local docker_describe="독립적인 배포를 지원하는 개인용 클라우드 소셜 미디어 채팅 서비스입니다."
-		local docker_url="공식 홈페이지 소개: https://github.com/Privoce/vocechat-web"
+		local docker_url="官网介绍: https://github.com/Privoce/vocechat-web"
 		local docker_use=""
 		local docker_passwd=""
 		local app_size="1"
@@ -12686,9 +12686,9 @@ while true; do
 
 	  103|umami)
 		local app_id="103"
-		local app_name="Umami 웹사이트 통계 도구"
-		local app_text="Google Analytics와 유사한 오픈 소스, 가볍고 개인 정보 보호 친화적인 웹사이트 분석 도구입니다."
-		local app_url="공식 웹사이트: https://github.com/umami-software/umami"
+		local app_name="Umami网站统计工具"
+		local app_text="开源、轻量、隐私友好的网站分析工具，类似于GoogleAnalytics。"
+		local app_url="官方网站: https://github.com/umami-software/umami"
 		local docker_name="umami-umami-1"
 		local docker_port="8103"
 		local app_size="1"
@@ -12700,7 +12700,7 @@ while true; do
 
 			docker compose up -d
 			clear
-			echo "설치 완료"
+			echo "已经安装完成"
 			check_docker_app_ip
 			echo "초기 사용자 이름: admin"
 			echo "초기 비밀번호 : umami"
@@ -12717,7 +12717,7 @@ while true; do
 		docker_app_uninstall() {
 			cd  /home/docker/umami/ && docker compose down --rmi all
 			rm -rf /home/docker/umami
-			echo "앱이 제거되었습니다."
+			echo "应用已卸载"
 		}
 
 		docker_app_plus
@@ -12738,7 +12738,7 @@ while true; do
 
 		docker_rum() {
 
-			read -e -p "로그인 비밀번호 설정:" app_passwd
+			read -e -p "设置登录密码: " app_passwd
 
 			docker run -d \
 			  --name siyuan \
@@ -12753,8 +12753,8 @@ while true; do
 
 		}
 
-		local docker_describe="Siyuan Notes는 개인 정보 보호를 최우선으로 하는 지식 관리 시스템입니다."
-		local docker_url="공식 홈페이지 소개: https://github.com/siyuan-note/siyuan"
+		local docker_describe="思源笔记是一款隐私优先的知识管理系统"
+		local docker_url="官网介绍: https://github.com/siyuan-note/siyuan"
 		local docker_use=""
 		local docker_passwd=""
 		local app_size="1"
@@ -12780,8 +12780,8 @@ while true; do
 
 		}
 
-		local docker_describe="마인드맵, 플로우차트 등을 통합한 강력한 오픈소스 화이트보드 도구입니다."
-		local docker_url="공식 홈페이지 소개: https://github.com/plait-board/ drawix"
+		local docker_describe="是一款强大的开源白板工具，集成思维导图、流程图等。"
+		local docker_url="官网介绍: https://github.com/plait-board/drawnix"
 		local docker_use=""
 		local docker_passwd=""
 		local app_size="1"
@@ -12815,8 +12815,8 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 
 		}
 
-		local docker_describe="PanSou는 고성능 네트워크 디스크 리소스 검색 API 서비스입니다."
-		local docker_url="공식 홈페이지 소개: https://github.com/fish2018/pansou"
+		local docker_describe="PanSou是一个高性能的网盘资源搜索API服务。"
+		local docker_url="官网介绍: https://github.com/fish2018/pansou"
 		local docker_use=""
 		local docker_passwd=""
 		local app_size="1"
@@ -12829,9 +12829,9 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 
 	  108|langbot)
 		local app_id="108"
-		local app_name="LangBot 챗봇"
-		local app_text="오픈 소스 대형 언어 모델 기반 인스턴트 메시징 로봇 개발 플랫폼입니다."
-		local app_url="공식 홈페이지: https://github.com/langbot-app/LangBot"
+		local app_name="LangBot聊天机器人"
+		local app_text="是一个开源的大语言模型原生即时通信机器人开发平台"
+		local app_url="官方网站: https://github.com/langbot-app/LangBot"
 		local docker_name="langbot_plugin_runtime"
 		local docker_port="8108"
 		local app_size="1"
@@ -12899,8 +12899,8 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 
 	  110|karakeep)
 		local app_id="110"
-		local app_name="karakeep 북마크 관리"
-		local app_text="데이터 수집가를 위해 설계된 인공 지능 기능을 갖춘 자체 호스팅 북마크 앱입니다."
+		local app_name="karakeep书签管理"
+		local app_text="是一款可自行托管的书签应用，带有人工智能功能，专为数据囤积者而设计。"
 		local app_url="공식 홈페이지: https://github.com/karakeep-app/karakeep"
 		local docker_name="docker-web-1"
 		local docker_port="8110"
@@ -12928,7 +12928,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 		docker_app_uninstall() {
 			cd  /home/docker/karakeep/docker/ && docker compose down --rmi all
 			rm -rf /home/docker/karakeep
-			echo "앱이 제거되었습니다."
+			echo "应用已卸载"
 		}
 
 		docker_app_plus
@@ -12953,7 +12953,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 
 		}
 
-		local docker_describe="강력한 다중 형식 파일 변환 도구입니다(문서, 이미지, 오디오 및 비디오 등 지원). 도메인 이름 액세스를 추가하는 것이 좋습니다."
+		local docker_describe="是一个功能强大的多格式文件转换工具（支持文档、图像、音频视频等）强烈建议添加域名访问"
 		local docker_url="프로젝트 주소: https://github.com/c4illin/ConvertX"
 		local docker_use=""
 		local docker_passwd=""
@@ -12968,7 +12968,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 		local app_id="112"
 		local docker_name="lucky"
 		local docker_img="gdy666/lucky:v2"
-		# Lucky는 호스트 네트워크 모드를 사용하므로 여기의 포트는 기록/설명 참조용으로만 사용되며 실제로는 애플리케이션 자체에 의해 제어됩니다(기본값 16601).
+		# Lucky는 호스트 네트워크 모드를 사용하므로 여기서 포트는 기록/설명 참조용으로만 사용되며 실제로는 애플리케이션 자체에 의해 제어됩니다(기본값 16601).
 		local docker_port=8112
 
 		docker_rum() {
@@ -12979,7 +12979,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 				-v /var/run/docker.sock:/var/run/docker.sock \
 				${docker_img}
 
-			echo "Lucky가 초기화되기를 기다리는 중..."
+			echo "正在等待 Lucky 初始化..."
 			sleep 10
 			docker exec lucky /app/lucky -rSetHttpAdminPort ${docker_port}
 
@@ -13027,7 +13027,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 
 	  b)
 	  	clear
-	  	send_stats "모든 애플리케이션 백업"
+	  	send_stats "全部应用备份"
 
 	  	local backup_filename="app_$(date +"%Y%m%d%H%M%S").tar.gz"
 	  	echo -e "${gl_huang}백업 중$backup_filename ...${gl_bai}"
@@ -13036,15 +13036,15 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 	  	while true; do
 			clear
 			echo "생성된 백업 파일: /$backup_filename"
-			read -e -p "백업 데이터를 원격 서버로 전송하시겠습니까? (예/아니요):" choice
+			read -e -p "要传送备份数据到远程服务器吗？(Y/N): " choice
 			case "$choice" in
 			  [Yy])
-				read -e -p "원격 서버 IP를 입력하세요:" remote_ip
+				read -e -p "请输入远端服务器IP:  " remote_ip
 				read -e -p "대상 서버 SSH 포트 [기본값 22]:" TARGET_PORT
 				local TARGET_PORT=${TARGET_PORT:-22}
 
 				if [ -z "$remote_ip" ]; then
-				  echo "오류: 원격 서버 IP를 입력하세요."
+				  echo "错误: 请输入远端服务器IP。"
 				  continue
 				fi
 				local latest_tar=$(ls -t /app*.tar.gz | head -1)
@@ -13052,7 +13052,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 				  ssh-keygen -f "/root/.ssh/known_hosts" -R "$remote_ip"
 				  sleep 2  # 添加等待时间
 				  scp -P "$TARGET_PORT" -o StrictHostKeyChecking=no "$latest_tar" "root@$remote_ip:/"
-				  echo "원격 서버/루트 디렉터리로 파일이 전송되었습니다."
+				  echo "文件已传送至远程服务器/根目录。"
 				else
 				  echo "전송할 파일을 찾을 수 없습니다."
 				fi
@@ -13070,7 +13070,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 	  r)
 	  	root_use
 	  	send_stats "모든 앱 복원"
-	  	echo "사용 가능한 애플리케이션 백업"
+	  	echo "可用的应用备份"
 	  	echo "-------------------------"
 	  	ls -lt /app*.gz | awk '{print $NF}'
 	  	echo ""
@@ -13081,7 +13081,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 			  linux_panel
 	  	fi
 
-	  	# 사용자가 파일명을 입력하지 않으면 최신 압축 패키지가 사용됩니다.
+	  	# 如果用户没有输入文件名，使用最新的压缩包
 	  	if [ -z "$filename" ]; then
 			  local filename=$(ls -t /app*.tar.gz | head -1)
 	  	fi
@@ -13113,7 +13113,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 		if [ -f "$custom_app" ]; then
 			. "$custom_app"
 		else
-			echo -e "${gl_hong}오류: 번호가 없습니다.${sub_choice}애플리케이션 구성${gl_bai}"
+			echo -e "${gl_hong}错误: 未找到编号为 ${sub_choice} 的应用配置${gl_bai}"
 		fi
 		  ;;
 	esac
@@ -13129,35 +13129,35 @@ linux_work() {
 
 	while true; do
 	  clear
-	  send_stats "백엔드 작업공간"
-	  echo -e "백엔드 작업공간"
+	  send_stats "后台工作区"
+	  echo -e "后台工作区"
 	  echo -e "시스템은 장기간 작업을 수행하는 데 사용할 수 있는 백그라운드에서 영구적으로 실행될 수 있는 작업 공간을 제공합니다."
-	  echo -e "SSH 연결을 끊더라도 작업 공간의 작업은 중단되지 않으며 작업은 백그라운드에 유지됩니다."
-	  echo -e "${gl_huang}힌트:${gl_bai}워크스페이스 진입 후 Ctrl+b를 누른 후 d만 눌러 워크스페이스를 종료하세요!"
+	  echo -e "即使你断开SSH，工作区中的任务也不会中断，后台常驻任务。"
+	  echo -e "${gl_huang}提示: ${gl_bai}进入工作区后使用Ctrl+b再单独按d，退出工作区！"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo "현재 존재하는 작업공간 목록"
+	  echo "当前已存在的工作区列表"
 	  echo -e "${gl_kjlan}------------------------"
 	  tmux list-sessions
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}1.   ${gl_bai}작업 영역 1"
+	  echo -e "${gl_kjlan}1.   ${gl_bai}1号工作区"
 	  echo -e "${gl_kjlan}2.   ${gl_bai}작업 영역 2"
-	  echo -e "${gl_kjlan}3.   ${gl_bai}작업 영역 3"
-	  echo -e "${gl_kjlan}4.   ${gl_bai}작업 영역 4"
+	  echo -e "${gl_kjlan}3.   ${gl_bai}3号工作区"
+	  echo -e "${gl_kjlan}4.   ${gl_bai}4号工作区"
 	  echo -e "${gl_kjlan}5.   ${gl_bai}작업 공간 5번"
-	  echo -e "${gl_kjlan}6.   ${gl_bai}작업 영역 6"
+	  echo -e "${gl_kjlan}6.   ${gl_bai}6号工作区"
 	  echo -e "${gl_kjlan}7.   ${gl_bai}작업 영역 7"
-	  echo -e "${gl_kjlan}8.   ${gl_bai}작업 영역 8"
-	  echo -e "${gl_kjlan}9.   ${gl_bai}작업 공간 9호"
-	  echo -e "${gl_kjlan}10.  ${gl_bai}작업공간 10"
+	  echo -e "${gl_kjlan}8.   ${gl_bai}8号工作区"
+	  echo -e "${gl_kjlan}9.   ${gl_bai}9号工作区"
+	  echo -e "${gl_kjlan}10.  ${gl_bai}10号工作区"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}21.  ${gl_bai}SSH 상주 모드${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}22.  ${gl_bai}작업공간 생성/입력"
-	  echo -e "${gl_kjlan}23.  ${gl_bai}백그라운드 작업 공간에 명령 삽입"
-	  echo -e "${gl_kjlan}24.  ${gl_bai}지정된 작업공간 삭제"
+	  echo -e "${gl_kjlan}21.  ${gl_bai}SSH常驻模式 ${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}22.  ${gl_bai}创建/进入工作区"
+	  echo -e "${gl_kjlan}23.  ${gl_bai}注入命令到后台工作区"
+	  echo -e "${gl_kjlan}24.  ${gl_bai}删除指定工作区"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}0.   ${gl_bai}메인 메뉴로 돌아가기"
+	  echo -e "${gl_kjlan}0.   ${gl_bai}返回主菜单"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
-	  read -e -p "선택사항을 입력하세요:" sub_choice
+	  read -e -p "请输入你的选择: " sub_choice
 
 	  case $sub_choice in
 
@@ -13173,42 +13173,42 @@ linux_work() {
 			  clear
 			  install tmux
 			  local SESSION_NAME="work2"
-			  send_stats "작업공간 시작$SESSION_NAME"
+			  send_stats "启动工作区$SESSION_NAME"
 			  tmux_run
 			  ;;
 		  3)
 			  clear
 			  install tmux
 			  local SESSION_NAME="work3"
-			  send_stats "작업공간 시작$SESSION_NAME"
+			  send_stats "启动工作区$SESSION_NAME"
 			  tmux_run
 			  ;;
 		  4)
 			  clear
 			  install tmux
 			  local SESSION_NAME="work4"
-			  send_stats "작업공간 시작$SESSION_NAME"
+			  send_stats "启动工作区$SESSION_NAME"
 			  tmux_run
 			  ;;
 		  5)
 			  clear
 			  install tmux
 			  local SESSION_NAME="work5"
-			  send_stats "작업공간 시작$SESSION_NAME"
+			  send_stats "启动工作区$SESSION_NAME"
 			  tmux_run
 			  ;;
 		  6)
 			  clear
 			  install tmux
 			  local SESSION_NAME="work6"
-			  send_stats "작업공간 시작$SESSION_NAME"
+			  send_stats "启动工作区$SESSION_NAME"
 			  tmux_run
 			  ;;
 		  7)
 			  clear
 			  install tmux
 			  local SESSION_NAME="work7"
-			  send_stats "작업공간 시작$SESSION_NAME"
+			  send_stats "启动工作区$SESSION_NAME"
 			  tmux_run
 			  ;;
 		  8)
@@ -13417,20 +13417,20 @@ linux_Settings() {
 	  echo -e "시스템 도구"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}1.   ${gl_bai}스크립트 시작 단축키 설정${gl_kjlan}2.   ${gl_bai}로그인 비밀번호 변경"
-	  echo -e "${gl_kjlan}3.   ${gl_bai}ROOT 비밀번호 로그인 모드${gl_kjlan}4.   ${gl_bai}지정된 버전의 Python 설치"
-	  echo -e "${gl_kjlan}5.   ${gl_bai}모든 포트 열기${gl_kjlan}6.   ${gl_bai}SSH 연결 포트 수정"
-	  echo -e "${gl_kjlan}7.   ${gl_bai}DNS 주소 최적화${gl_kjlan}8.   ${gl_bai}한 번의 클릭으로 시스템을 다시 설치${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}9.   ${gl_bai}ROOT 계정을 비활성화하고 새 계정을 만듭니다.${gl_kjlan}10.  ${gl_bai}우선 순위 ipv4/ipv6 전환"
+	  echo -e "${gl_kjlan}3.   ${gl_bai}ROOT 비밀번호 로그인 모드${gl_kjlan}4.   ${gl_bai}지정된 Python 버전을 설치합니다."
+	  echo -e "${gl_kjlan}5.   ${gl_bai}开放所有端口                       ${gl_kjlan}6.   ${gl_bai}修改SSH连接端口"
+	  echo -e "${gl_kjlan}7.   ${gl_bai}DNS 주소 최적화${gl_kjlan}8.   ${gl_bai}一键重装系统 ${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}9.   ${gl_bai}禁用ROOT账户创建新账户             ${gl_kjlan}10.  ${gl_bai}切换优先ipv4/ipv6"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}11.  ${gl_bai}항만점유현황 확인${gl_kjlan}12.  ${gl_bai}가상 메모리 크기 수정"
+	  echo -e "${gl_kjlan}11.  ${gl_bai}查看端口占用状态                   ${gl_kjlan}12.  ${gl_bai}修改虚拟内存大小"
 	  echo -e "${gl_kjlan}13.  ${gl_bai}사용자 관리${gl_kjlan}14.  ${gl_bai}사용자/비밀번호 생성기"
-	  echo -e "${gl_kjlan}15.  ${gl_bai}시스템 시간대 조정${gl_kjlan}16.  ${gl_bai}BBR3 가속 설정"
-	  echo -e "${gl_kjlan}17.  ${gl_bai}방화벽 고급 관리자${gl_kjlan}18.  ${gl_bai}호스트 이름 수정"
+	  echo -e "${gl_kjlan}15.  ${gl_bai}系统时区调整                       ${gl_kjlan}16.  ${gl_bai}设置BBR3加速"
+	  echo -e "${gl_kjlan}17.  ${gl_bai}방화벽 고급 관리자${gl_kjlan}18.  ${gl_bai}修改主机名"
 	  echo -e "${gl_kjlan}19.  ${gl_bai}시스템 업데이트 소스 전환${gl_kjlan}20.  ${gl_bai}예약된 작업 관리"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}21.  ${gl_bai}기본 호스트 확인${gl_kjlan}22.  ${gl_bai}SSH 방어 프로그램"
 	  echo -e "${gl_kjlan}23.  ${gl_bai}전류 제한 자동 종료${gl_kjlan}24.  ${gl_bai}ROOT 개인 키 로그인 모드"
-	  echo -e "${gl_kjlan}25.  ${gl_bai}TG-bot 시스템 모니터링 및 조기 경보${gl_kjlan}26.  ${gl_bai}OpenSSH 고위험 취약점 수정"
+	  echo -e "${gl_kjlan}25.  ${gl_bai}TG-bot 시스템 모니터링 및 조기경보${gl_kjlan}26.  ${gl_bai}OpenSSH 고위험 취약점 수정"
 	  echo -e "${gl_kjlan}27.  ${gl_bai}Red Hat Linux 커널 업그레이드${gl_kjlan}28.  ${gl_bai}Linux 시스템 커널 매개변수 최적화${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}29.  ${gl_bai}바이러스 검사 도구${gl_huang}★${gl_bai}                     ${gl_kjlan}30.  ${gl_bai}파일 관리자"
 	  echo -e "${gl_kjlan}------------------------"
@@ -13717,7 +13717,7 @@ EOF
 
 				case "$choice" in
 				  1)
-					send_stats "1G 가상 메모리가 설정되었습니다"
+					send_stats "1G 가상 메모리가 설정되었습니다."
 					add_swap 1024
 
 					;;
@@ -13829,7 +13829,7 @@ EOF
 		  14)
 			clear
 			send_stats "사용자 정보 생성기"
-			echo "임의의 사용자 이름"
+			echo "随机用户名"
 			echo "------------------------"
 			for i in {1..5}; do
 				username="user$(< /dev/urandom tr -dc _a-z0-9 | head -c6)"
@@ -13837,17 +13837,17 @@ EOF
 			done
 
 			echo ""
-			echo "임의의 이름"
+			echo "随机姓名"
 			echo "------------------------"
 			local first_names=("John" "Jane" "Michael" "Emily" "David" "Sophia" "William" "Olivia" "James" "Emma" "Ava" "Liam" "Mia" "Noah" "Isabella")
 			local last_names=("Smith" "Johnson" "Brown" "Davis" "Wilson" "Miller" "Jones" "Garcia" "Martinez" "Williams" "Lee" "Gonzalez" "Rodriguez" "Hernandez")
 
-			# 5개의 무작위 사용자 이름 생성
+			# 生成5个随机用户姓名
 			for i in {1..5}; do
 				local first_name_index=$((RANDOM % ${#first_names[@]}))
 				local last_name_index=$((RANDOM % ${#last_names[@]}))
 				local user_name="${first_names[$first_name_index]} ${last_names[$last_name_index]}"
-				echo "임의의 사용자 이름$i: $user_name"
+				echo "随机用户姓名 $i: $user_name"
 			done
 
 			echo ""
@@ -13879,7 +13879,7 @@ EOF
 
 		  15)
 			root_use
-			send_stats "시간대 변경"
+			send_stats "换时区"
 			while true; do
 				clear
 				echo "시스템 시간 정보"
@@ -13887,36 +13887,36 @@ EOF
 				# 현재 시스템 시간대 가져오기
 				local timezone=$(current_timezone)
 
-				# 현재 시스템 시간을 가져옵니다
+				# 현재 시스템 시간 가져오기
 				local current_time=$(date +"%Y-%m-%d %H:%M:%S")
 
 				# 시간대 및 시간 표시
-				echo "현재 시스템 시간대:$timezone"
+				echo "当前系统时区：$timezone"
 				echo "현재 시스템 시간:$current_time"
 
 				echo ""
-				echo "시간대 스위치"
+				echo "时区切换"
 				echo "------------------------"
-				echo "아시아"
+				echo "亚洲"
 				echo "1. 중국 상하이 시간 2. 중국 홍콩 시간"
-				echo "3. 일본 도쿄 시간 4. 한국 서울 시간"
-				echo "5. 싱가포르 시간 6. 콜카타, 인도 시간"
-				echo "7. 아랍에미리트 두바이 시간 8. 호주 시드니 시간"
-				echo "9. 태국 방콕 시간"
+				echo "3.  日本东京时间             4.  韩国首尔时间"
+				echo "5.  新加坡时间               6.  印度加尔各答时间"
+				echo "7.  阿联酋迪拜时间           8.  澳大利亚悉尼时间"
+				echo "9.  泰国曼谷时间"
 				echo "------------------------"
-				echo "유럽"
-				echo "11. 영국 런던 시간 12. 프랑스 파리 시간"
+				echo "欧洲"
+				echo "11. 英国伦敦时间             12. 法国巴黎时间"
 				echo "13. 독일 베를린 시간 14. 러시아 모스크바 시간"
-				echo "15. 네덜란드 위트레흐트 시간 16. 스페인 마드리드 시간"
+				echo "15. 荷兰尤特赖赫特时间       16. 西班牙马德里时间"
 				echo "------------------------"
 				echo "미국"
-				echo "21. 미국 서부 시간 22. 미국 동부 시간"
+				echo "21. 美国西部时间             22. 美国东部时间"
 				echo "23. 캐나다 시간 24. 멕시코 시간"
-				echo "25. 브라질 시간 26. 아르헨티나 시간"
+				echo "25. 巴西时间                 26. 阿根廷时间"
 				echo "------------------------"
-				echo "31. UTC 세계 표준시"
+				echo "31. UTC全球标准时间"
 				echo "------------------------"
-				echo "0. 이전 메뉴로 돌아가기"
+				echo "0. 返回上一级选单"
 				echo "------------------------"
 				read -e -p "선택사항을 입력하세요:" sub_choice
 
@@ -13961,21 +13961,21 @@ EOF
 
 		  18)
 		  root_use
-		  send_stats "호스트 이름 수정"
+		  send_stats "修改主机名"
 
 		  while true; do
 			  clear
 			  local current_hostname=$(uname -n)
-			  echo -e "현재 호스트 이름:${gl_huang}$current_hostname${gl_bai}"
+			  echo -e "当前主机名: ${gl_huang}$current_hostname${gl_bai}"
 			  echo "------------------------"
-			  read -e -p "새 호스트 이름을 입력하십시오(종료하려면 0을 입력하십시오):" new_hostname
+			  read -e -p "请输入新的主机名（输入0退出）: " new_hostname
 			  if [ -n "$new_hostname" ] && [ "$new_hostname" != "0" ]; then
 				  if [ -f /etc/alpine-release ]; then
 					  # Alpine
 					  echo "$new_hostname" > /etc/hostname
 					  hostname "$new_hostname"
 				  else
-					  # Debian, Ubuntu, CentOS 등과 같은 기타 시스템
+					  # 其他系统，如 Debian, Ubuntu, CentOS 等
 					  hostnamectl set-hostname "$new_hostname"
 					  sed -i "s/$current_hostname/$new_hostname/g" /etc/hostname
 					  systemctl restart systemd-hostnamed
@@ -13993,7 +13993,7 @@ EOF
 					  echo "::1             $new_hostname localhost localhost.localdomain ipv6-localhost ipv6-loopback" >> /etc/hosts
 				  fi
 
-				  echo "호스트 이름이 다음으로 변경되었습니다.$new_hostname"
+				  echo "主机名已更改为: $new_hostname"
 				  send_stats "호스트 이름이 변경됨"
 				  sleep 1
 			  else
@@ -14005,28 +14005,28 @@ EOF
 
 		  19)
 		  root_use
-		  send_stats "시스템 업데이트 소스 변경"
+		  send_stats "换系统更新源"
 		  clear
-		  echo "업데이트 소스 지역 선택"
-		  echo "LinuxMirrors에 액세스하여 시스템 업데이트 소스 전환"
+		  echo "选择更新源区域"
+		  echo "接入LinuxMirrors切换系统更新源"
 		  echo "------------------------"
-		  echo "1. 중국 본토 [기본값] 2. 중국 본토 [교육 네트워크] 3. 해외 지역 4. 업데이트 소스의 지능형 전환"
+		  echo "1. 中国大陆【默认】          2. 中国大陆【教育网】          3. 海外地区          4. 智能切换更新源"
 		  echo "------------------------"
-		  echo "0. 이전 메뉴로 돌아가기"
+		  echo "0. 返回上一级选单"
 		  echo "------------------------"
 		  read -e -p "선택 항목을 입력하세요." choice
 
 		  case $choice in
 			  1)
-				  send_stats "중국 본토 기본 소스"
+				  send_stats "中国大陆默认源"
 				  bash <(curl -sSL https://linuxmirrors.cn/main.sh)
 				  ;;
 			  2)
-				  send_stats "중국 본토 교육 소스"
+				  send_stats "中国大陆教育源"
 				  bash <(curl -sSL https://linuxmirrors.cn/main.sh) --edu
 				  ;;
 			  3)
-				  send_stats "해외 소스"
+				  send_stats "海外源"
 				  bash <(curl -sSL https://linuxmirrors.cn/main.sh) --abroad
 				  ;;
 			  4)
@@ -14035,7 +14035,7 @@ EOF
 				  ;;
 
 			  *)
-				  echo "취소"
+				  echo "已取消"
 				  ;;
 
 		  esac
@@ -14043,7 +14043,7 @@ EOF
 			  ;;
 
 		  20)
-		  send_stats "예약된 작업 관리"
+		  send_stats "定时任务管理"
 			  while true; do
 				  clear
 				  check_crontab_installed
@@ -14051,13 +14051,13 @@ EOF
 				  echo "예약된 작업 목록"
 				  crontab -l
 				  echo ""
-				  echo "작동하다"
+				  echo "操作"
 				  echo "------------------------"
-				  echo "1. 예약된 작업 추가 2. 예약된 작업 삭제 3. 예약된 작업 편집"
+				  echo "1. 添加定时任务              2. 删除定时任务              3. 编辑定时任务"
 				  echo "------------------------"
-				  echo "0. 이전 메뉴로 돌아가기"
+				  echo "0. 返回上一级选单"
 				  echo "------------------------"
-				  read -e -p "선택사항을 입력하세요:" sub_choice
+				  read -e -p "请输入你的选择: " sub_choice
 
 				  case $sub_choice in
 					  1)
@@ -14070,7 +14070,7 @@ EOF
 
 						  case $dingshi in
 							  1)
-								  read -e -p "작업을 실행하기로 선택한 달의 날짜는 무엇입니까? (1-30):" day
+								  read -e -p "작업을 실행하기로 선택한 날은 언제입니까? (1-30):" day
 								  (crontab -l ; echo "0 0 $day * * $newquest") | crontab - > /dev/null 2>&1
 								  ;;
 							  2)
@@ -14228,20 +14228,20 @@ EOF
 			  send_stats "개인키 로그인"
 			  while true; do
 				  clear
-			  	  echo "ROOT 개인 키 로그인 모드"
+			  	  echo "ROOT私钥登录模式"
 			  	  echo "영상 소개: https://www.bilibili.com/video/BV1Q4421X78n?t=209.4"
 			  	  echo "------------------------------------------------"
-			  	  echo "SSH를 통해 보다 안전하게 로그인할 수 있도록 키 쌍이 생성됩니다."
+			  	  echo "SSH를 통해 더욱 안전하게 로그인할 수 있는 키 쌍이 생성됩니다."
 				  echo "------------------------"
-				  echo "1. 새 키 생성 2. 기존 키 가져오기 3. 로컬 키 보기"
+				  echo "1. 生成新密钥              2. 导入已有密钥              3. 查看本机密钥"
 				  echo "------------------------"
 				  echo "0. 이전 메뉴로 돌아가기"
 				  echo "------------------------"
-				  read -e -p "선택사항을 입력하세요:" host_dns
+				  read -e -p "请输入你的选择: " host_dns
 
 				  case $host_dns in
 					  1)
-				  		send_stats "새 키 생성"
+				  		send_stats "生成新密钥"
 				  		add_sshkey
 						break_end
 
@@ -14253,12 +14253,12 @@ EOF
 
 						  ;;
 					  3)
-						send_stats "로컬 키 보기"
+						send_stats "查看本机密钥"
 						echo "------------------------"
 						echo "공개키 정보"
 						cat ~/.ssh/authorized_keys
 						echo "------------------------"
-						echo "개인 키 정보"
+						echo "私钥信息"
 						cat ~/.ssh/sshkey
 						echo "------------------------"
 						break_end
@@ -14274,18 +14274,18 @@ EOF
 
 		  25)
 			  root_use
-			  send_stats "전신 경고"
-			  echo "TG-bot 모니터링 및 조기경보 기능"
-			  echo "영상소개: https://youtu.be/vLL-eb3Z_TY"
+			  send_stats "电报预警"
+			  echo "TG-bot监控预警功能"
+			  echo "视频介绍: https://youtu.be/vLL-eb3Z_TY"
 			  echo "------------------------------------------------"
-			  echo "로컬 CPU, 메모리, 하드 디스크, 트래픽 및 SSH 로그인에 대한 실시간 모니터링 및 경고를 달성하려면 경고를 수신하도록 tg 로봇 API 및 사용자 ID를 구성해야 합니다."
-			  echo "임계값에 도달하면 경고 메시지가 사용자에게 전송됩니다."
+			  echo "您需要配置tg机器人API和接收预警的用户ID，即可实现本机CPU，内存，硬盘，流量，SSH登录的实时监控预警"
+			  echo "到达阈值后会向用户发预警消息"
 			  echo -e "${gl_hui}- 트래픽에 관해서는 서버를 다시 시작하면 다시 계산됩니다 -${gl_bai}"
-			  read -e -p "계속하시겠습니까? (예/아니요):" choice
+			  read -e -p "确定继续吗？(Y/N): " choice
 
 			  case "$choice" in
 				[Yy])
-				  send_stats "텔레그램 경고 활성화됨"
+				  send_stats "电报预警启用"
 				  cd ~
 				  install nano tmux bc jq
 				  check_crontab_installed
@@ -14307,7 +14307,7 @@ EOF
 				  sed -i "4i$(grep '^CHAT_ID=' ~/TG-check-notify.sh)" TG-SSH-check-notify.sh
 				  chmod +x ~/TG-SSH-check-notify.sh
 
-				  # ~/.profile 파일에 추가
+				  # 添加到 ~/.profile 文件中
 				  if ! grep -q 'bash ~/TG-SSH-check-notify.sh' ~/.profile > /dev/null 2>&1; then
 					  echo 'bash ~/TG-SSH-check-notify.sh' >> ~/.profile
 					  if command -v dnf &>/dev/null || command -v yum &>/dev/null; then
@@ -14318,21 +14318,21 @@ EOF
 				  source ~/.profile
 
 				  clear
-				  echo "TG-bot 조기경보 시스템이 활성화되었습니다."
+				  echo "TG-bot预警系统已启动"
 				  echo -e "${gl_hui}TG-check-notify.sh 경고 파일을 다른 컴퓨터의 루트 디렉터리에 넣고 직접 사용할 수도 있습니다!${gl_bai}"
 				  ;;
 				[Nn])
-				  echo "취소"
+				  echo "已取消"
 				  ;;
 				*)
-				  echo "선택이 잘못되었습니다. Y 또는 N을 입력하세요."
+				  echo "无效的选择，请输入 Y 或 N。"
 				  ;;
 			  esac
 			  ;;
 
 		  26)
 			  root_use
-			  send_stats "고위험 SSH 취약점 수정"
+			  send_stats "修复SSH高危漏洞"
 			  cd ~
 			  curl -sS -O ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/upgrade_openssh9.8p1.sh
 			  chmod +x ~/upgrade_openssh9.8p1.sh
@@ -14399,95 +14399,95 @@ EOF
 
 		  41)
 			clear
-			send_stats "메시지 보드"
-			echo "Technology Lion 공식 게시판을 방문해 보세요. 스크립트에 대한 아이디어가 있으시면 교환 메시지를 남겨주세요!"
+			send_stats "留言板"
+			echo "访问科技lion官方留言板，您对脚本有任何想法欢迎留言交流！"
 			echo "https://board.kejilion.pro"
-			echo "공개 비밀번호: kejilion.sh"
+			echo "公共密码: kejilion.sh"
 			  ;;
 
 		  66)
 
 			  root_use
-			  send_stats "원스톱 튜닝"
-			  echo "원스톱 시스템 튜닝"
+			  send_stats "一条龙调优"
+			  echo "一条龙系统调优"
 			  echo "------------------------------------------------"
-			  echo "다음 콘텐츠가 운영 및 최적화됩니다."
-			  echo "1. 시스템 업데이트 소스를 최적화하고 시스템을 최신 버전으로 업데이트하세요."
-			  echo "2. 시스템 정크 파일 정리"
-			  echo -e "3. 가상 메모리 설정${gl_huang}1G${gl_bai}"
-			  echo -e "4. SSH 포트 번호를 다음으로 설정합니다.${gl_huang}5522${gl_bai}"
-			  echo -e "5. SSH 무차별 대입 크래킹을 방어하기 위해 fall2ban을 시작하세요."
-			  echo -e "6. 모든 포트를 엽니다"
-			  echo -e "7. 켜다${gl_huang}BBR${gl_bai}가속하다"
-			  echo -e "8. 시간대를 다음으로 설정합니다.${gl_huang}상하이${gl_bai}"
-			  echo -e "9. DNS 주소 자동 최적화${gl_huang}해외: 1.1.1.1 8.8.8.8 국내: 223.5.5.5${gl_bai}"
-		  	  echo -e "10. 네트워크를 다음으로 설정합니다.${gl_huang}IPv4 우선순위${gl_bai}"
-			  echo -e "11. 기본 도구 설치${gl_huang}docker wget sudo tar unzip socat btop nano vim${gl_bai}"
-			  echo -e "12. Linux 시스템 커널 매개변수 최적화가 다음으로 전환됩니다.${gl_huang}균형 잡힌 최적화 모드${gl_bai}"
+			  echo "将对以下内容进行操作与优化"
+			  echo "1. 优化系统更新源，更新系统到最新"
+			  echo "2. 清理系统垃圾文件"
+			  echo -e "3. 设置虚拟内存${gl_huang}1G${gl_bai}"
+			  echo -e "4. 设置SSH端口号为${gl_huang}5522${gl_bai}"
+			  echo -e "5. 启动fail2ban防御SSH暴力破解"
+			  echo -e "6. 开放所有端口"
+			  echo -e "7. 켜다${gl_huang}BBR${gl_bai}加速"
+			  echo -e "8. 设置时区到${gl_huang}上海${gl_bai}"
+			  echo -e "9. 自动优化DNS地址${gl_huang}海外: 1.1.1.1 8.8.8.8  国内: 223.5.5.5 ${gl_bai}"
+		  	  echo -e "10. 设置网络为${gl_huang}ipv4优先${gl_bai}"
+			  echo -e "11. 安装基础工具${gl_huang}docker wget sudo tar unzip socat btop nano vim${gl_bai}"
+			  echo -e "12. Linux系统内核参数优化切换到${gl_huang}均衡优化模式${gl_bai}"
 			  echo "------------------------------------------------"
-			  read -e -p "원클릭 유지 관리를 원하시나요? (예/아니요):" choice
+			  read -e -p "确定一键保养吗？(Y/N): " choice
 
 			  case "$choice" in
 				[Yy])
 				  clear
-				  send_stats "원스톱 튜닝 시작"
+				  send_stats "一条龙调优启动"
 				  echo "------------------------------------------------"
 				  switch_mirror false false
 				  linux_update
-				  echo -e "[${gl_lv}OK${gl_bai}] 1/12. 시스템을 최신으로 업데이트하세요"
+				  echo -e "[${gl_lv}OK${gl_bai}] 1/12. 更新系统到最新"
 
 				  echo "------------------------------------------------"
 				  linux_clean
-				  echo -e "[${gl_lv}OK${gl_bai}] 2/12. 시스템 정크 파일 정리"
+				  echo -e "[${gl_lv}OK${gl_bai}] 2/12. 清理系统垃圾文件"
 
 				  echo "------------------------------------------------"
 				  add_swap 1024
-				  echo -e "[${gl_lv}OK${gl_bai}] 3/12. 가상 메모리 설정${gl_huang}1G${gl_bai}"
+				  echo -e "[${gl_lv}OK${gl_bai}] 3/12. 设置虚拟内存${gl_huang}1G${gl_bai}"
 
 				  echo "------------------------------------------------"
 				  local new_port=5522
 				  new_ssh_port
-				  echo -e "[${gl_lv}OK${gl_bai}] 4/12. SSH 포트 번호를 다음으로 설정합니다.${gl_huang}5522${gl_bai}"
+				  echo -e "[${gl_lv}OK${gl_bai}] 4/12. 设置SSH端口号为${gl_huang}5522${gl_bai}"
 				  echo "------------------------------------------------"
 				  f2b_install_sshd
 				  cd ~
 				  f2b_status
-				  echo -e "[${gl_lv}OK${gl_bai}] 5/12. SSH 무차별 대입 크래킹을 방어하려면 Fail2ban을 시작하세요."
+				  echo -e "[${gl_lv}OK${gl_bai}] 5/12. 启动fail2ban防御SSH暴力破解"
 
 				  echo "------------------------------------------------"
-				  echo -e "[${gl_lv}OK${gl_bai}] 6/12. 모든 포트 열기"
+				  echo -e "[${gl_lv}OK${gl_bai}] 6/12. 开放所有端口"
 
 				  echo "------------------------------------------------"
 				  bbr_on
-				  echo -e "[${gl_lv}OK${gl_bai}] 7/12. 열려 있는${gl_huang}BBR${gl_bai}가속하다"
+				  echo -e "[${gl_lv}OK${gl_bai}] 7/12. 열려 있는${gl_huang}BBR${gl_bai}加速"
 
 				  echo "------------------------------------------------"
 				  set_timedate Asia/Shanghai
-				  echo -e "[${gl_lv}OK${gl_bai}] 8/12. 시간대를 다음으로 설정하세요.${gl_huang}상하이${gl_bai}"
+				  echo -e "[${gl_lv}OK${gl_bai}] 8/12. 设置时区到${gl_huang}上海${gl_bai}"
 
 				  echo "------------------------------------------------"
 				  auto_optimize_dns
-				  echo -e "[${gl_lv}OK${gl_bai}] 9/12. DNS 주소 자동 최적화${gl_huang}${gl_bai}"
+				  echo -e "[${gl_lv}OK${gl_bai}] 9/12. 自动优化DNS地址${gl_huang}${gl_bai}"
 				  echo "------------------------------------------------"
 				  prefer_ipv4
-				  echo -e "[${gl_lv}OK${gl_bai}] 10/12. 네트워크를 다음으로 설정하세요.${gl_huang}IPv4 우선순위${gl_bai}}"
+				  echo -e "[${gl_lv}OK${gl_bai}] 10/12. 设置网络为${gl_huang}ipv4优先${gl_bai}}"
 
 				  echo "------------------------------------------------"
 				  install_docker
 				  install wget sudo tar unzip socat btop nano vim
-				  echo -e "[${gl_lv}OK${gl_bai}] 11/12. 기본 도구 설치${gl_huang}docker wget sudo tar unzip socat btop nano vim${gl_bai}"
+				  echo -e "[${gl_lv}OK${gl_bai}] 11/12. 安装基础工具${gl_huang}docker wget sudo tar unzip socat btop nano vim${gl_bai}"
 				  echo "------------------------------------------------"
 
 				  optimize_balanced
-				  echo -e "[${gl_lv}OK${gl_bai}] 12/12. Linux 시스템 커널 매개변수 최적화"
-				  echo -e "${gl_lv}원스톱 시스템 튜닝이 완료되었습니다${gl_bai}"
+				  echo -e "[${gl_lv}OK${gl_bai}] 12/12. Linux系统内核参数优化"
+				  echo -e "${gl_lv}一条龙系统调优已完成${gl_bai}"
 
 				  ;;
 				[Nn])
-				  echo "취소"
+				  echo "已取消"
 				  ;;
 				*)
-				  echo "선택이 잘못되었습니다. Y 또는 N을 입력하세요."
+				  echo "无效的选择，请输入 Y 或 N。"
 				  ;;
 			  esac
 
@@ -14495,7 +14495,7 @@ EOF
 
 		  99)
 			  clear
-			  send_stats "시스템을 다시 시작하세요"
+			  send_stats "重启系统"
 			  server_reboot
 			  ;;
 		  100)
@@ -14504,39 +14504,39 @@ EOF
 			while true; do
 			  clear
 			  if grep -q '^ENABLE_STATS="true"' /usr/local/bin/k > /dev/null 2>&1; then
-			  	local status_message="${gl_lv}데이터 수집${gl_bai}"
+			  	local status_message="${gl_lv}正在采集数据${gl_bai}"
 			  elif grep -q '^ENABLE_STATS="false"' /usr/local/bin/k > /dev/null 2>&1; then
-			  	local status_message="${gl_hui}컬렉션이 닫혔습니다.${gl_bai}"
+			  	local status_message="${gl_hui}采集已关闭${gl_bai}"
 			  else
-			  	local status_message="불확실한 상태"
+			  	local status_message="无法确定的状态"
 			  fi
 
-			  echo "개인 정보 보호 및 보안"
-			  echo "스크립트는 사용자의 기능 사용에 대한 데이터를 수집하고 스크립트 경험을 최적화하며 더 재미 있고 유용한 기능을 만듭니다."
-			  echo "스크립트 버전 번호, 사용 시간, 시스템 버전, CPU 아키텍처, 시스템 국가 및 사용된 기능 이름이 수집됩니다."
+			  echo "隐私与安全"
+			  echo "脚本将收集用户使用功能的数据，优化脚本体验，制作更多好玩好用的功能"
+			  echo "将收集脚本版本号，使用的时间，系统版本，CPU架构，机器所属国家和使用的功能的名称，"
 			  echo "------------------------------------------------"
-			  echo -e "현재 상태:$status_message"
+			  echo -e "当前状态: $status_message"
 			  echo "--------------------"
-			  echo "1. 수집 시작"
-			  echo "2. 수집 종료"
+			  echo "1. 开启采集"
+			  echo "2. 关闭采集"
 			  echo "--------------------"
-			  echo "0. 이전 메뉴로 돌아가기"
+			  echo "0. 返回上一级选单"
 			  echo "--------------------"
-			  read -e -p "선택사항을 입력하세요:" sub_choice
+			  read -e -p "请输入你的选择: " sub_choice
 			  case $sub_choice in
 				  1)
 					  cd ~
 					  sed -i 's/^ENABLE_STATS="false"/ENABLE_STATS="true"/' /usr/local/bin/k
 					  sed -i 's/^ENABLE_STATS="false"/ENABLE_STATS="true"/' ~/kejilion.sh
-					  echo "수집이 시작되었습니다"
+					  echo "已开启采集"
 					  send_stats "隐私与安全已开启采集"
 					  ;;
 				  2)
 					  cd ~
 					  sed -i 's/^ENABLE_STATS="true"/ENABLE_STATS="false"/' /usr/local/bin/k
 					  sed -i 's/^ENABLE_STATS="true"/ENABLE_STATS="false"/' ~/kejilion.sh
-					  echo "컬렉션이 닫혔습니다."
-					  send_stats "개인정보 보호 및 보안 수집이 사용 중지되었습니다."
+					  echo "已关闭采集"
+					  send_stats "隐私与安全已关闭采集"
 					  ;;
 				  *)
 					  break
@@ -14552,11 +14552,11 @@ EOF
 
 		  102)
 			  clear
-			  send_stats "기술 사자 스크립트 제거"
-			  echo "기술 사자 스크립트 제거"
+			  send_stats "卸载科技lion脚本"
+			  echo "卸载科技lion脚本"
 			  echo "------------------------------------------------"
 			  echo "kejilion 스크립트는 다른 기능에 영향을 주지 않고 완전히 제거됩니다."
-			  read -e -p "계속하시겠습니까? (예/아니요):" choice
+			  read -e -p "确定继续吗？(Y/N): " choice
 
 			  case "$choice" in
 				[Yy])
@@ -14570,10 +14570,10 @@ EOF
 				  exit
 				  ;;
 				[Nn])
-				  echo "취소"
+				  echo "已取消"
 				  ;;
 				*)
-				  echo "선택이 잘못되었습니다. Y 또는 N을 입력하세요."
+				  echo "无效的选择，请输入 Y 或 N。"
 				  ;;
 			  esac
 			  ;;
@@ -14583,7 +14583,7 @@ EOF
 
 			  ;;
 		  *)
-			  echo "입력이 잘못되었습니다!"
+			  echo "无效的输入!"
 			  ;;
 	  esac
 	  break_end
@@ -14606,27 +14606,27 @@ linux_file() {
 		clear
 		echo "파일 관리자"
 		echo "------------------------"
-		echo "현재 경로"
+		echo "当前路径"
 		pwd
 		echo "------------------------"
 		ls --color=auto -x
 		echo "------------------------"
-		echo "1. 디렉터리 입력 2. 디렉터리 생성 3. 디렉터리 권한 수정 4. 디렉터리 이름 바꾸기"
+		echo "1.  进入目录           2.  创建目录             3.  修改目录权限         4.  重命名目录"
 		echo "5. 디렉토리 삭제 6. 이전 메뉴 디렉토리로 복귀"
 		echo "------------------------"
 		echo "11. 创建文件           12. 编辑文件             13. 修改文件权限         14. 重命名文件"
-		echo "15. 파일 삭제"
+		echo "15. 删除文件"
 		echo "------------------------"
-		echo "21. 파일 디렉터리 압축 22. 파일 디렉터리 압축 풀기 23. 파일 디렉터리 이동 24. 파일 디렉터리 복사"
-		echo "25. 다른 서버로 파일 전송"
+		echo "21. 压缩文件目录       22. 解压文件目录         23. 移动文件目录         24. 复制文件目录"
+		echo "25. 传文件至其他服务器"
 		echo "------------------------"
-		echo "0. 이전 메뉴로 돌아가기"
+		echo "0.  返回上一级选单"
 		echo "------------------------"
-		read -e -p "선택사항을 입력하세요:" Limiting
+		read -e -p "请输入你的选择: " Limiting
 
 		case "$Limiting" in
 			1)  # 进入目录
-				read -e -p "디렉토리 이름을 입력하십시오:" dirname
+				read -e -p "请输入目录名: " dirname
 				cd "$dirname" 2>/dev/null || echo "디렉토리에 들어갈 수 없습니다"
 				send_stats "디렉토리 입력"
 				;;
@@ -14658,8 +14658,8 @@ linux_file() {
 				;;
 			11) # 创建文件
 				read -e -p "생성할 파일 이름을 입력하세요:" filename
-				touch "$filename" && echo "파일이 생성되었습니다." || echo "创建失败"
-				send_stats "파일 생성"
+				touch "$filename" && echo "파일이 생성되었습니다." || echo "생성 실패"
+				send_stats "创建文件"
 				;;
 			12) # 编辑文件
 				read -e -p "편집할 파일 이름을 입력하십시오:" filename
@@ -14721,7 +14721,7 @@ linux_file() {
 				read -e -p "복사할 파일 또는 디렉터리 경로를 입력하세요." src_path
 				if [ ! -e "$src_path" ]; then
 					echo "오류: 파일 또는 디렉터리가 존재하지 않습니다."
-					send_stats "파일 또는 디렉터리를 복사하지 못했습니다. 파일 또는 디렉터리가 존재하지 않습니다."
+					send_stats "파일 또는 디렉터리 복사 실패: 파일 또는 디렉터리가 존재하지 않습니다."
 					continue
 				fi
 
@@ -14764,14 +14764,14 @@ linux_file() {
 					continue
 				fi
 
-				read -e -p "로그인 포트(기본값 22)를 입력하세요." remote_port
+				read -e -p "请输入登录端口 (默认22): " remote_port
 				remote_port=${remote_port:-22}
 
-				# 알려진 호스트에 대한 이전 항목 지우기
+				# 清除已知主机的旧条目
 				ssh-keygen -f "/root/.ssh/known_hosts" -R "$remote_ip"
 				sleep 2  # 等待时间
 
-				# scp를 사용하여 파일 전송
+				# 使用scp传输文件
 				scp -P "$remote_port" -o StrictHostKeyChecking=no "$file_to_transfer" "$remote_user@$remote_ip:/home/" <<EOF
 $remote_password
 EOF
@@ -14780,7 +14780,7 @@ EOF
 					echo "파일이 원격 서버 홈 디렉터리로 전송되었습니다."
 					send_stats "파일 전송 성공"
 				else
-					echo "파일 전송에 실패했습니다."
+					echo "文件传送失败。"
 					send_stats "파일 전송 실패"
 				fi
 
@@ -14794,7 +14794,7 @@ EOF
 				break
 				;;
 			*)  # 处理无效输入
-				echo "선택이 잘못되었습니다. 다시 입력해 주세요."
+				echo "无效的选择，请重新输入"
 				send_stats "잘못된 선택"
 				;;
 		esac
@@ -14824,7 +14824,7 @@ run_commands_on_servers() {
 	# 추출된 정보를 배열로 변환
 	IFS=$'\n' read -r -d '' -a SERVER_ARRAY <<< "$SERVERS"
 
-	# 서버를 탐색하고 명령을 실행합니다.
+	# 遍历服务器并执行命令
 	for ((i=0; i<${#SERVER_ARRAY[@]}; i+=5)); do
 		local name=${SERVER_ARRAY[i]}
 		local hostname=${SERVER_ARRAY[i+1]}
@@ -14832,7 +14832,7 @@ run_commands_on_servers() {
 		local username=${SERVER_ARRAY[i+3]}
 		local password=${SERVER_ARRAY[i+4]}
 		echo
-		echo -e "${gl_huang}연결하다$name ($hostname)...${gl_bai}"
+		echo -e "${gl_huang}연결 대상$name ($hostname)...${gl_bai}"
 		# sshpass -p "$password" ssh -o StrictHostKeyChecking=no "$username@$hostname" -p "$port" "$1"
 		sshpass -p "$password" ssh -t -o StrictHostKeyChecking=no "$username@$hostname" -p "$port" "$1"
 	done
@@ -14854,13 +14854,13 @@ fi
 
 while true; do
 	  clear
-	  send_stats "클러스터 제어 센터"
+	  send_stats "集群控制中心"
 	  echo "서버 클러스터 제어"
 	  cat ~/cluster/servers.py
 	  echo
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
 	  echo -e "${gl_kjlan}서버 목록 관리${gl_bai}"
-	  echo -e "${gl_kjlan}1.  ${gl_bai}서버 추가${gl_kjlan}2.  ${gl_bai}서버 삭제${gl_kjlan}3.  ${gl_bai}서버 편집"
+	  echo -e "${gl_kjlan}1.  ${gl_bai}添加服务器               ${gl_kjlan}2.  ${gl_bai}删除服务器            ${gl_kjlan}3.  ${gl_bai}서버 편집"
 	  echo -e "${gl_kjlan}4.  ${gl_bai}백업 클러스터${gl_kjlan}5.  ${gl_bai}클러스터 복원"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
 	  echo -e "${gl_kjlan}일괄적으로 작업 실행${gl_bai}"
@@ -14868,7 +14868,7 @@ while true; do
 	  echo -e "${gl_kjlan}14. ${gl_bai}도커 설치${gl_kjlan}15. ${gl_bai}BBR3 설치${gl_kjlan}16. ${gl_bai}1G 가상 메모리 설정"
 	  echo -e "${gl_kjlan}17. ${gl_bai}시간대를 상하이로 설정${gl_kjlan}18. ${gl_bai}모든 포트 열기${gl_kjlan}51. ${gl_bai}맞춤 지침"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
-	  echo -e "${gl_kjlan}0.  ${gl_bai}메인 메뉴로 돌아가기"
+	  echo -e "${gl_kjlan}0.  ${gl_bai}返回主菜单"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
 	  read -e -p "선택사항을 입력하세요:" sub_choice
 
@@ -14876,10 +14876,10 @@ while true; do
 		  1)
 			  send_stats "클러스터 서버 추가"
 			  read -e -p "서버 이름:" server_name
-			  read -e -p "서버 IP:" server_ip
-			  read -e -p "서버 포트(22):" server_port
+			  read -e -p "服务器IP: " server_ip
+			  read -e -p "服务器端口（22）: " server_port
 			  local server_port=${server_port:-22}
-			  read -e -p "서버 사용자 이름(루트):" server_username
+			  read -e -p "服务器用户名（root）: " server_username
 			  local server_username=${server_username:-root}
 			  read -e -p "서버 사용자 비밀번호:" server_password
 
@@ -14888,7 +14888,7 @@ while true; do
 			  ;;
 		  2)
 			  send_stats "클러스터 서버 삭제"
-			  read -e -p "삭제할 키워드를 입력하세요:" rmserver
+			  read -e -p "请输入需要删除的关键字: " rmserver
 			  sed -i "/$rmserver/d" ~/cluster/servers.py
 			  ;;
 		  3)
@@ -14899,7 +14899,7 @@ while true; do
 
 		  4)
 			  clear
-			  send_stats "백업 클러스터"
+			  send_stats "备份集群"
 			  echo -e "바꿔주세요${gl_huang}/root/cluster/servers.py${gl_bai}파일을 다운로드하고 백업을 완료하세요!"
 			  break_end
 			  ;;
@@ -14981,25 +14981,25 @@ echo -e "${gl_lan}DMIT 분기당 $28 US CN2GIA 1 코어 2G 메모리 20G 하드 
 echo -e "${gl_bai}URL: https://www.dmit.io/aff.php?aff=4966&pid=100${gl_bai}"
 echo "------------------------"
 echo -e "${gl_zi}V.PS 월 6.9달러 도쿄 소프트뱅크 2코어 1G 메모리 20G 하드 드라이브 월 1T 트래픽${gl_bai}"
-echo -e "${gl_bai}URL: https://vps.hosting/cart/tokyo-cloud-kvm-vps/?id=148&?affid=1355&?affid=1355${gl_bai}"
+echo -e "${gl_bai}网址: https://vps.hosting/cart/tokyo-cloud-kvm-vps/?id=148&?affid=1355&?affid=1355${gl_bai}"
 echo "------------------------"
-echo -e "${gl_kjlan}더 인기 있는 VPS 거래${gl_bai}"
-echo -e "${gl_bai}홈페이지: https://kejilion.pro/topvps/${gl_bai}"
+echo -e "${gl_kjlan}VPS更多热门优惠${gl_bai}"
+echo -e "${gl_bai}网址: https://kejilion.pro/topvps/${gl_bai}"
 echo "------------------------"
 echo ""
-echo -e "도메인 이름 할인"
+echo -e "域名优惠"
 echo "------------------------"
-echo -e "${gl_lan}GNAME $8.8 첫해 COM 도메인 이름 $6.68 첫해 CC 도메인 이름${gl_bai}"
+echo -e "${gl_lan}GNAME 8.8刀首年COM域名 6.68刀首年CC域名${gl_bai}"
 echo -e "${gl_bai}웹사이트: https://www.gname.com/register?tt=86836&ttcode=KEJILION86836&ttbj=sh${gl_bai}"
 echo "------------------------"
 echo ""
-echo -e "기술 사자 주변기기"
+echo -e "科技lion周边"
 echo "------------------------"
-echo -e "${gl_kjlan}스테이션 B:${gl_bai}https://b23.tv/2mqnQyh              ${gl_kjlan}오일 파이프:${gl_bai}https://www.youtube.com/@kejilion${gl_bai}"
-echo -e "${gl_kjlan}공식 웹사이트:${gl_bai}https://kejilion.pro/              ${gl_kjlan}항해:${gl_bai}https://dh.kejilion.pro/${gl_bai}"
-echo -e "${gl_kjlan}블로그:${gl_bai}https://blog.kejilion.pro/         ${gl_kjlan}소프트웨어 센터:${gl_bai}https://app.kejilion.pro/${gl_bai}"
+echo -e "${gl_kjlan}스테이션 B:${gl_bai}https://b23.tv/2mqnQyh              ${gl_kjlan}油管: ${gl_bai}https://www.youtube.com/@kejilion${gl_bai}"
+echo -e "${gl_kjlan}공식 웹사이트:${gl_bai}https://kejilion.pro/              ${gl_kjlan}导航: ${gl_bai}https://dh.kejilion.pro/${gl_bai}"
+echo -e "${gl_kjlan}블로그:${gl_bai}https://blog.kejilion.pro/         ${gl_kjlan}软件中心: ${gl_bai}https://app.kejilion.pro/${gl_bai}"
 echo "------------------------"
-echo -e "${gl_kjlan}스크립트 공식 웹사이트:${gl_bai}https://kejilion.sh            ${gl_kjlan}GitHub 주소:${gl_bai}https://github.com/kejilion/sh${gl_bai}"
+echo -e "${gl_kjlan}脚本官网: ${gl_bai}https://kejilion.sh            ${gl_kjlan}GitHub地址: ${gl_bai}https://github.com/kejilion/sh${gl_bai}"
 echo "------------------------"
 echo ""
 }
@@ -15011,12 +15011,12 @@ games_server_tools() {
 
 	while true; do
 	  clear
-	  echo -e "게임 서버 오프닝 스크립트 모음"
+	  echo -e "游戏开服脚本合集"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}1. ${gl_bai}Eudemons Parlu 서버 오픈 스크립트"
+	  echo -e "${gl_kjlan}1. ${gl_bai}幻兽帕鲁开服脚本"
 	  echo -e "${gl_kjlan}2. ${gl_bai}Minecraft 서버 열기 스크립트"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}0. ${gl_bai}메인 메뉴로 돌아가기"
+	  echo -e "${gl_kjlan}0. ${gl_bai}返回主菜单"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
 	  read -e -p "선택사항을 입력하세요:" sub_choice
 
@@ -15026,7 +15026,7 @@ games_server_tools() {
 			 curl -sS -O ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/palworld.sh ; chmod +x palworld.sh ; ./palworld.sh
 			 exit
 			 ;;
-		  2) send_stats "Minecraft 서버 열기 스크립트" ; cd ~
+		  2) send_stats "我的世界开服脚本" ; cd ~
 			 curl -sS -O ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/mc.sh ; chmod +x mc.sh ; ./mc.sh
 			 exit
 			 ;;
@@ -15036,7 +15036,7 @@ games_server_tools() {
 			;;
 
 		  *)
-			echo "입력이 잘못되었습니다!"
+			echo "无效的输入!"
 			;;
 	  esac
 	  break_end
@@ -15068,24 +15068,24 @@ games_server_tools() {
 
 kejilion_update() {
 
-send_stats "스크립트 업데이트"
+send_stats "脚本更新"
 cd ~
 while true; do
 	clear
-	echo "변경 로그"
+	echo "更新日志"
 	echo "------------------------"
-	echo "모든 로그:${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/kejilion_sh_log.txt"
+	echo "全部日志: ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/kejilion_sh_log.txt"
 	echo "------------------------"
 
 	curl -s ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/kejilion_sh_log.txt | tail -n 30
 	local sh_v_new=$(curl -s ${gh_proxy}raw.githubusercontent.com/kejilion/sh/main/kejilion.sh | grep -o 'sh_v="[0-9.]*"' | cut -d '"' -f 2)
 
 	if [ "$sh_v" = "$sh_v_new" ]; then
-		echo -e "${gl_lv}이미 최신 버전을 사용하고 있습니다!${gl_huang}v$sh_v${gl_bai}"
-		send_stats "스크립트가 이미 최신 상태이므로 업데이트할 필요가 없습니다."
+		echo -e "${gl_lv}你已经是最新版本！${gl_huang}v$sh_v${gl_bai}"
+		send_stats "脚本已经最新了，无需更新"
 	else
-		echo "새 버전이 발견되었습니다!"
-		echo -e "현재 버전 v$sh_v최신 버전${gl_huang}v$sh_v_new${gl_bai}"
+		echo "发现新版本！"
+		echo -e "当前版本 v$sh_v최신 버전${gl_huang}v$sh_v_new${gl_bai}"
 	fi
 
 
@@ -15094,15 +15094,15 @@ while true; do
 
 	if [ -n "$existing_cron" ]; then
 		echo "------------------------"
-		echo -e "${gl_lv}자동 업데이트가 켜져 있고 매일 새벽 2시에 스크립트가 자동으로 업데이트됩니다!${gl_bai}"
+		echo -e "${gl_lv}自动更新已开启，每天凌晨2点脚本会自动更新！${gl_bai}"
 	fi
 
 	echo "------------------------"
-	echo "1. 지금 업데이트 2. 자동 업데이트 켜기 3. 자동 업데이트 끄기"
+	echo "1. 现在更新            2. 开启自动更新            3. 关闭自动更新"
 	echo "------------------------"
-	echo "0. 메인 메뉴로 돌아가기"
+	echo "0. 返回主菜单"
 	echo "------------------------"
-	read -e -p "선택사항을 입력하세요:" choice
+	read -e -p "请输入你的选择: " choice
 	case "$choice" in
 		1)
 			clear
@@ -15116,8 +15116,8 @@ while true; do
 			CheckFirstRun_true
 			yinsiyuanquan2
 			cp -f ~/kejilion.sh /usr/local/bin/k > /dev/null 2>&1
-			echo -e "${gl_lv}스크립트가 최신 버전으로 업데이트되었습니다!${gl_huang}v$sh_v_new${gl_bai}"
-			send_stats "스크립트가 최신 상태입니다.$sh_v_new"
+			echo -e "${gl_lv}脚本已更新到最新版本！${gl_huang}v$sh_v_new${gl_bai}"
+			send_stats "脚本已经最新$sh_v_new"
 			break_end
 			~/kejilion.sh
 			exit
@@ -15137,15 +15137,15 @@ while true; do
 			(crontab -l | grep -v "kejilion.sh") | crontab -
 			# (crontab -l 2>/dev/null; echo "0 2 * * * bash -c \"$SH_Update_task\"") | crontab -
 			(crontab -l 2>/dev/null; echo "$(shuf -i 0-59 -n 1) 2 * * * bash -c \"$SH_Update_task\"") | crontab -
-			echo -e "${gl_lv}자동 업데이트가 켜져 있고 매일 새벽 2시에 스크립트가 자동으로 업데이트됩니다!${gl_bai}"
+			echo -e "${gl_lv}自动更新已开启，每天凌晨2点脚本会自动更新！${gl_bai}"
 			send_stats "开启脚本自动更新"
 			break_end
 			;;
 		3)
 			clear
 			(crontab -l | grep -v "kejilion.sh") | crontab -
-			echo -e "${gl_lv}자동 업데이트가 꺼졌습니다${gl_bai}"
-			send_stats "자동 스크립트 업데이트 끄기"
+			echo -e "${gl_lv}自动更新已关闭${gl_bai}"
+			send_stats "关闭脚本自动更新"
 			break_end
 			;;
 		*)
@@ -15167,40 +15167,40 @@ echo -e "${gl_kjlan}"
 echo "╦╔═╔═╗ ╦╦╦  ╦╔═╗╔╗╔ ╔═╗╦ ╦"
 echo "╠╩╗║╣  ║║║  ║║ ║║║║ ╚═╗╠═╣"
 echo "╩ ╩╚═╝╚╝╩╩═╝╩╚═╝╝╚╝o╚═╝╩ ╩"
-echo -e "기술 사자 스크립트 도구 상자 v$sh_v"
-echo -e "명령줄 입력${gl_huang}k${gl_kjlan}빠른 시작 스크립트${gl_bai}"
+echo -e "科技lion脚本工具箱 v$sh_v"
+echo -e "命令行输入${gl_huang}k${gl_kjlan}可快速启动脚本${gl_bai}"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
-echo -e "${gl_kjlan}1.   ${gl_bai}시스템 정보 쿼리"
-echo -e "${gl_kjlan}2.   ${gl_bai}시스템 업데이트"
-echo -e "${gl_kjlan}3.   ${gl_bai}시스템 정리"
-echo -e "${gl_kjlan}4.   ${gl_bai}기본 도구"
-echo -e "${gl_kjlan}5.   ${gl_bai}BBR 관리"
+echo -e "${gl_kjlan}1.   ${gl_bai}系统信息查询"
+echo -e "${gl_kjlan}2.   ${gl_bai}系统更新"
+echo -e "${gl_kjlan}3.   ${gl_bai}系统清理"
+echo -e "${gl_kjlan}4.   ${gl_bai}基础工具"
+echo -e "${gl_kjlan}5.   ${gl_bai}BBR管理"
 echo -e "${gl_kjlan}6.   ${gl_bai}도커 관리"
-echo -e "${gl_kjlan}7.   ${gl_bai}워프 관리"
-echo -e "${gl_kjlan}8.   ${gl_bai}테스트 스크립트 수집"
-echo -e "${gl_kjlan}9.   ${gl_bai}Oracle Cloud 스크립트 컬렉션"
-echo -e "${gl_huang}10.  ${gl_bai}LDNMP 웹사이트 구축"
-echo -e "${gl_kjlan}11.  ${gl_bai}응용 시장"
-echo -e "${gl_kjlan}12.  ${gl_bai}백엔드 작업공간"
-echo -e "${gl_kjlan}13.  ${gl_bai}시스템 도구"
-echo -e "${gl_kjlan}14.  ${gl_bai}서버 클러스터 제어"
-echo -e "${gl_kjlan}15.  ${gl_bai}광고 칼럼"
-echo -e "${gl_kjlan}16.  ${gl_bai}게임 서버 오프닝 스크립트 모음"
+echo -e "${gl_kjlan}7.   ${gl_bai}WARP管理"
+echo -e "${gl_kjlan}8.   ${gl_bai}测试脚本合集"
+echo -e "${gl_kjlan}9.   ${gl_bai}甲骨文云脚本合集"
+echo -e "${gl_huang}10.  ${gl_bai}LDNMP建站"
+echo -e "${gl_kjlan}11.  ${gl_bai}应用市场"
+echo -e "${gl_kjlan}12.  ${gl_bai}后台工作区"
+echo -e "${gl_kjlan}13.  ${gl_bai}系统工具"
+echo -e "${gl_kjlan}14.  ${gl_bai}服务器集群控制"
+echo -e "${gl_kjlan}15.  ${gl_bai}广告专栏"
+echo -e "${gl_kjlan}16.  ${gl_bai}游戏开服脚本合集"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
-echo -e "${gl_kjlan}00.  ${gl_bai}스크립트 업데이트"
+echo -e "${gl_kjlan}00.  ${gl_bai}脚本更新"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
-echo -e "${gl_kjlan}0.   ${gl_bai}스크립트 종료"
+echo -e "${gl_kjlan}0.   ${gl_bai}退出脚本"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
-read -e -p "선택사항을 입력하세요:" choice
+read -e -p "请输入你的选择: " choice
 
 case $choice in
   1) linux_info ;;
-  2) clear ; send_stats "시스템 업데이트" ; linux_update ;;
-  3) clear ; send_stats "시스템 정리" ; linux_clean ;;
+  2) clear ; send_stats "系统更新" ; linux_update ;;
+  3) clear ; send_stats "系统清理" ; linux_clean ;;
   4) linux_tools ;;
   5) linux_bbr ;;
   6) linux_docker ;;
-  7) clear ; send_stats "워프 관리" ; install wget
+  7) clear ; send_stats "warp管理" ; install wget
 	wget -N https://gitlab.com/fscarmen/warp/-/raw/main/menu.sh ; bash menu.sh [option] [lisence/url/token]
 	;;
   8) linux_test ;;
@@ -15214,7 +15214,7 @@ case $choice in
   16) games_server_tools ;;
   00) kejilion_update ;;
   0) clear ; exit ;;
-  *) echo "입력이 잘못되었습니다!" ;;
+  *) echo "无效的输入!" ;;
 esac
 	break_end
 done
@@ -15222,72 +15222,72 @@ done
 
 
 k_info() {
-send_stats "k 명령 참조 예"
+send_stats "k命令参考用例"
 echo "-------------------"
-echo "영상 소개: https://www.bilibili.com/video/BV1ib421E7it?t=0.1"
-echo "다음은 k 명령의 참조 사용 사례입니다."
-echo "시작 스크립트 k"
-echo "패키지 설치 k install nano wget | k 나노 wget 추가 | k는 nano wget을 설치합니다."
-echo "패키지 제거 k 제거 nano wget | k 델 나노 wget | k 나노 wget 제거 | k 나노 wget 제거"
-echo "시스템 k 업데이트 업데이트 | k 업데이트"
-echo "클린 시스템 정크 k 클린 | 케이 깨끗하다"
-echo "시스템 패널을 다시 설치하십시오. k dd | k 다시 설치하다"
-echo "bbr3 제어판 k bbr3 | kbbrv3"
-echo "커널 튜닝 패널 k nhyh | k 커널 최적화"
-echo "가상 메모리 k 스왑 2048 설정"
-echo "가상 시간대 설정 k 시간 아시아/상하이 | k 시간대 아시아/상하이"
-echo "시스템 휴지통 k 쓰레기 | khsz | k 휴지통"
-echo "시스템 백업 기능 k 백업 | k bf | k 백업"
-echo "SSH 원격 연결 도구 k SSH | k 원격 연결"
-echo "rsync 원격 동기화 도구 k rsync | k 원격 동기화"
-echo "하드 디스크 관리 도구 k 디스크 | k 하드 디스크 관리"
-echo "인트라넷 침투(서버) k frps"
-echo "인트라넷 침투(클라이언트) k frpc"
-echo "소프트웨어 시작 k start sshd | k sshd를 시작하세요"
-echo "소프트웨어 중지 k 중지 sshd | k sshd 중지"
-echo "소프트웨어 재시작 k 재시작 sshd | k sshd를 다시 시작하세요"
-echo "소프트웨어 상태 확인 k status sshd | k 상태 sshd"
-echo "k 도커 활성화 | k 자동 시작 도커 | k 소프트웨어를 부팅할 때 도커를 활성화합니다."
-echo "도메인 이름 인증서 신청 k SSL"
-echo "도메인 이름 인증서 만료 쿼리 k SSL ps"
-echo "도커 관리 플레인 k 도커"
-echo "docker 환경 설치 k docker 설치 |k docker 설치"
-echo "도커 컨테이너 관리 k 도커 ps |k 도커 컨테이너"
-echo "도커 이미지 관리 k docker img |k 도커 이미지"
-echo "LDNMP 사이트 관리 k web"
-echo "LDNMP 캐시 정리 k 웹 캐시"
-echo "WordPress k wp 설치 | k 워드프레스 | k wp xxx.com"
-echo "역방향 프록시 설치 k fd |k rp |k 역방향 프록시 |k fd xxx.com"
-echo "로드 밸런싱 설치 k loadbalance |k 로드 밸런싱"
-echo "L4 로드 밸런싱 설치 k 스트림 |k L4 로드 밸런싱"
-echo "방화벽 패널 k fhq |k 방화벽"
-echo "포트 k 열기 DKdk 8080 |k 포트 8080 열기"
-echo "k 포트 닫기 gbdk 7800 |k 포트 7800 닫기"
-echo "릴리스 IP k fxip 127.0.0.0/8 |k 릴리스 IP 127.0.0.0/8"
-echo "IP 차단 k zzip 177.5.25.36 |k IP 177.5.25.36 차단"
-echo "명령 즐겨찾기 k 즐겨찾기 | k 명령 즐겨찾기"
-echo "애플리케이션 시장관리 kapp"
-echo "신청번호의 빠른 관리 k app 26 | k 앱 1패널 | k 앱 npm"
-echo "Fail2ban 관리 k Fail2ban | 케이 F2B"
-echo "시스템 정보 표시 k 정보"
+echo "视频介绍: https://www.bilibili.com/video/BV1ib421E7it?t=0.1"
+echo "以下是k命令参考用例："
+echo "启动脚本            k"
+echo "安装软件包          k install nano wget | k add nano wget | k 安装 nano wget"
+echo "卸载软件包          k remove nano wget | k del nano wget | k uninstall nano wget | k 卸载 nano wget"
+echo "更新系统            k update | k 更新"
+echo "清理系统垃圾        k clean | k 清理"
+echo "重装系统面板        k dd | k 重装"
+echo "bbr3控制面板        k bbr3 | k bbrv3"
+echo "内核调优面板        k nhyh | k 内核优化"
+echo "设置虚拟内存        k swap 2048"
+echo "设置虚拟时区        k time Asia/Shanghai | k 时区 Asia/Shanghai"
+echo "系统回收站          k trash | k hsz | k 回收站"
+echo "系统备份功能        k backup | k bf | k 备份"
+echo "ssh远程连接工具     k ssh | k 远程连接"
+echo "rsync远程同步工具   k rsync | k 远程同步"
+echo "硬盘管理工具        k disk | k 硬盘管理"
+echo "内网穿透（服务端）  k frps"
+echo "内网穿透（客户端）  k frpc"
+echo "软件启动            k start sshd | k 启动 sshd "
+echo "软件停止            k stop sshd | k 停止 sshd "
+echo "软件重启            k restart sshd | k 重启 sshd "
+echo "软件状态查看        k status sshd | k 状态 sshd "
+echo "软件开机启动        k enable docker | k autostart docke | k 开机启动 docker "
+echo "域名证书申请        k ssl"
+echo "域名证书到期查询    k ssl ps"
+echo "docker管理平面      k docker"
+echo "docker环境安装      k docker install |k docker 安装"
+echo "docker容器管理      k docker ps |k docker 容器"
+echo "docker镜像管理      k docker img |k docker 镜像"
+echo "LDNMP站点管理       k web"
+echo "LDNMP缓存清理       k web cache"
+echo "安装WordPress       k wp |k wordpress |k wp xxx.com"
+echo "安装反向代理        k fd |k rp |k 反代 |k fd xxx.com"
+echo "安装负载均衡        k loadbalance |k 负载均衡"
+echo "安装L4负载均衡      k stream |k L4负载均衡"
+echo "防火墙面板          k fhq |k 防火墙"
+echo "开放端口            k dkdk 8080 |k 打开端口 8080"
+echo "关闭端口            k gbdk 7800 |k 关闭端口 7800"
+echo "放行IP              k fxip 127.0.0.0/8 |k 放行IP 127.0.0.0/8"
+echo "阻止IP              k zzip 177.5.25.36 |k 阻止IP 177.5.25.36"
+echo "命令收藏夹          k fav | k 命令收藏夹"
+echo "应用市场管理        k app"
+echo "应用编号快捷管理    k app 26 | k app 1panel | k app npm"
+echo "fail2ban管理        k fail2ban | k f2b"
+echo "显示系统信息        k info"
 }
 
 
 
 if [ "$#" -eq 0 ]; then
-	# 인수 없이 대화형 논리를 실행합니다.
+	# 如果没有参数，运行交互式逻辑
 	kejilion_sh
 else
-	# 매개변수가 있으면 해당 함수를 실행합니다.
+	# 如果有参数，执行相应函数
 	case $1 in
 		install|add|安装)
 			shift
-			send_stats "소프트웨어 설치"
+			send_stats "安装软件"
 			install "$@"
 			;;
 		remove|del|uninstall|卸载)
 			shift
-			send_stats "소프트웨어 제거"
+			send_stats "卸载软件"
 			remove "$@"
 			;;
 		update|更新)
@@ -15321,7 +15321,7 @@ else
 
 		rsync_run)
 			shift
-			send_stats "예약된 rsync 동기화"
+			send_stats "定时rsync同步"
 			run_task "$@"
 			;;
 
@@ -15340,7 +15340,7 @@ else
 	  		find_container_by_host_port "$port"
 	  		if [ -z "$docker_name" ]; then
 	  		  close_port "$port"
-			  echo "IP+포트가 서비스 접근을 차단했습니다."
+			  echo "已阻止IP+端口访问该服务"
 	  		else
 			  ip_address
 	  		  block_container_port "$docker_name" "$ipv4_address"
@@ -15358,13 +15358,13 @@ else
 
 		swap)
 			shift
-			send_stats "가상 메모리를 빠르게 설정하세요"
+			send_stats "快速设置虚拟内存"
 			add_swap "$@"
 			;;
 
 		time|时区)
 			shift
-			send_stats "시간대를 빠르게 설정"
+			send_stats "快速设置时区"
 			set_timedate "$@"
 			;;
 
@@ -15412,42 +15412,42 @@ else
 
 		status|状态)
 			shift
-			send_stats "소프트웨어 상태 확인"
+			send_stats "软件状态查看"
 			status "$@"
 			;;
 		start|启动)
 			shift
-			send_stats "소프트웨어 시작"
+			send_stats "软件启动"
 			start "$@"
 			;;
 		stop|停止)
 			shift
-			send_stats "소프트웨어 일시 중지"
+			send_stats "软件暂停"
 			stop "$@"
 			;;
 		restart|重启)
 			shift
-			send_stats "소프트웨어 재시작"
+			send_stats "软件重启"
 			restart "$@"
 			;;
 
 		enable|autostart|开机启动)
 			shift
-			send_stats "부팅 시 소프트웨어가 자동으로 시작됩니다."
+			send_stats "软件开机自启"
 			enable "$@"
 			;;
 
 		ssl)
 			shift
 			if [ "$1" = "ps" ]; then
-				send_stats "인증서 상태 보기"
+				send_stats "查看证书状态"
 				ssl_ps
 			elif [ -z "$1" ]; then
 				add_ssl
-				send_stats "빨리 자격증 신청하세요"
+				send_stats "快速申请证书"
 			elif [ -n "$1" ]; then
 				add_ssl "$1"
-				send_stats "빨리 자격증 신청하세요"
+				send_stats "快速申请证书"
 			else
 				k_info
 			fi
@@ -15457,15 +15457,15 @@ else
 			shift
 			case $1 in
 				install|安装)
-					send_stats "도커를 빠르게 설치하세요"
+					send_stats "快捷安装docker"
 					install_docker
 					;;
 				ps|容器)
-					send_stats "빠른 컨테이너 관리"
+					send_stats "快捷容器管理"
 					docker_ps
 					;;
 				img|镜像)
-					send_stats "빠른 이미지 관리"
+					send_stats "快捷镜像管理"
 					docker_image
 					;;
 				*)
@@ -15492,7 +15492,7 @@ else
 
 		app)
 			shift
-			send_stats "신청$@"
+			send_stats "应用$@"
 			linux_panel "$@"
 			;;
 
